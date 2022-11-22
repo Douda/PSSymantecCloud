@@ -6,7 +6,7 @@
     RootModule        = 'PSSymantecCloud.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.1-beta'
+    ModuleVersion     = '0.0.1'
 
     # ID used to uniquely identify this module
     GUID              = '473b9c18-f0aa-4fab-9efb-4fa0b4a38f2d'
@@ -38,7 +38,7 @@
             Tags                     = @('Symantec', 'Symantec Endpoint Protection', 'SEP')
 
             # A URL to the license for this module.
-            # LicenseUri = ''
+            LicenseUri               = 'https://github.com/Douda/PSSymantecCloud/blob/master/LICENSE'
 
             # A URL to the main website for this project.
             # ProjectUri = ''
