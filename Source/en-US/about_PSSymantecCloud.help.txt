@@ -1,0 +1,10 @@
+TOPIC
+    about_PSSymantecCloud
+
+SHORT DESCRIPTION
+    Common set of tools to interact with Symantec/Broadcom API for SEP Cloud
+
+EXAMPLES
+    PS C:\> Get-SepCloudPolicies
+
+    ...
