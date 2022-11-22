@@ -6,7 +6,7 @@
     RootModule        = 'PSSymantecCloud.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.0'
+    ModuleVersion     = '0.0.1-beta'
 
     # ID used to uniquely identify this module
     GUID              = '473b9c18-f0aa-4fab-9efb-4fa0b4a38f2d'
