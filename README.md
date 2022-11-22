@@ -1,4 +1,11 @@
-# {moduleName}
+# PSSymantecCloud
+
+## Overview
+This small project is a *work in progress* attempt to interat with the Symantec/Broadcom API to manage Symantec Endpoint Protection (SEP) Cloud
+
+It:
+- leverages the [Broadcom API documentation](https://apidocs.securitycloud.symantec.com/#/)
+- follows the [Module Builder Project](https://github.com/PoshCode/ModuleBuilder) folder structure for easy maintenance and versioning
 
 ## Requirements
 
