@@ -6,7 +6,7 @@
     RootModule        = 'PSSymantecCloud.psm1'
 
     # Version number of this module.
-    # ModuleVersion     = '0.0.0'
+    ModuleVersion     = '0.0.0'
 
     # ID used to uniquely identify this module
     GUID              = '473b9c18-f0aa-4fab-9efb-4fa0b4a38f2d'
@@ -28,7 +28,7 @@
         # Additional metadata used by PowerShellGet for publishing
         PSData = @{
             # Prerelease string should be here, so ModuleBuilder can set it
-            Prerelease   = ''
+            Prerelease   = 'beta'
 
             # Release Notes have to be here, so ModuleBuilder can update them
             ReleaseNotes = '
