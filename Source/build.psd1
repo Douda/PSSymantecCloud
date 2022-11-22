@@ -6,7 +6,7 @@
 # -----------------------------------------------------------------------------
 
 @{
-    Path = "{moduleName}.psd1"
+    Path                     = "PSSymantecCloud.psd1"
     VersionedOutputDirectory = $true
     CopyDirectories = @(
         'en-US'
