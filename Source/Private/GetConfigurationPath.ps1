@@ -1,9 +1,3 @@
-# ## Global variables
-# $Global:BaseURL = "api.sep.securitycloud.symantec.com"
-# $Global:SepCloudCreds = "$env:TEMP\SepCloudOAuthCredentials.xml"
-# $Global:SepCloudToken = "$env:TEMP\SepCloudToken.xml"
-# TODO convert global variables by using the function GetConfigurationPath instead
-
 function GetConfigurationPath {
     <#
         .SYNOPSIS
@@ -15,5 +9,5 @@ function GetConfigurationPath {
         SepCloudCreds = "$env:TEMP\SepCloudOAuthCredentials.xml"
         SepCloudToken = "$env:TEMP\SepCloudToken.xml"
     }
-    
+
 }
