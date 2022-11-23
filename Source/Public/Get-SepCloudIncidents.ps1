@@ -13,8 +13,8 @@ function Get-SepCloudIncidents {
         Test-MyTestFunction -Verbose
         Explanation of the function or its result. You can include multiple examples with additional .EXAMPLE lines
     #>
-    
-    
+
+
     param (
         # Opened incidents
         [Parameter()]
@@ -24,7 +24,28 @@ function Get-SepCloudIncidents {
         # Include events
         [Parameter()]
         [switch]
-        $Include_events
+        $Include_events,
+
+        # Custom query to run
+        [Parameter()]
+        [string]
+        $Query,
+
+        # Max limit of Incidents per query. Max 2000
+        [Parameter()]
+        [ValidateRange(1, 2000)]
+        [int]
+        $limit,
+
+        # Query date range Past 30 days
+        [Parameter()]
+        [switch]
+        $Past_30_Days,
+
+        # Query date range Past 7 days
+        [Parameter()]
+        [switch]
+        $Past_7_Days
     )
 
     # Init
@@ -37,7 +58,28 @@ function Get-SepCloudIncidents {
     if ($null -ne $Token) {
         # HTTP body content containing all the queries
         $Body = @{}
+
+        # Setting dates format
+        $obj_end_date = Get-Date -AsUTC
+        if ($past_30_Days -eq $true) {
+            $obj_start_date = $obj_end_date.AddDays(-30)
+        }
+        if ($past_7_Days -eq $true) {
+            $obj_start_date = $obj_end_date.AddDays(-7)
+        }
+        $end_date = Get-Date $obj_end_date -UFormat "%Y-%m-%dT%T.000+00:00"
+        $start_date = Get-Date $obj_start_date -UFormat "%Y-%m-%dT%T.000+00:00"
+        $Body.Add("start_date", $start_date)
+        $Body.Add("end_date", $end_date)
+
+
         # Iterating through all parameter and adding them to the HTTP body
+        if ($Query -ne "") {
+            $Body.Add("query", "$Query")
+        }
+        if ($limit -ne $null) {
+            $Body.Add("limit", $limit)
+        }
         if ($open -eq $true) {
             $Body.Add("status", "open")
         }
@@ -54,7 +96,7 @@ function Get-SepCloudIncidents {
         }
 
         try {
-            $Response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers -Body $Body_Json -UseBasicParsing 
+            $Response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers -Body $Body_Json -UseBasicParsing
             return $Response
         } catch {
             $StatusCode = $_.Exception.Response.StatusCode
