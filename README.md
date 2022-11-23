@@ -30,26 +30,38 @@ list of all your devices, currently connected considered "SECURE", "AT_RISK", or
 
 #### Incidents
 list of all your incidents, including all events, for the past 7 (or 30) days.
-`Get-SepCloudIncidents -Include_Events -Past_7_Days`
+```PowerShell
+Get-SepCloudIncidents -Include_Events -Past_7_Days
+```
 **Note: all data are stored for a maximum of 30 days**
 
 Get all opened incidents
-`Get-SepCloudIncidents -Open`
+```PowerShell
+Get-SepCloudIncidents -Open
+```
 
 Get a custom list of incidents based on a specific query, using supported Lucene query language. eg.
 Different incident states : 0 Unknown | 1 New | 2 In Progress | 3 On Hold | 4 Resolved | 5 Closed
-`Get-SepCloudIncidents -Query "(state_id: 4 OR state_id: 5 ) AND conclusion:"Malicious Activity""`
+```PowerShell
+Get-SepCloudIncidents -Query "(state_id: 4 OR state_id: 5 ) AND conclusion:"Malicious Activity""
+```
 
 #### Policies
 List of all policies
-`Get-SepCloudPolicies`
+```PowerShell
+Get-SepCloudPolicies
+```
 
 Get policy details for a specific version
-`Get-SepCloudPolicyDetails -Name "My Policy" -Version 5`
+```PowerShell
+Get-SepCloudPolicyDetails -Name "My Policy" -Version 5
+```
 **Note: By default, will output the latest version**
 
 Export "allow list" policy to a customized Excel sheet
-`Get-SepCloudPolicyDetails -Name "My Allow List Policy" | Export-SepCloudPolicyToExcel -Path "allow_list.xlsx"`
+```PowerShell
+Get-SepCloudPolicyDetails -Name "My Allow List Policy" | Export-SepCloudPolicyToExcel -Path "allow_list.xlsx"
+```
 
 
 # How to build this module
