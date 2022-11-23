@@ -1,5 +1,5 @@
 function Get-SepCloudPolicyDetails {
-    
+
     <# TODO finish Get-SepCloudPolicyDetails description
     .SYNOPSIS
         A short one-line action-based description, e.g. 'Tests if a function is valid'
@@ -13,9 +13,9 @@ function Get-SepCloudPolicyDetails {
         Test-MyTestFunction -Verbose
         Explanation of the function or its result. You can include multiple examples with additional .EXAMPLE lines
     #>
-    
-    
-    param (   
+
+
+    param (
         # Policy UUID
         [Parameter()]
         [string]
@@ -24,6 +24,7 @@ function Get-SepCloudPolicyDetails {
         # Policy version
         [Parameter()]
         [string]
+        [Alias("Version")]
         $Policy_Version,
 
         # Exact policy name
@@ -45,7 +46,7 @@ function Get-SepCloudPolicyDetails {
         # iterating through policy_name list if more than one obj
         foreach ($p in $Policy_Name) {
             # Get list of all SEP Cloud policies
-            $obj_policies = (Get-SepCloudPolices).policies 
+            $obj_policies = (Get-SepCloudPolices).policies
             $obj_policy = ($obj_policies | Where-Object { $_.name -eq "$p" })
 
             # Use specific version or by default latest
@@ -62,7 +63,7 @@ function Get-SepCloudPolicyDetails {
             $BaseURL = (GetConfigurationPath).BaseUrl
             $URI = 'https://' + $BaseURL + "/v1/policies/$Policy_UUID/versions/$Policy_Version"
             # Get token
-            $Token = Get-SEPCloudToken  
+            $Token = Get-SEPCloudToken
 
             if ($null -ne $Token) {
                 $Body = @{}
@@ -72,7 +73,7 @@ function Get-SepCloudPolicyDetails {
                     Authorization = $Token
                     Body          = $Body
                 }
-                $Resp = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing 
+                $Resp = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
                 $array_resp += $Resp
             }
         }
