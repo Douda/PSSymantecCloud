@@ -51,6 +51,7 @@ Get policy details for a specific version
 Export "allow list" policy to a customized Excel sheet
 `Get-SepCloudPolicyDetails -Name "My Allow List Policy" | Export-SepCloudPolicyToExcel -Path "allow_list.xlsx"`
 
+
 # How to build this module
 This module follows the [Module Builder Project](https://github.com/PoshCode/ModuleBuilder#the-module-builder-project) folder structure. 
 This means you will have to build this module with the module builder in order to use it.
