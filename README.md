@@ -22,18 +22,22 @@ Any command from this mordule will require a first client/secret input to genera
 
 ### Examples
 Test if your authentication against the API is successful
-`Test-SepCloudConnectivity`
+```PowerShell
+Test-SepCloudConnectivity
+```
 
 #### Devices
 list of all your devices, currently connected considered "SECURE", "AT_RISK", or "COMPROMISED"
-`Get-SepCloudDeviceList -Device_Status "AT_RISK" -Online` 
-
+```PowerShell
+Get-SepCloudDeviceList -Device_Status "AT_RISK" -Online
+```
 #### Incidents
 list of all your incidents, including all events, for the past 7 (or 30) days.
 ```PowerShell
 Get-SepCloudIncidents -Include_Events -Past_7_Days
 ```
-**Note: all data are stored for a maximum of 30 days**
+**Note**: all data are stored for a maximum of 30 days
+
 
 Get all opened incidents
 ```PowerShell
