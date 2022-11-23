@@ -35,13 +35,13 @@
             '
 
             # Tags applied to this module in online galleries.
-            Tags                     = @('Symantec', 'Symantec Endpoint Protection', 'SEP')
+            Tags                     = @('Symantec', 'Broadcom', 'SEP')
 
             # A URL to the license for this module.
             LicenseUri               = 'https://github.com/Douda/PSSymantecCloud/blob/master/LICENSE'
 
             # A URL to the main website for this project.
-            # ProjectUri = ''
+            ProjectUri               = 'https://github.com/Douda/PSSymantecCloud'
 
             # A URL to an icon representing this module.
             # IconUri = ''
