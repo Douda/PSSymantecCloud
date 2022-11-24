@@ -1,7 +1,12 @@
 function GetConfigurationPath {
     <#
-        .SYNOPSIS
-            returns an object with the BaseURL, SepCloudCreds, SepCloudToken full path
+    .SYNOPSIS
+        returns hashtable object with the BaseURL, SepCloudCreds, SepCloudToken full path
+    .DESCRIPTION
+    .INPUTS
+        None
+    .OUTPUTS
+        Hashtable
     #>
 
     @{

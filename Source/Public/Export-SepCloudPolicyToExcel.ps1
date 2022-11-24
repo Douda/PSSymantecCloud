@@ -26,7 +26,7 @@ function Export-SepCloudPolicyToExcel {
     <#
     Using as a template the following command
     $allow_list | ConvertTo-Json -Depth 100 | Out-File -FilePath "C:\Users\Douda\Documents\Amcor\Servers - Amcor Core Allow List Policy_v69.json"
-    Get-SepCloudPolicyDetails -Policy_UUID "5e867f84-5e23-421c-adfd-503511811b51" -Policy_version 69 | Convert-SepCloudPolicyToExcel -Path "C:\Amcor_local\test5.xlsx"
+    Get-SepCloudPolicyDetails -Policy_UUID "5e867f84-5e23-421c-adfd-XXXXXXXXXXXX" -Policy_version 9 | Convert-SepCloudPolicyToExcel -Path "C:\Amcor_local\test5.xlsx"
     Parsing the custom object to get the list of
     $obj_policy.features.configuration.applications
     $obj_policy.features.configuration.applications.processfile
