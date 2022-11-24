@@ -15,7 +15,9 @@ This module does:
 - run command `Test-SepCloudConnectivity`
 
 ## Usage
-The PSSymantecCloud module can either be built from source (See about this module) or used from the Powershell Gallery with `Install-Module PSSymantecCloud`
+2 ways to install this module :
+- the [Powershell Gallery](https://www.powershellgallery.com/packages/PSSymantecCloud/) with `Install-Module PSSymantecCloud`
+- Build it from sources See [about this module](##Building-your-module)
 
 ### Authentication
 Any command from this mordule will require a first client/secret input to generate in your [SEP Cloud console integration menu](https://sep.securitycloud.symantec.com/v2/integration/client-applications) that will be used for authentication and refreshing token
@@ -65,18 +67,6 @@ Get-SepCloudPolicyDetails -Name "My Policy" -Version 5
 Export "allow list" policy to a customized Excel sheet
 ```PowerShell
 Get-SepCloudPolicyDetails -Name "My Allow List Policy" | Export-SepCloudPolicyToExcel -Path "allow_list.xlsx"
-```
-
-
-# How to build this module
-This module follows the [Module Builder Project](https://github.com/PoshCode/ModuleBuilder#the-module-builder-project) folder structure. 
-This means you will have to build this module with the module builder in order to use it.
-
-
-## Requirements
-
-```posh
-Install-Script -Name Install-RequiredModule
 ```
 
 ## Building your module
