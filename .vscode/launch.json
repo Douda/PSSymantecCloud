@@ -8,6 +8,13 @@
             "name": "PowerShell: Interactive Session",
             "type": "PowerShell",
             "request": "launch"
+        },
+        {
+            "name": "PowerShell Launch Current File",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${file}",
+            "cwd": "${cwd}"
         }
     ]
 }
