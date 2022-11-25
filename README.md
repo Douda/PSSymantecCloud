@@ -55,7 +55,11 @@ Get-SepCloudIncidents -Query "(state_id: 4 OR state_id: 5 ) AND conclusion:"Mali
 #### Policies
 List of all policies
 ```PowerShell
-Get-SepCloudPolicies
+PS C:\> Get-SepCloudPolices
+
+total policies
+----- --------
+  111 {@{name=Block USB Device Control Policy; author=Aurelien Boumanne; policy_uid=59ab09bd...
 ```
 
 Get policy details for a specific version
