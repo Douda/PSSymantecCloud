@@ -2,7 +2,7 @@ function Get-SepCloudIncidents {
 
     <# TODO fill description for Get-SepCloudIncidents
     .SYNOPSIS
-        Get list of SEP Cloud incidents
+        Get list of SEP Cloud incidents. By default, shows opened incidents
     .DESCRIPTION
         Get list of SEP Cloud incidents. Using the LUCENE query syntax, you can customize which incidents to gather. More information : https://techdocs.broadcom.com/us/en/symantec-security-software/endpoint-security-and-management/endpoint-security/sescloud/Endpoint-Detection-and-Response/investigation-page-overview-v134374740-d38e87486/Cloud-Database-Search/query-and-filter-operators-by-data-type-v134689952-d38e88796.html
     .PARAMETER Open
@@ -11,8 +11,6 @@ function Get-SepCloudIncidents {
         Includes every events that both are part of the context & triggered incident events
     .PARAMETER Query
         Type your customer Lucene query to pass to the API
-    .PARAMETER limit
-        Limit of incidents returned by query. max 2000 which is the default
     .OUTPUTS
         PSObject containing all SEP incidents
     .EXAMPLE
@@ -20,12 +18,14 @@ function Get-SepCloudIncidents {
     .EXAMPLE
         Get-SepCloudIncidents -Query "state_id: [0 TO 5]"
         This query a list of every possible incidents (opened, closed and with "Unknown" status)
+    .LINK
+        https://github.com/Douda/PSSymantecCloud
     #>
-
+    [CmdletBinding(DefaultParameterSetName = 'QueryOpen')]
     param (
         # Opened incidents
         [Parameter(
-            ParameterSetName = "QueryDate"
+            ParameterSetName = "QueryOpen"
         )]
         [switch]
         $Open,
@@ -40,67 +40,77 @@ function Get-SepCloudIncidents {
             ParameterSetName = "QueryCustom"
         )]
         [string]
-        $Query,
+        $Query
 
-        # Max limit of Incidents per query. Max 2000
-        [Parameter()]
-        [ValidateRange(1, 2000)]
-        [int]
-        $limit = 2000
     )
+    begin {
+        # Init
+        $BaseURL = (GetConfigurationPath).BaseUrl
+        $URI_Tokens = 'https://' + $BaseURL + "/v1/incidents"
+        $ArrayResponse = @()
+    }
 
-    # Init
-    $BaseURL = (GetConfigurationPath).BaseUrl
-    $URI_Tokens = 'https://' + $BaseURL + "/v1/incidents"
+    process {
+        # Get token
+        $Token = Get-SEPCloudToken
 
-    # Get token
-    $Token = Get-SEPCloudToken
+        if ($null -ne $Token) {
+            # HTTP body content containing all the queries
+            $Body = @{}
 
-    if ($null -ne $Token) {
-        # HTTP body content containing all the queries
-        $Body = @{}
+            # Settings dates
+            $end_date = Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK"
+            $start_date = ((Get-Date).addDays(-29)  | Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK")
+            $Body.Add("start_date", $start_date)
+            $Body.Add("end_date", $end_date)
+            $Body_Json = ConvertTo-Json $Body
 
-        # Settings dates
-        $obj_end_date = Get-Date -AsUTC
-        $obj_start_date = $obj_end_date.AddDays(-29)
-        $end_date = Get-Date $obj_end_date -UFormat "%Y-%m-%dT%T.000+00:00"
-        $start_date = Get-Date $obj_start_date -UFormat "%Y-%m-%dT%T.000+00:00"
-        $Body.Add("start_date", $start_date)
-        $Body.Add("end_date", $end_date)
-
-        # Iterating through all parameter and adding them to the HTTP body
-        switch ($PSBoundParameters.Keys) {
-            'Query' {
-                $Body.Add("query", "$Query")
+            # Iterating through all parameter and adding them to the HTTP body
+            switch ($PSBoundParameters.Keys) {
+                'Query' {
+                    $Body.Add("query", "$Query")
+                }
+                'Open' {
+                    $Body.Add("query", "state_id: [0 TO 3]")
+                }
+                'Include_events' {
+                    $Body.Add("include_events", "true")
+                }
+                Default {
+                }
             }
-            'limit' {
-                $Body.Add("limit", $limit)
+
+            $Headers = @{
+                Host           = $BaseURL
+                Accept         = "application/json"
+                "Content-Type" = "application/json"
+                Authorization  = $Token
             }
-            'Open' {
-                $Body.Add("query", "state_id: [0 TO 3]")
-            }
-            'Include_events' {
-                $Body.Add("include_events", "true")
-            }
-            Default {
+
+            try {
+                $Response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers -Body $Body_Json -UseBasicParsing
+                $ArrayResponse += $Response
+                if ($null -ne $Response.next) {
+                    <# If pagination #>
+                    do {
+                        # change the "next" offset for next query
+                        $Body.Remove("next")
+                        $Body.Add("next", $Response.next)
+                        $Body_Json = ConvertTo-Json $Body
+                        # Run query & add it to the array
+                        $Response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers -Body $Body_Json -UseBasicParsing
+                        $ArrayResponse += $Response
+                    } until (
+                        ($null -eq $Response.next)
+                    )
+                }
+            } catch {
+                $StatusCode = $_
+                $StatusCode
             }
         }
-        $Body_Json = ConvertTo-Json $Body
-
-        $Headers = @{
-            Host           = $BaseURL
-            Accept         = "application/json"
-            "Content-Type" = "application/json"
-            Authorization  = $Token
-        }
-        # TODO add pagination like with Get-SepCloudEvents
-        try {
-            $Response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers -Body $Body_Json -UseBasicParsing
-            return $Response
-        } catch {
-            $StatusCode = $_.Exception.Response.StatusCode
-            $StatusCode
-        }
-
+    }
+    end {
+        return $ArrayResponse.incidents
     }
 }
