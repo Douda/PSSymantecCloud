@@ -52,7 +52,6 @@ function Get-SepCloudEvents {
             $start_date = ((Get-Date).addDays(-29) | Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK")
             $Body.Add("start_date", $start_date)
             $Body.Add("end_date", $end_date)
-            $Body_Json = ConvertTo-Json $Body
 
             # Iterating through all parameter and adding them to the HTTP body
             switch ($PSBoundParameters.Keys) {
@@ -65,6 +64,9 @@ function Get-SepCloudEvents {
                 Default {
                 }
             }
+
+            # Convert body to Json after adding potential query with parameters
+            $Body_Json = ConvertTo-Json $Body
 
             $Headers = @{
                 Host           = $BaseURL
@@ -98,6 +100,6 @@ function Get-SepCloudEvents {
     }
 
     end {
-        return $ArrayResponse
+        return $ArrayResponse.events
     }
 }
