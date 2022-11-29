@@ -81,7 +81,7 @@ To build the module, you need to have [ModuleBuilder](https://www.powershellgall
 2. Get the source 
  ```powershell
  git clone https://github.com/Douda/PSSymantecCloud
-cd Modulebuilder
+cd PSSymantecCloud
 ```
 
 3. run `Install-RequiredModule`
