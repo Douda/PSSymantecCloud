@@ -58,18 +58,9 @@ function Update-SepCloudAllowlistPolicy {
         # TODO setup $body with JSON based content to add allow list content
         $sha2 = "6ddc5c11925ab348eb0d390ec5179c1d655eb4bf70779f7a4e28b7db485d20ea"
         $name = "myfilename"
+        # Main Obj that will be converted to json
         $obj = @{
-            add    = @{
-                applications = @(
-                    @{
-                        processfile = @{
-                            sha2 = $sha2
-                            name = $name
-                        }
-                    }
-                )
-            }
-            remove = @{
+            add = @{
                 applications = @(
                     @{
                         processfile = @{
