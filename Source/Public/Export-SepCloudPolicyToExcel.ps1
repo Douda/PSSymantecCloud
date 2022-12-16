@@ -2,6 +2,10 @@ function Export-SepCloudPolicyToExcel {
     <# TODO fill description
     .SYNOPSIS
         Export an Allow List policy object to excel
+    .INPUTS
+        Clean policy objectfrom Sep-SepCloudPolicyDetails function
+    .OUTPUTS
+        Excel file
     .DESCRIPTION
         Takes an allow list policy object as input and exports it to an Excel file, with one tab per allow type (filename/file hash/directory etc...)
     .EXAMPLE
@@ -25,8 +29,7 @@ function Export-SepCloudPolicyToExcel {
     )
     <#
     Using as a template the following command
-    $allow_list | ConvertTo-Json -Depth 100 | Out-File -FilePath ".\Allow List Policy_v69.json"
-    Get-SepCloudPolicyDetails -Policy_UUID "5e867f84-5e23-421c-adfd-XXXXXXXXXXXX" -Policy_version 9 | Convert-SepCloudPolicyToExcel -Path "C:\Test\test5.xlsx"
+    Get-SepCloudPolicyDetails -Name "MyAllowListPolicy" -Policy_version 1 | Convert-SepCloudPolicyToExcel -Path "C:\Test\test5.xlsx"
     Parsing the custom object to get the list of
     $obj_policy.features.configuration.applications
     $obj_policy.features.configuration.applications.processfile
