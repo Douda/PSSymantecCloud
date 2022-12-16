@@ -1,4 +1,22 @@
 function Update-SepCloudAllowlistPolicy {
+    <#
+    .SYNOPSIS
+        Updates Symantec Allow List policy using an excel file
+    .DESCRIPTION
+        Gathers Allow List policy information from an Excel file generated from Export-SepCloudPolicyToExcel function
+        creates
+    .INPUTS
+        path of
+    .NOTES
+        Information or caveats about the function e.g. 'This function is not supported in Linux'
+    .LINK
+        Specify a URI to a help page, this will show when Get-Help -Online is used.
+    .EXAMPLE
+        Test-MyTestFunction -Verbose
+        Explanation of the function or its result. You can include multiple examples with additional .EXAMPLE lines
+    #>
+
+
     # TODO to finish; test cmd-let
     param (
         # Policy UUID
@@ -19,7 +37,13 @@ function Update-SepCloudAllowlistPolicy {
         )]
         [string]
         [Alias("Name")]
-        $Policy_Name
+        $Policy_Name,
+
+        # Excel file to import data from
+        [Parameter()]
+        [string]
+        [Alias("Excel")]
+        $ExcelFile
     )
 
     begin {
@@ -56,25 +80,40 @@ function Update-SepCloudAllowlistPolicy {
         $Token = Get-SEPCloudToken
 
         # TODO setup $body with JSON based content to add allow list content
-        $sha2 = "6ddc5c11925ab348eb0d390ec5179c1d655eb4bf70779f7a4e28b7db485d20ea"
-        $name = "myfilename"
-        # Main Obj that will be converted to json
-        $obj = @{
-            add = @{
-                applications = @(
-                    @{
-                        processfile = @{
+        # Getting started with Classes
+        # https://stackoverflow.com/questions/74827989/create-the-skeleton-of-a-custom-psobject-from-scratch/74828486#74828486
+        class addjson {
+            [object] $add
+
+            addjson() {
+                $this.add = [pscustomobject]@{
+                    applications = [System.Collections.Generic.List[object]]::new()
+                }
+            }
+
+            [void] AddProcessFile([string] $sha2, [string] $name) {
+                $this.add.applications.Add([pscustomobject]@{
+                        processfile = [pscustomobject]@{
                             sha2 = $sha2
                             name = $name
                         }
-                    }
-                )
+                    })
             }
         }
 
-        $MyObj = [PSCustomObject]@{
-            Name = Value
+        # Importing Excel list
+        # TODO remove hardcoded excel path
+        # TODO finish main Object creation to pass to API as body
+        $application = Import-Excel -Path .\Data\test.xlsx -WorksheetName Applications
+
+        # Creating my main object from Class
+        $obj_body = [addjson]::new()
+
+        # Parsing Excel list and add content to obj
+        foreach ($hash in $application) {
+            $obj_body.AddProcessFile($hash.sha2, $hash.name)
         }
+        $obj_body
 
 
         if ($null -ne $Token) {

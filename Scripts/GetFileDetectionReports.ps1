@@ -7,7 +7,8 @@
 .DESCRIPTION
     Runs the following query against the SEP Cloud API 'feature_name:MALWARE_PROTECTION AND type_id:8031'
 .INPUTS
-    -Path required full filepath to export the report
+    Policy object from get-sepcloudpolicyDetails
+    Path required full filepath to export the report
 .OUTPUTS
     xlsx formatted report
 .NOTES
@@ -26,8 +27,17 @@ param (
 )
 
 # Required modules
-Install-Module -Name PSSymantecCloud
-Install-Module -Name ImportExcel
+if (Get-Module -ListAvailable -Name PSSymantecCloud) {
+    Write-Host "Module PSSymantecCloud exists, skpping install"
+} else {
+    Install-Module -Name PSSymantecCloud -Force
+}
+
+if (Get-Module -ListAvailable -Name ImportExcel) {
+    Write-Host "Module ImportExcel exists, skpping install"
+} else {
+    Install-Module -Name ImportExcel -Force
+}
 
 # Query MALWARE PROTECTION feature (AutoProtect) & File-Detection type
 # Query examples
