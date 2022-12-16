@@ -34,9 +34,9 @@ list of all your devices, currently connected considered "SECURE", "AT_RISK", or
 Get-SepCloudDeviceList -Device_Status "AT_RISK" -Online
 ```
 #### Incidents
-list of all your incidents, including all events, for the past 7 (or 30) days.
+list of all your incidents, including all events
 ```PowerShell
-Get-SepCloudIncidents -Include_Events -Past_7_Days
+Get-SepCloudIncidents -Include_Events
 ```
 **Note**: all data are stored for a maximum of 30 days
 
