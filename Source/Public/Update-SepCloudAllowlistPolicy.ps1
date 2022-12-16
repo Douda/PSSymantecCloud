@@ -20,12 +20,16 @@ function Update-SepCloudAllowlistPolicy {
     # TODO to finish; test cmd-let
     param (
         # Policy UUID
-        [Parameter()]
+        [Parameter(
+            ParameterSetName = 'Policy'
+        )]
         [string]
         $Policy_UUID,
 
         # Policy version
-        [Parameter()]
+        [Parameter(
+            ParameterSetName = 'Policy'
+        )]
         [string]
         [Alias("Version")]
         $Policy_Version,
@@ -91,6 +95,7 @@ function Update-SepCloudAllowlistPolicy {
                 }
             }
 
+            # method to add processfile sha2 & name to the main obj
             [void] AddProcessFile([string] $sha2, [string] $name) {
                 $this.add.applications.Add([pscustomobject]@{
                         processfile = [pscustomobject]@{
@@ -106,7 +111,7 @@ function Update-SepCloudAllowlistPolicy {
         # TODO finish main Object creation to pass to API as body
         $application = Import-Excel -Path .\Data\test.xlsx -WorksheetName Applications
 
-        # Creating my main object from Class
+        # Creating my main object as an instance of addjson class
         $obj_body = [addjson]::new()
 
         # Parsing Excel list and add content to obj
