@@ -99,14 +99,22 @@ function Update-SepCloudAllowlistPolicy {
         class addjson {
             [object] $add
 
+            # Setting up the PSObject structure from the JSON example : https://pastebin.com/FaKYpgw3
             addjson() {
                 $this.add = [pscustomobject]@{
                     applications = [System.Collections.Generic.List[object]]::new()
+                    windows      = [PSCustomObject]@{
+                        files       = [System.Collections.Generic.List[object]]::new()
+                        directories = [System.Collections.Generic.List[object]]::new()
+                    }
                 }
             }
 
             # method to add processfile sha2 & name to the main obj
-            [void] AddProcessFile([string] $sha2, [string] $name) {
+            [void] AddProcessFile(
+                [string] $sha2,
+                [string] $name
+            ) {
                 $this.add.applications.Add([pscustomobject]@{
                         processfile = [pscustomobject]@{
                             sha2 = $sha2
@@ -114,13 +122,27 @@ function Update-SepCloudAllowlistPolicy {
                         }
                     })
             }
+            [void] AddWindowsFiles(
+                [string] $pathvariable,
+                [string] $path,
+                [bool] $scheduled,
+                [array] $features
+            ) {
+                $this.add.windows.files.add([pscustomobject]@{
+                        pathvariable = $pathvariable
+                        path         = $path
+                        scheduled    = $scheduled
+                        features     = $features
+                    })
+            }
         }
 
         # Importing Excel list
         # TODO finish main Object creation to pass to API as body
         # Testing $ExcelFile for troubleshoot
-        $ExcelFile = ".\Data\test.xlsx"
+        $ExcelFile = ".\Data\Workstations_allowlist.xlsx"
         $application = Import-Excel -Path "$ExcelFile" -WorksheetName Applications
+        $files = Import-Excel -Path "$ExcelFile" -WorksheetName Files
 
         # Creating my main object as an instance of addjson class
         $obj_body = [addjson]::new()
@@ -130,9 +152,15 @@ function Update-SepCloudAllowlistPolicy {
             $obj_body.AddProcessFile($hash.sha2, $hash.name)
         }
 
+        foreach ($d in $files) {
+            [array] $array
+            #TODO find a way to loop through all potential features.x properties due to converted flatten object
+        }
+
+
         # Converting PSObj to json
         # $Body = @{}
-        $Body = $obj_body | ConvertTo-Json -Depth 5
+        $Body = $obj_body | ConvertTo-Json -Depth 10
 
 
         if ($null -ne $Token) {

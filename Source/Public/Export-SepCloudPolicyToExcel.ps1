@@ -29,7 +29,7 @@ function Export-SepCloudPolicyToExcel {
     )
     <#
     Using as a template the following command
-    Get-SepCloudPolicyDetails -Name "MyAllowListPolicy" -Policy_version 1 | Convert-SepCloudPolicyToExcel -Path "C:\Test\test5.xlsx"
+    Get-SepCloudPolicyDetails -Name "MyAllowListPolicy" -Policy_version 1 | Export-SepCloudPolicyToExcel -Path "C:\Test\test5.xlsx"
     Parsing the custom object to get the list of
     $obj_policy.features.configuration.applications
     $obj_policy.features.configuration.applications.processfile
@@ -57,6 +57,6 @@ function Export-SepCloudPolicyToExcel {
     $Webdomains | Export-Excel $Path -WorksheetName "Webdomains" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
     $Ips_Hosts | Export-Excel $Path -WorksheetName "Ips_Hosts" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
     $Extensions | Export-Excel $Path -WorksheetName "Extensions" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-    $Files | Export-Excel $Path -WorksheetName "Files" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-    $Directories | Export-Excel $Path -WorksheetName "Directories" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
+    $Files | ConvertTo-FlatObject | Export-Excel $Path -WorksheetName "Files" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
+    $Directories | ConvertTo-FlatObject | Export-Excel $Path -WorksheetName "Directories" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
 }
