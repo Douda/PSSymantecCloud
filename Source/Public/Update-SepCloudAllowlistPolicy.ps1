@@ -4,20 +4,31 @@ function Update-SepCloudAllowlistPolicy {
         Updates Symantec Allow List policy using an excel file
     .DESCRIPTION
         Gathers Allow List policy information from an Excel file generated from Export-SepCloudPolicyToExcel function
-        creates
+        You can manually add lines to the Excel file, and the updated file will be used to add new exceptions to the Allow list policy of your choice
     .INPUTS
-        path of
+        Excel file generated from Export-SepCloudPolicyToExcel function
+        Policy name to update
+        OPTIONAL : policy version (default latest version)
+    .PARAMETER Policy_UUID
+        GUID of the policy. Optional. The function can gathers the GUID from the policy name
+    .PARAMETER Policy_Version
+        Version of the policy to update
+    .PARAMETER Policy_Name
+        Exact name of the policy to update
+    .PARAMETER ExcelFile
+        Path fo the Excel file that contains updated information on Allow list to update
+        Takes Excel template from Export-SepCloudPolicyToExcel function
     .NOTES
-        Information or caveats about the function e.g. 'This function is not supported in Linux'
-    .LINK
-        Specify a URI to a help page, this will show when Get-Help -Online is used.
+        Currently supports only filehash/filename
+        TODO update NOTES when more options will be supported
     .EXAMPLE
-        Test-MyTestFunction -Verbose
-        Explanation of the function or its result. You can include multiple examples with additional .EXAMPLE lines
+        Get-SepCloudPolicyDetails
+        Update-SepCloudAllowlistPolicy -policy "My Policy" -ExcelFile .\WorkstationsAllowList.xlsx
+        the file MyAllowList.xlsx can be generated from : get-sepcloudpolicyDetails -name "Workstations Allow List Policy" | Export-SepCloudPolicyToExcel -Path .\Data\WorkstationsAllowList.xlsx
     #>
 
 
-    # TODO to finish; test cmd-let
+    # TODO to finish; test ParameterSetName Policy
     param (
         # Policy UUID
         [Parameter(
@@ -62,7 +73,6 @@ function Update-SepCloudAllowlistPolicy {
 
         # If policy name doesn't exist, error
         if (($null -or "") -eq $obj_policy ) {
-            <# Action to perform if the condition is true #>
             Write-Error "Policy not found - Please verify policy name"
             break
         }
@@ -79,7 +89,7 @@ function Update-SepCloudAllowlistPolicy {
         # Set UUID & version from policy & URI
         $Policy_UUID = ($obj_policy).policy_uid
         $Policy_Version = ($obj_policy).policy_version
-        $URI = 'https://' + $BaseURL + "/v1/policies/$Policy_UUID/versions/$Policy_Version"
+        $URI = 'https://' + $BaseURL + "/v1/policies/allow-list/$Policy_UUID/versions/$Policy_Version"
         # Get token
         $Token = Get-SEPCloudToken
 
@@ -107,9 +117,10 @@ function Update-SepCloudAllowlistPolicy {
         }
 
         # Importing Excel list
-        # TODO remove hardcoded excel path
         # TODO finish main Object creation to pass to API as body
-        $application = Import-Excel -Path .\Data\test.xlsx -WorksheetName Applications
+        # Testing $ExcelFile for troubleshoot
+        $ExcelFile = ".\Data\test.xlsx"
+        $application = Import-Excel -Path "$ExcelFile" -WorksheetName Applications
 
         # Creating my main object as an instance of addjson class
         $obj_body = [addjson]::new()
@@ -118,16 +129,19 @@ function Update-SepCloudAllowlistPolicy {
         foreach ($hash in $application) {
             $obj_body.AddProcessFile($hash.sha2, $hash.name)
         }
-        $obj_body
+
+        # Converting PSObj to json
+        # $Body = @{}
+        $Body = $obj_body | ConvertTo-Json -Depth 5
 
 
         if ($null -ne $Token) {
-            $Body = @{}
+            # $Body = @{}
             $Headers = @{
-                Host          = $BaseURL
-                Accept        = "application/json"
-                Authorization = $Token
-                Body          = $Body
+                Host           = $BaseURL
+                "Content-Type" = "application/json"
+                Accept         = "application/json"
+                Authorization  = $Token
             }
             $Response = Invoke-RestMethod -Method PATCH -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
         } else {
