@@ -152,9 +152,16 @@ function Update-SepCloudAllowlistPolicy {
             $obj_body.AddProcessFile($hash.sha2, $hash.name)
         }
 
-        foreach ($d in $files) {
+        foreach ($f in $files) {
             [array] $array
-            #TODO find a way to loop through all potential features.x properties due to converted flatten object
+            # TODO find a way to loop through all potential features.x properties due to converted flatten object
+            # Getting list of features from the object
+            # test to confirm 2
+            [array]$FeatureNumbers = $f.PSObject.properties.name | Select-String -Pattern feature
+            foreach ($feat in $FeatureNumbers) {
+                $array += $f.$feat
+                $array
+            }
         }
 
 
