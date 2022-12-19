@@ -110,7 +110,7 @@ function Update-SepCloudAllowlistPolicy {
                 }
             }
 
-            # method to add processfile sha2 & name to the main obj
+            # method to add APPLICATIONS tab to the main obj
             [void] AddProcessFile(
                 [string] $sha2,
                 [string] $name
@@ -122,6 +122,7 @@ function Update-SepCloudAllowlistPolicy {
                         }
                     })
             }
+            # Method to add FILES excel tab to obj
             [void] AddWindowsFiles(
                 [string] $pathvariable,
                 [string] $path,
@@ -139,7 +140,8 @@ function Update-SepCloudAllowlistPolicy {
 
         # Importing Excel list
         # TODO finish main Object creation to pass to API as body
-        # Testing $ExcelFile for troubleshoot
+        # Testing $ExcelFile for troubleshoot/dev
+        # TODO remove $ExcelFile hardcoded path once obj is complete
         $ExcelFile = ".\Data\Workstations_allowlist.xlsx"
         $application = Import-Excel -Path "$ExcelFile" -WorksheetName Applications
         $files = Import-Excel -Path "$ExcelFile" -WorksheetName Files
@@ -147,31 +149,36 @@ function Update-SepCloudAllowlistPolicy {
         # Creating my main object as an instance of addjson class
         $obj_body = [addjson]::new()
 
-        # Parsing Excel list and add content to obj
-        foreach ($hash in $application) {
-            $obj_body.AddProcessFile($hash.sha2, $hash.name)
-        }
+        ######################
+        # Parsing Excel list #
+        ######################
+        # Add APPLICATIONS excel tab to obj
+        # foreach ($a in $application) {
+        #     $obj_body.AddProcessFile($a.sha2, $a.name)
+        # }
 
+        # Add FILES excel tab to obj
         foreach ($f in $files) {
-            [array] $array
-            # TODO find a way to loop through all potential features.x properties due to converted flatten object
-            # Getting list of features from the object
-            # test to confirm 2
+            # Gather list of features properties & resetting $features array counter
+            [array]$features = @()
             [array]$FeatureNumbers = $f.PSObject.properties.name | Select-String -Pattern feature
+            # ForEach property, get the property value and store it in $features
             foreach ($feat in $FeatureNumbers) {
-                $array += $f.$feat
-                $array
+                $features += $f.$feat
             }
+            $obj_body.AddWindowsFiles(
+                $f.pathvariable,
+                $f.path,
+                $f.scheduled,
+                $features
+            )
         }
-
 
         # Converting PSObj to json
-        # $Body = @{}
         $Body = $obj_body | ConvertTo-Json -Depth 10
 
-
+        # API query
         if ($null -ne $Token) {
-            # $Body = @{}
             $Headers = @{
                 Host           = $BaseURL
                 "Content-Type" = "application/json"
