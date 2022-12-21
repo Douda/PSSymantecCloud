@@ -4,15 +4,15 @@ function Update-SepCloudAllowlistPolicy {
         Updates Symantec Allow List policy using an excel file
     .DESCRIPTION
         Gathers Allow List policy information from an Excel file generated from Export-SepCloudPolicyToExcel function
-        You can manually add lines to the Excel file, and the updated file will be used to add new exceptions to the Allow list policy of your choice
+                You can manually add lines to the Excel file, and the updated file will be used to add new exceptions to the Allow list policy of your choice
     .INPUTS
         Excel file generated from Export-SepCloudPolicyToExcel function
         Policy name to update
         OPTIONAL : policy version (default latest version)
     .PARAMETER Policy_UUID
-        GUID of the policy. Optional. The function can gathers the GUID from the policy name
+        Optional parameter - GUID of the policy. Optional. The function can gathers the UUID from the policy name
     .PARAMETER Policy_Version
-        Version of the policy to update
+        Optional parameter - Version of the policy to update. By default, latest version selected
     .PARAMETER Policy_Name
         Exact name of the policy to update
     .PARAMETER ExcelFile
@@ -51,7 +51,7 @@ function Update-SepCloudAllowlistPolicy {
             Mandatory
         )]
         [string]
-        [Alias("Name")]
+        [Alias("PolicyName")]
         $Policy_Name,
 
         # Excel file to import data from
@@ -67,28 +67,28 @@ function Update-SepCloudAllowlistPolicy {
     }
 
     process {
-        # Get list of all SEP Cloud policies, gather only the one based on name
+        # Get list of all SEP Cloud policies, gather only the one based on name (gets every version of the same name)
         $obj_policies = (Get-SepCloudPolices).policies
-        $obj_policy = ($obj_policies | Where-Object { $_.name -eq "$Policy_Name" })
+        $obj_policy_info = ($obj_policies | Where-Object { $_.name -eq "$Policy_Name" })
 
         # If policy name doesn't exist, error
-        if (($null -or "") -eq $obj_policy ) {
+        if (($null -or "") -eq $obj_policy_info ) {
             Write-Error "Policy not found - Please verify policy name"
             break
         }
 
         # Use specific version or by default latest
         if ($Policy_version -ne "") {
-            $obj_policy = $obj_policy | Where-Object {
+            $obj_policy_info = $obj_policy_info | Where-Object {
                 $_.name -eq "$Policy_Name" -and $_.policy_version -eq $Policy_Version
             }
         } else {
-            $obj_policy = ($obj_policy | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
+            $obj_policy_info = ($obj_policy_info | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
         }
 
         # Set UUID & version from policy & URI
-        $Policy_UUID = ($obj_policy).policy_uid
-        $Policy_Version = ($obj_policy).policy_version
+        $Policy_UUID = ($obj_policy_info).policy_uid
+        $Policy_Version = ($obj_policy_info).policy_version
         $URI = 'https://' + $BaseURL + "/v1/policies/allow-list/$Policy_UUID/versions/$Policy_Version"
         # Get token
         $Token = Get-SEPCloudToken
@@ -96,47 +96,7 @@ function Update-SepCloudAllowlistPolicy {
         # TODO setup $body with JSON based content to add allow list content
         # Getting started with Classes
         # https://stackoverflow.com/questions/74827989/create-the-skeleton-of-a-custom-psobject-from-scratch/74828486#74828486
-        class addjson {
-            [object] $add
 
-            # Setting up the PSObject structure from the JSON example : https://pastebin.com/FaKYpgw3
-            addjson() {
-                $this.add = [pscustomobject]@{
-                    applications = [System.Collections.Generic.List[object]]::new()
-                    windows      = [PSCustomObject]@{
-                        files       = [System.Collections.Generic.List[object]]::new()
-                        directories = [System.Collections.Generic.List[object]]::new()
-                    }
-                }
-            }
-
-            # method to add APPLICATIONS tab to the main obj
-            [void] AddProcessFile(
-                [string] $sha2,
-                [string] $name
-            ) {
-                $this.add.applications.Add([pscustomobject]@{
-                        processfile = [pscustomobject]@{
-                            sha2 = $sha2
-                            name = $name
-                        }
-                    })
-            }
-            # Method to add FILES excel tab to obj
-            [void] AddWindowsFiles(
-                [string] $pathvariable,
-                [string] $path,
-                [bool] $scheduled,
-                [array] $features
-            ) {
-                $this.add.windows.files.add([pscustomobject]@{
-                        pathvariable = $pathvariable
-                        path         = $path
-                        scheduled    = $scheduled
-                        features     = $features
-                    })
-            }
-        }
 
         # Importing Excel list
         # TODO finish main Object creation to pass to API as body
@@ -153,9 +113,9 @@ function Update-SepCloudAllowlistPolicy {
         # Parsing Excel list #
         ######################
         # Add APPLICATIONS excel tab to obj
-        # foreach ($a in $application) {
-        #     $obj_body.AddProcessFile($a.sha2, $a.name)
-        # }
+        foreach ($a in $application) {
+            $obj_body.AddProcessFile($a.sha2, $a.name)
+        }
 
         # Add FILES excel tab to obj
         foreach ($f in $files) {
@@ -173,6 +133,11 @@ function Update-SepCloudAllowlistPolicy {
                 $features
             )
         }
+
+        # At this stage $obj_body contains the full import of excel allow list files/directories etc..
+        # Now we need to compare this obj_body to the policy we'll update to remove duplicates
+        # TODO : create a merge function (Merge-SepCloudPolicyAndExcelReport)
+
 
         # Converting PSObj to json
         $Body = $obj_body | ConvertTo-Json -Depth 10
