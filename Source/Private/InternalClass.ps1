@@ -20,7 +20,7 @@ class allowlist {
     [object] $Certificates
     [object] $webdomains
     [object] $ips_hosts
-    [object] $Extensions
+    [Extensions] $Extensions
     [object] $windows
     # Setting up the PSCustomObject structure from the JSON example : https://pastebin.com/FaKYpgw3
     # TODO finish obj structure
@@ -88,13 +88,13 @@ class allowlist {
     }
 
     # # Method to add EXTENSIONS tab to the main obj
+    # # Working, but trying to create the structure as mentioned here : https://stackoverflow.com/a/74901407/2552996
     # [void] AddExtensions(
     #     [array] $name
     #     # hardcoded values
     #     # [bool] $scheduled,
     #     # [string] $features
     # ) {
-    #     # Working, but trying to creak the structure as mentioned here : https://stackoverflow.com/a/74901407/2552996
     #     $this.extensions.add("names", $name)
     #     $this.extensions.add("scheduled", $true)
     #     $features_list = @('AUTO_PROTECT')
