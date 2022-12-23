@@ -16,6 +16,7 @@ function Export-SepCloudPolicyToExcel {
     param (
         # Path of Export
         [Parameter()]
+        [Alias("Path")]
         [string]
         $excel_path,
 
@@ -51,12 +52,26 @@ function Export-SepCloudPolicyToExcel {
     $Files = $obj_policy.features.configuration.windows.files
     $Directories = $obj_policy.features.configuration.windows.directories
 
+    # # Extension hive has some hardcoded info (AUTO_PROTECT & scheduled bool)
+    # foreach ($line in $Extensions.names) {
+    #     $Extensions | Add-Member -NotePropertyName names -NotePropertyValue $line
+    #     $Extensions | Add-Member -NotePropertyName scheduled -NotePropertyValue $true
+    #     $Extensions | Add-Member -NotePropertyName features -NotePropertyValue "AUTO_PROTECT"
+    # }
+
     Import-Module -Name ImportExcel
     $Applications | Export-Excel $excel_path -WorksheetName "Applications" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-    $Certificates | Export-Excel $excel_path -WorksheetName "Certificates" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
+    $Certificates | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Certificates" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
     $Webdomains | Export-Excel $excel_path -WorksheetName "Webdomains" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
     $Ips_Hosts | Export-Excel $excel_path -WorksheetName "Ips_Hosts" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-    $Extensions | Export-Excel $excel_path -WorksheetName "Extensions" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
+
+    # Extension list comes as an array without name
+    # dumping array from row 2 and manually setting colum name in row 1
+    $Extensions | Export-Excel $excel_path -WorksheetName "Extensions" -ClearSheet -StartRow 2
+    $Excel_imported = Open-ExcelPackage -Path $excel_path
+    $Excel_imported.'Extensions'.cells["a1"].Value = 'Extensions'
+    Close-ExcelPackage -ExcelPackage $Excel_imported
+
     $Files | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Files" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
     $Directories | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Directories" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
 }

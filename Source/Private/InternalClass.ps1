@@ -1,43 +1,9 @@
-# class addjson {
-#     [object] $add
-#     # Setting up the PSCustomObject structure from the JSON example : https://pastebin.com/FaKYpgw3
-#     # TODO finish obj structure
-#     addjson() {
-#         $this.add = [pscustomobject]@{
-#             applications = [System.Collections.Generic.List[object]]::new()
-#             windows      = [PSCustomObject]@{
-#                 files       = [System.Collections.Generic.List[object]]::new()
-#                 directories = [System.Collections.Generic.List[object]]::new()
-#             }
-#         }
-#     }
-#     # method to add APPLICATIONS tab to the main obj
-#     [void] AddProcessFile(
-#         [string] $sha2,
-#         [string] $name
-#     ) {
-#         $this.add.applications.Add([pscustomobject]@{
-#                 processfile = [pscustomobject]@{
-#                     sha2 = $sha2
-#                     name = $name
-#                 }
-#             })
-#     }
-#     # Method to add FILES excel tab to obj
-#     [void] AddWindowsFiles(
-#         [string] $pathvariable,
-#         [string] $path,
-#         [bool] $scheduled,
-#         [array] $features
-#     ) {
-#         $this.add.windows.files.add([pscustomobject]@{
-#                 pathvariable = $pathvariable
-#                 path         = $path
-#                 scheduled    = $scheduled
-#                 features     = $features
-#             })
-#     }
-# }
+# https://stackoverflow.com/a/74901407/2552996
+class Extensions {
+    [Collections.Generic.List[string]] $names = [Collections.Generic.List[string]]::new()
+    [bool] $scheduled
+    [Collections.Generic.List[string]] $features = [Collections.Generic.List[string]]::new()
+}
 
 class addjson {
     [object] $add
@@ -54,6 +20,7 @@ class allowlist {
     [object] $Certificates
     [object] $webdomains
     [object] $ips_hosts
+    [object] $Extensions
     [object] $windows
     # Setting up the PSCustomObject structure from the JSON example : https://pastebin.com/FaKYpgw3
     # TODO finish obj structure
@@ -62,6 +29,8 @@ class allowlist {
         $this.Certificates = [System.Collections.Generic.List[object]]::new()
         $this.webdomains = [System.Collections.Generic.List[object]]::new()
         $this.ips_hosts = [System.Collections.Generic.List[object]]::new()
+        $this.extensions = [System.Collections.Hashtable]::new()
+        # TODO Extensions obj be hashtable. Converting to JSON will not be incorrect format (list instead of k/v pair)
         $this.windows = [PSCustomObject]@{
             files       = [System.Collections.Generic.List[object]]::new()
             directories = [System.Collections.Generic.List[object]]::new()
@@ -85,11 +54,11 @@ class allowlist {
     [void] AddCertificates(
         [string] $signature_issuer,
         [string] $signature_company_name,
-        [string] $signature_fingerprint,
+        # [string] $signature_fingerprint,
         [string] $algorithm,
         [string] $value
     ) {
-        $this.certificates.Add()
+        # $this.certificates.Add()
         $this.certificates.Add([pscustomobject]@{
                 signature_issuer       = $signature_issuer
                 signature_company_name = $signature_company_name
@@ -118,17 +87,23 @@ class allowlist {
             })
     }
 
-    #Method to add EXTENSIONS tab to the main obj
-    [void] AddExtensions(
-        [array] $names,
-        [bool] $scheduled,
-        [array] $features
-    ) {
-        $this.extensions.add([PSCustomObject]@{
-                names     = $names
-                scheduled = $scheduled
-                features  = $features
-            })
+    # # Method to add EXTENSIONS tab to the main obj
+    # [void] AddExtensions(
+    #     [array] $name
+    #     # hardcoded values
+    #     # [bool] $scheduled,
+    #     # [string] $features
+    # ) {
+    #     # Working, but trying to creak the structure as mentioned here : https://stackoverflow.com/a/74901407/2552996
+    #     $this.extensions.add("names", $name)
+    #     $this.extensions.add("scheduled", $true)
+    #     $features_list = @('AUTO_PROTECT')
+    #     $this.extensions.add("features", $features_list)
+    # }
+
+    # Method to add EXTENSIONS tab to the main obj
+    [void] AddExtensions([Extensions] $Extension) {
+        $this.Extensions = $Extension
     }
 
     # Method to add FILES excel tab to obj
@@ -146,7 +121,7 @@ class allowlist {
             })
     }
 
-    # Method to add FILES excel tab to obj
+    # Method to add DIRECTORIES excel tab to obj
     [void] AddWindowsDirectories(
         [string] $pathvariable,
         [string] $directory,
