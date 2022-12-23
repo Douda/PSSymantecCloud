@@ -34,22 +34,55 @@ function Get-ExcelAllowListObject {
     $Files = Import-Excel -Path "$excel_path" -WorksheetName Files
     $Directories = Import-Excel -Path "$excel_path" -WorksheetName Directories
 
-    $obj_policy = [allowlist]::new()
-    $obj_policy
+    # Get Object from AllowList Class
+    $obj_policy_excel = [allowlist]::new()
 
     # Add Applications
     foreach ($line in $Applications) {
-        $obj_policy.AddProcessFile($line.sha2, $line.Name)
+        $obj_policy_excel.AddProcessFile(
+            $line.sha2,
+            $line.Name
+        )
     }
 
     # Add Certificates
-    # TODO finish
     foreach ($line in $Certificates) {
-        $obj_policy.AddCertificates(
+        $obj_policy_excel.AddCertificates(
             $line.signature_issuer,
             $line.signature_company_name,
             $line."signature_fingerprint.algorithm",
             $line."signature_fingerprint.value"
         )
     }
+
+    # Add WebDomains
+    foreach ($line in $Webdomains) {
+        $obj_policy_excel.AddWebDomains(
+            $line.domain
+        )
+    }
+
+    # Add IPS Hosts
+    foreach ($line in $Ips_Hosts) {
+        $obj_policy_excel.AddIpsHosts(
+            $line.ip
+        )
+    }
+    # Add Extensions
+    $obj_policy_excel.AddExtensions(@{
+            names     = $Extensions.extensions
+            scheduled = $true
+            features  = 'AUTO_PROTECT'
+        }
+    )
+    # # Add Files
+    # foreach ($line in $Files) {
+    #     [array]$features = @()
+    #     [array]$FeatureNumbers = $line.PSObject.properties.name | Select-String -Pattern feature
+    #     $obj_policy_excel.AddWindowsFiles(
+    #         $line.Extensions
+    #     )
+    # }
+
+    # $obj_policy_excel
 }
