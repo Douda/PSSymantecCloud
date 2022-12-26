@@ -3,10 +3,10 @@ function Get-ExcelAllowListObject {
     .SYNOPSIS
         Imports excel allow list report as a PSObject
     .DESCRIPTION
-        Imports excel allow list report as a PSObject. Same structure that Get-SepCloudPolicyDetails uses to compare Excel allow list and SEP Cloud allow list
+        Imports excel allow list report as a PSObject. Same structure that Get-SepCloudPolicyDetails uses to compare Excel allow list and SEP Cloud allow list policy
     .EXAMPLE
         Get-ExcelAllowListObject -Excel "WorkstationsAllowListPolicy.xlsx"
-        Imports the excel file and return the PSObject with every allow list settings
+        Imports the excel file and returns a strcutured PSObject
     .INPUTS
         Excel path of allow list policy previously generated from Export-SepCloudPolicyToExcel CmdLet
     .OUTPUTS
@@ -19,6 +19,7 @@ function Get-ExcelAllowListObject {
         )]
         [string]
         [Alias("Excel")]
+        [Alias("Path")]
         # TODO remove hardcoded excel path for dev
         $excel_path # = ".\Data\Workstations_allowlist.xlsx"
     )
@@ -26,7 +27,7 @@ function Get-ExcelAllowListObject {
     # $AllSheets = Get-ExcelSheetInfo $excel_path
     # $AllItemsInAllSheets = $AllSheets | ForEach-Object { Import-Excel $_.Path -WorksheetName $_.Name }
 
-    # # Init
+    # Init
     $Applications = Import-Excel -Path "$excel_path" -WorksheetName Applications
     $Certificates = Import-Excel -Path "$excel_path" -WorksheetName Certificates
     $Webdomains = Import-Excel -Path "$excel_path" -WorksheetName Webdomains
@@ -35,8 +36,8 @@ function Get-ExcelAllowListObject {
     $Files = Import-Excel -Path "$excel_path" -WorksheetName Files
     $Directories = Import-Excel -Path "$excel_path" -WorksheetName Directories
 
-    # Get Object from AllowList Class
-    $obj_policy_excel = [allowlist]::new()
+    # Get Object from ExceptionStructure Class
+    $obj_policy_excel = [ExceptionStructure]::new()
 
     # Add Applications
     foreach ($line in $Applications) {
@@ -77,9 +78,10 @@ function Get-ExcelAllowListObject {
             features  = 'AUTO_PROTECT'
         }
     )
+
     # Add Files
     foreach ($line in $Files) {
-        # Parse "features.X" properties to gather the feature names in an array
+        # Parse "features.X" properties to gather the feature_names in an array
         [array]$feature_names = @()
         [array]$nb_features = $line.PSObject.properties.name | Select-String -Pattern feature
         $i = 0
@@ -89,7 +91,7 @@ function Get-ExcelAllowListObject {
             }
             $i++
         }
-        # Use AddWindwsFiles
+        # Use AddWindowsFiles
         $obj_policy_excel.AddWindowsFiles(
             $line.pathvariable,
             $line.path,
@@ -110,7 +112,7 @@ function Get-ExcelAllowListObject {
             }
             $i++
         }
-        # Use AddWindwsFiles
+        # Use AddWindowsDirectories
         $obj_policy_excel.AddWindowsDirectories(
             $line.pathvariable,
             $line.directory,
@@ -122,5 +124,5 @@ function Get-ExcelAllowListObject {
 
 
     # TODO remove output $obj_policy_excel
-    # $obj_policy_excel
+    return $obj_policy_excel
 }

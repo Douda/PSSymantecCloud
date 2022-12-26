@@ -5,17 +5,18 @@ class Extensions {
     [Collections.Generic.List[string]] $features = [Collections.Generic.List[string]]::new()
 }
 
-class addjson {
+class UpdateAllowlist {
     [object] $add
-    # Setting up the PSCustomObject structure from the JSON example : https://pastebin.com/FaKYpgw3
-    # TODO finish obj structure
-    addjson() {
-        $allowlist = [allowlist]::new()
-        $this.add = $allowlist
+    [object] $remove
+    UpdateAllowlist() {
+        $ExceptionStructureAdd = [ExceptionStructure]::new()
+        $ExceptionStructureRemove = [ExceptionStructure]::new()
+        $this.add = $ExceptionStructureAdd
+        $this.remove = $ExceptionStructureRemove
     }
 }
 
-class allowlist {
+class ExceptionStructure {
     [object] $Applications
     [object] $Certificates
     [object] $webdomains
@@ -24,7 +25,7 @@ class allowlist {
     [object] $windows
     # Setting up the PSCustomObject structure from the JSON example : https://pastebin.com/FaKYpgw3
     # TODO finish obj structure
-    allowlist() {
+    ExceptionStructure() {
         $this.applications = [System.Collections.Generic.List[object]]::new()
         $this.Certificates = [System.Collections.Generic.List[object]]::new()
         $this.webdomains = [System.Collections.Generic.List[object]]::new()
@@ -86,20 +87,6 @@ class allowlist {
                 ip = $ip
             })
     }
-
-    # # Method to add EXTENSIONS tab to the main obj
-    # # Working, but trying to create the structure as mentioned here : https://stackoverflow.com/a/74901407/2552996
-    # [void] AddExtensions(
-    #     [array] $name
-    #     # hardcoded values
-    #     # [bool] $scheduled,
-    #     # [string] $features
-    # ) {
-    #     $this.extensions.add("names", $name)
-    #     $this.extensions.add("scheduled", $true)
-    #     $features_list = @('AUTO_PROTECT')
-    #     $this.extensions.add("features", $features_list)
-    # }
 
     # Method to add EXTENSIONS tab to the main obj
     [void] AddExtensions([Extensions] $Extension) {

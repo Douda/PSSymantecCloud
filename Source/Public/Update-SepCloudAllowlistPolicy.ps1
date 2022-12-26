@@ -4,11 +4,11 @@ function Update-SepCloudAllowlistPolicy {
         Updates Symantec Allow List policy using an excel file
     .DESCRIPTION
         Gathers Allow List policy information from an Excel file generated from Export-SepCloudPolicyToExcel function
-                You can manually add lines to the Excel file, and the updated file will be used to add new exceptions to the Allow list policy of your choice
+        You can manually add lines to the Excel file, and the updated Excel will be used to add new exceptions to the Allow list policy of your choice
     .INPUTS
-        Excel file generated from Export-SepCloudPolicyToExcel function
-        Policy name to update
-        OPTIONAL : policy version (default latest version)
+        - Excel file generated from Export-SepCloudPolicyToExcel function
+        - Policy name to update
+        - OPTIONAL : policy version (default latest version)
     .PARAMETER Policy_UUID
         Optional parameter - GUID of the policy. Optional. The function can gathers the UUID from the policy name
     .PARAMETER Policy_Version
@@ -22,6 +22,7 @@ function Update-SepCloudAllowlistPolicy {
         Currently supports only filehash/filename
         TODO update NOTES when more options will be supported
     .EXAMPLE
+        TODO review & add more examples
         Get-SepCloudPolicyDetails
         Update-SepCloudAllowlistPolicy -policy "My Policy" -ExcelFile .\WorkstationsAllowList.xlsx
         the file MyAllowList.xlsx can be generated from : get-sepcloudpolicyDetails -name "Workstations Allow List Policy" | Export-SepCloudPolicyToExcel -Path .\Data\WorkstationsAllowList.xlsx
@@ -47,118 +48,104 @@ function Update-SepCloudAllowlistPolicy {
 
         # Exact policy name
         [Parameter(
-            ValueFromPipeline,
-            Mandatory
+            ValueFromPipeline
+            # Mandatory
         )]
         [string]
         [Alias("PolicyName")]
-        $Policy_Name,
+        # TODO remove hardcoded info
+        $Policy_Name = "AB - Testing - Allowlist",
 
         # Excel file to import data from
-        [Parameter()]
+        [Parameter(
+            # Mandatory
+            # TODO add this parameter as mandatory once development is done
+        )]
         [string]
         [Alias("Excel")]
-        $ExcelFile
+        # TODO remove hardcoded excel path for dev
+        $excel_path = ".\Data\Workstations_allowlist.xlsx"
     )
-
-    begin {
-        # Init
-        $BaseURL = (GetConfigurationPath).BaseUrl
+    # Get policy details to compare with Excel file
+    # Use specific version or by default latest
+    if ($Policy_version -ne "") {
+        $obj_policy = Get-SepCloudPolicyDetails -Policy_Name $Policy_Name -Policy_Version $Policy_Version
     }
 
-    process {
-        # Get list of all SEP Cloud policies, gather only the one based on name (gets every version of the same name)
-        $obj_policies = (Get-SepCloudPolices).policies
-        $obj_policy_info = ($obj_policies | Where-Object { $_.name -eq "$Policy_Name" })
+    $obj_policy = Get-SepCloudPolicyDetails -Policy_Name $Policy_Name
 
-        # If policy name doesn't exist, error
-        if (($null -or "") -eq $obj_policy_info ) {
-            Write-Error "Policy not found - Please verify policy name"
-            break
-        }
+    # Import excel report as a structured object with
+    $obj_policy_excel = Get-ExcelAllowListObject -Path $excel_path
 
-        # Use specific version or by default latest
-        if ($Policy_version -ne "") {
-            $obj_policy_info = $obj_policy_info | Where-Object {
-                $_.name -eq "$Policy_Name" -and $_.policy_version -eq $Policy_Version
-            }
+    # Initialize structured obj that will be later converted
+    # to HTTP JSON Body with "add" and "remove" hive
+    $obj_body = [UpdateAllowlist]::new()
+
+    # Comparison starts here
+    <#
+        As there are no built-in ways to compare 2 deeply nested PSObject
+        Parse through every allow list type (Applications/certificates/etc...) and compare as followed :
+        - If exception type (file/hash/etc) found in both excel / baseline policy : no changes
+        - If found in Excel but not in baseline : set it in "add" hive
+        - If found in baseline but not Excel : set it in "remove" hive
+    #>
+
+    # Comparison with "Applications" tab
+    $policy_sha2 = $obj_policy.features.configuration.applications.processfile
+    $excel_sha2 = $obj_policy_excel.Applications.processfile
+    # Parsing first excel object
+    foreach ($line in $excel_sha2) {
+        # if sha2 appears in both lists
+        if ($policy_sha2.sha2.contains($line.sha2)) {
+            # No changes needed
+            # TODO can remove sha2 from policy obj to reduce 2nd pass load
+            continue
         } else {
-            $obj_policy_info = ($obj_policy_info | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
-        }
-
-        # Set UUID & version from policy & URI
-        $Policy_UUID = ($obj_policy_info).policy_uid
-        $Policy_Version = ($obj_policy_info).policy_version
-        $URI = 'https://' + $BaseURL + "/v1/policies/allow-list/$Policy_UUID/versions/$Policy_Version"
-        # Get token
-        $Token = Get-SEPCloudToken
-
-        # TODO setup $body with JSON based content to add allow list content
-        # Getting started with Classes
-        # https://stackoverflow.com/questions/74827989/create-the-skeleton-of-a-custom-psobject-from-scratch/74828486#74828486
-
-
-        # Importing Excel list
-        # TODO finish main Object creation to pass to API as body
-        # Testing $ExcelFile for troubleshoot/dev
-        # TODO remove $ExcelFile hardcoded path once obj is complete
-        $ExcelFile = ".\Data\Workstations_allowlist.xlsx"
-        $application = Import-Excel -Path "$ExcelFile" -WorksheetName Applications
-        $files = Import-Excel -Path "$ExcelFile" -WorksheetName Files
-
-        # Creating my main object as an instance of addjson class
-        $obj_body = [addjson]::new()
-
-        ######################
-        # Parsing Excel list #
-        ######################
-        # Add APPLICATIONS excel tab to obj
-        foreach ($a in $application) {
-            $obj_body.AddProcessFile($a.sha2, $a.name)
-        }
-
-        # Add FILES excel tab to obj
-        foreach ($f in $files) {
-            # Gather list of features properties & resetting $features array counter
-            [array]$features = @()
-            [array]$FeatureNumbers = $f.PSObject.properties.name | Select-String -Pattern feature
-            # ForEach property, get the property value and store it in $features
-            foreach ($feat in $FeatureNumbers) {
-                $features += $f.$feat
-            }
-            $obj_body.AddWindowsFiles(
-                $f.pathvariable,
-                $f.path,
-                $f.scheduled,
-                $features
+            # if sha2 only in excel list
+            # set the sha to the "add" hive
+            $obj_body.add.AddProcessFile(
+                $line.sha2,
+                $line.name
             )
         }
-
-        # At this stage $obj_body contains the full import of excel allow list files/directories etc..
-        # Now we need to compare this obj_body to the policy we'll update to remove duplicates
-        # TODO : create a merge function (Merge-SepCloudPolicyAndExcelReport)
-
-
-        # Converting PSObj to json
-        $Body = $obj_body | ConvertTo-Json -Depth 10
-
-        # API query
-        if ($null -ne $Token) {
-            $Headers = @{
-                Host           = $BaseURL
-                "Content-Type" = "application/json"
-                Accept         = "application/json"
-                Authorization  = $Token
-            }
-            $Response = Invoke-RestMethod -Method PATCH -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
-        } else {
-            Write-Error "Invalid or empty token - exit"
-            break
+    }
+    # Parsing then policy object
+    foreach ($line in $policy_sha2) {
+        # if sha2 appears only in policy (so not in Excel)
+        if (-not $excel_sha2.sha2.contains($line.sha2)) {
+            # set the sha to the "remove" hive
+            $obj_body.remove.AddProcessFile(
+                $line.sha2,
+                $line.name
+            )
         }
     }
 
-    end {
-        return $Response
-    }
+    # Comparison ends here
+    # ...
 
+    # At this stage $obj_body contains the full import of excel allow list files/directories etc..
+    # Now we need to compare this obj_body to the policy we'll update to remove duplicates
+
+    # Converting PSObj to json
+    $Body = $obj_body | ConvertTo-Json -Depth 10
+    # Get token
+    $Token = Get-SEPCloudToken
+
+    # API query
+    if ($null -ne $Token) {
+        $Headers = @{
+            Host           = $BaseURL
+            "Content-Type" = "application/json"
+            Accept         = "application/json"
+            Authorization  = $Token
+        }
+        #$Response = Invoke-RestMethod -Method PATCH -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
+        # TODO uncomment API query
+    } else {
+        Write-Error "Invalid or empty token - exit"
+        break
+    }
+    # TODO See if we need to remove return once finished
+    return $Response
 }
