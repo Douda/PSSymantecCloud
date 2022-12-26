@@ -1,16 +1,16 @@
 function Get-ExcelAllowListObject {
     <# TODO fill description
     .SYNOPSIS
-        A short one-line action-based description, e.g. 'Tests if a function is valid'
+        Imports excel allow list report as a PSObject
     .DESCRIPTION
-        A longer description of the function, its purpose, common use cases, etc.
-    .NOTES
-        Information or caveats about the function e.g. 'This function is not supported in Linux'
-    .LINK
-        Specify a URI to a help page, this will show when Get-Help -Online is used.
+        Imports excel allow list report as a PSObject. Same structure that Get-SepCloudPolicyDetails uses to compare Excel allow list and SEP Cloud allow list
     .EXAMPLE
-        Test-MyTestFunction -Verbose
-        Explanation of the function or its result. You can include multiple examples with additional .EXAMPLE lines
+        Get-ExcelAllowListObject -Excel "WorkstationsAllowListPolicy.xlsx"
+        Imports the excel file and return the PSObject with every allow list settings
+    .INPUTS
+        Excel path of allow list policy previously generated from Export-SepCloudPolicyToExcel CmdLet
+    .OUTPUTS
+        Custom PSObject
     #>
 
     param (
@@ -20,11 +20,12 @@ function Get-ExcelAllowListObject {
         [string]
         [Alias("Excel")]
         # TODO remove hardcoded excel path for dev
-        $excel_path = ".\Data\Workstations_allowlist.xlsx"
+        $excel_path # = ".\Data\Workstations_allowlist.xlsx"
     )
     # # List all excel tabs
-    $AllSheets = Get-ExcelSheetInfo $excel_path
-    $AllItemsInAllSheets = $AllSheets | ForEach-Object { Import-Excel $_.Path -WorksheetName $_.Name }
+    # $AllSheets = Get-ExcelSheetInfo $excel_path
+    # $AllItemsInAllSheets = $AllSheets | ForEach-Object { Import-Excel $_.Path -WorksheetName $_.Name }
+
     # # Init
     $Applications = Import-Excel -Path "$excel_path" -WorksheetName Applications
     $Certificates = Import-Excel -Path "$excel_path" -WorksheetName Certificates
@@ -121,5 +122,5 @@ function Get-ExcelAllowListObject {
 
 
     # TODO remove output $obj_policy_excel
-    $obj_policy_excel
+    # $obj_policy_excel
 }
