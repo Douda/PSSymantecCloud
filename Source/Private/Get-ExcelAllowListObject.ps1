@@ -68,6 +68,7 @@ function Get-ExcelAllowListObject {
             $line.ip
         )
     }
+
     # Add Extensions
     $obj_policy_excel.AddExtensions(@{
             names     = $Extensions.extensions
@@ -75,14 +76,50 @@ function Get-ExcelAllowListObject {
             features  = 'AUTO_PROTECT'
         }
     )
-    # # Add Files
-    # foreach ($line in $Files) {
-    #     [array]$features = @()
-    #     [array]$FeatureNumbers = $line.PSObject.properties.name | Select-String -Pattern feature
-    #     $obj_policy_excel.AddWindowsFiles(
-    #         $line.Extensions
-    #     )
-    # }
+    # Add Files
+    foreach ($line in $Files) {
+        # Parse "features.X" properties to gather the feature names in an array
+        [array]$feature_names = @()
+        [array]$nb_features = $line.PSObject.properties.name | Select-String -Pattern feature
+        $i = 0
+        foreach ($feat in $nb_features) {
+            if ($null -ne $line.($nb_features[$i])) {
+                $feature_names += $line.($nb_features[$i])
+            }
+            $i++
+        }
+        # Use AddWindwsFiles
+        $obj_policy_excel.AddWindowsFiles(
+            $line.pathvariable,
+            $line.path,
+            $line.scheduled,
+            $feature_names
+        )
+    }
 
-    # $obj_policy_excel
+    # Add Directories
+    foreach ($line in $Directories) {
+        # Parse "features.X" properties to gather the feature names in an array
+        [array]$feature_names = @()
+        [array]$nb_features = $line.PSObject.properties.name | Select-String -Pattern feature
+        $i = 0
+        foreach ($feat in $nb_features) {
+            if ($null -ne $line.($nb_features[$i])) {
+                $feature_names += $line.($nb_features[$i])
+            }
+            $i++
+        }
+        # Use AddWindwsFiles
+        $obj_policy_excel.AddWindowsDirectories(
+            $line.pathvariable,
+            $line.directory,
+            $line.recursive,
+            $line.scheduled,
+            $feature_names
+        )
+    }
+
+
+    # TODO remove output $obj_policy_excel
+    $obj_policy_excel
 }

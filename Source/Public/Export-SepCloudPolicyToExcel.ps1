@@ -52,13 +52,6 @@ function Export-SepCloudPolicyToExcel {
     $Files = $obj_policy.features.configuration.windows.files
     $Directories = $obj_policy.features.configuration.windows.directories
 
-    # # Extension hive has some hardcoded info (AUTO_PROTECT & scheduled bool)
-    # foreach ($line in $Extensions.names) {
-    #     $Extensions | Add-Member -NotePropertyName names -NotePropertyValue $line
-    #     $Extensions | Add-Member -NotePropertyName scheduled -NotePropertyValue $true
-    #     $Extensions | Add-Member -NotePropertyName features -NotePropertyValue "AUTO_PROTECT"
-    # }
-
     Import-Module -Name ImportExcel
     $Applications | Export-Excel $excel_path -WorksheetName "Applications" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
     $Certificates | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Certificates" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
