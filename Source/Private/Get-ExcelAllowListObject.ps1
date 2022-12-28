@@ -123,6 +123,5 @@ function Get-ExcelAllowListObject {
     }
 
 
-    # TODO remove output $obj_policy_excel
     return $obj_policy_excel
 }

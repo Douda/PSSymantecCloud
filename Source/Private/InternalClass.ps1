@@ -30,7 +30,7 @@ class ExceptionStructure {
         $this.Certificates = [System.Collections.Generic.List[object]]::new()
         $this.webdomains = [System.Collections.Generic.List[object]]::new()
         $this.ips_hosts = [System.Collections.Generic.List[object]]::new()
-        $this.extensions = [System.Collections.Hashtable]::new()
+        $this.extensions = [Extensions]::new()
         # TODO Extensions obj be hashtable. Converting to JSON will not be incorrect format (list instead of k/v pair)
         $this.windows = [PSCustomObject]@{
             files       = [System.Collections.Generic.List[object]]::new()
@@ -79,7 +79,7 @@ class ExceptionStructure {
             })
     }
 
-    # Method to add IPS_HOSTS to the main obj
+    # Method to add IPv4 addresses IPS_HOSTS to the main obj
     [void] AddIpsHosts(
         [string] $ip
     ) {
