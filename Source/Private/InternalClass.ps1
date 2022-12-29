@@ -80,11 +80,24 @@ class ExceptionStructure {
     }
 
     # Method to add IPv4 addresses IPS_HOSTS to the main obj
-    [void] AddIpsHosts(
+    [void] AddIpsHostsIpv4Address(
         [string] $ip
     ) {
         $this.ips_hosts.add([PSCustomObject]@{
                 ip = $ip
+            })
+    }
+
+    # Method to add IPv4 subnet IPS_HOSTS to the main obj
+    [void] AddIpsHostsIpv4Subnet(
+        [string] $ip,
+        [string] $mask
+    ) {
+        $this.ips_hosts.add([pscustomobject]@{
+                ipv4_subnet = [pscustomobject]@{
+                    ip   = $ip
+                    mask = $mask
+                }
             })
     }
 

@@ -1,12 +1,13 @@
 function Get-ExcelAllowListObject {
     <# TODO fill description
     .SYNOPSIS
-        Imports excel allow list report as a PSObject
+        Imports excel allow list report from its file path as a PSObject
     .DESCRIPTION
-        Imports excel allow list report as a PSObject. Same structure that Get-SepCloudPolicyDetails uses to compare Excel allow list and SEP Cloud allow list policy
+        Imports excel allow list report as a PSObject.
+        Same structure that Get-SepCloudPolicyDetails uses to compare Excel allow list and SEP Cloud allow list policy
     .EXAMPLE
         Get-ExcelAllowListObject -Excel "WorkstationsAllowListPolicy.xlsx"
-        Imports the excel file and returns a strcutured PSObject
+        Imports the excel file and returns a structured PSObject
     .INPUTS
         Excel path of allow list policy previously generated from Export-SepCloudPolicyToExcel CmdLet
     .OUTPUTS
@@ -16,6 +17,7 @@ function Get-ExcelAllowListObject {
     param (
         # excel path
         [Parameter(
+            ValueFromPipeline
         )]
         [string]
         [Alias("Excel")]
@@ -31,7 +33,8 @@ function Get-ExcelAllowListObject {
     $Applications = Import-Excel -Path "$excel_path" -WorksheetName Applications
     $Certificates = Import-Excel -Path "$excel_path" -WorksheetName Certificates
     $Webdomains = Import-Excel -Path "$excel_path" -WorksheetName Webdomains
-    $Ips_Hosts = Import-Excel -Path "$excel_path" -WorksheetName Ips_Hosts
+    $Ips_Hosts_IPv4 = Import-Excel -Path "$excel_path" -WorksheetName Ips_Hosts
+    $Ips_Hosts_subnet = Import-Excel -Path "$excel_path" -WorksheetName Ips_Hosts_subnet
     $Extensions = Import-Excel -Path "$excel_path" -WorksheetName Extensions
     $Files = Import-Excel -Path "$excel_path" -WorksheetName Files
     $Directories = Import-Excel -Path "$excel_path" -WorksheetName Directories
@@ -65,9 +68,17 @@ function Get-ExcelAllowListObject {
     }
 
     # Add IPS Hosts
-    foreach ($line in $Ips_Hosts) {
-        $obj_policy_excel.AddIpsHosts(
+    foreach ($line in $Ips_Hosts_IPv4) {
+        $obj_policy_excel.AddIpsHostsIpv4Address(
             $line.ip
+        )
+    }
+
+    # Add IPS Subnet
+    foreach ($line in $Ips_Hosts_subnet) {
+        $obj_policy_excel.AddIpsHostsIpv4Subnet(
+            $line.ip,
+            $line.mask
         )
     }
 

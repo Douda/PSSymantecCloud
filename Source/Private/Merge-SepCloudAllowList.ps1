@@ -184,7 +184,7 @@ function Merge-SepCloudAllowList {
         } else {
             # if webdomain only in excel list
             # set the cert to the "add" hive
-            $obj_body.add.AddIpsHosts(
+            $obj_body.add.AddIpsHostsIpv4Address(
                 $line.ip
             )
         }
@@ -195,7 +195,7 @@ function Merge-SepCloudAllowList {
         # if webdomain appears only in policy (so not in Excel)
         if (-not $excel_ips_hosts.ip.contains($line.ip)) {
             # set the sha to the "remove" hive
-            $obj_body.remove.AddIpsHosts(
+            $obj_body.remove.AddIpsHostsIpv4Address(
                 $line.ip
             )
         }

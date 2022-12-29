@@ -3,7 +3,7 @@ function Export-SepCloudPolicyToExcel {
     .SYNOPSIS
         Export an Allow List policy object to a human readable excel report
     .INPUTS
-        Policy object from Get-SepCloudPolicyDetails function
+        Policy object from Get-SepCloudPolicyDetails function. Pipeline support
     .OUTPUTS
         Excel file
     .DESCRIPTION
