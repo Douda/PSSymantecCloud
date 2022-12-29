@@ -83,7 +83,6 @@ function Get-SEPCloudToken {
 
         try {
             $response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers
-
             # Get the auth token from the response & store it locally
             Write-Verbose "Valid credentials - returning valid token"
             $null = $Bearer_Token = "Bearer " + $response.access_token
@@ -97,7 +96,6 @@ function Get-SEPCloudToken {
             Remove-Item $SepCloudCreds
         }
     }
-
 
     <# If no token nor OAuth creds available locally
     # Encode ClientID and Secret to create Basic Auth string

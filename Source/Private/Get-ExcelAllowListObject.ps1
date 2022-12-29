@@ -22,17 +22,18 @@ function Get-ExcelAllowListObject {
         [string]
         [Alias("Excel")]
         [Alias("Path")]
-        # TODO remove hardcoded excel path for dev
-        $excel_path # = ".\Data\Workstations_allowlist.xlsx"
+        $excel_path
     )
-    # # List all excel tabs
+    # List all excel tabs
     $AllSheets = Get-ExcelSheetInfo $excel_path
     $SheetsInfo = @{}
-    # Set all info in $SheetsInfo hashtable
+    # Import all Excel info in $SheetsInfo hashtable
     $AllSheets | ForEach-Object { $SheetsInfo[$_.Name] = Import-Excel $_.Path -WorksheetName $_.Name }
 
     # Get Object from ExceptionStructure Class
     $obj_policy_excel = [ExceptionStructure]::new()
+
+    # Populates $obj_policy_excel
 
     # Add Applications
     foreach ($line in $SheetsInfo['Applications']) {
@@ -75,7 +76,7 @@ function Get-ExcelAllowListObject {
     }
 
     # Add Extensions
-    # no loop required, using Extensions class
+    # no loop required, whole array needed
     $obj_policy_excel.AddExtensions(@{
             names     = $sheetsInfo['Extensions'].extensions
             scheduled = $true
@@ -125,7 +126,6 @@ function Get-ExcelAllowListObject {
             $feature_names
         )
     }
-
 
     return $obj_policy_excel
 }

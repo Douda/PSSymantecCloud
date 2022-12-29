@@ -3,15 +3,16 @@ function Merge-SepCloudAllowList {
     .SYNOPSIS
         Merges 2 SEP Cloud allow list policy to a single PSObject
     .DESCRIPTION
-        Returns a custom PSObject ready to be converted in json for Update-SepCloudAllowlistPolicy CmdLet
-        Excel file takes precedence in case of conflicts. It is the main "source of truth". logic goes as below
-        - If exception present in both excel & policy : no changes
-        - If exception present only in Excel : add exception
-        - If exception present only in policy (so not in Excel) : remove exception
+        Returns a custom PSObject ready to be converted in json as HTTP Body for Update-SepCloudAllowlistPolicy CmdLet
+        Excel file takes precedence in case of conflicts. It is the main "source of truth".
+        Logic goes as below
+        - If SEP exception present in both excel & policy : no changes
+        - If SEP exception present only in Excel : add exception
+        - If SEP exception present only in policy (so not in Excel) : remove exception
     .NOTES
         Excel file takes precedence in case of conflicts
     .INPUTS
-        - Sep cloud allow list policy PSObject
+        - SEP cloud allow list policy PSObject
         - Excel report file path (generated from Export-SepCloudPolicyToExcel CmdLet)
     .OUTPUTS
         - Custom PSObject
@@ -26,7 +27,6 @@ function Merge-SepCloudAllowList {
     param (
         # Policy version
         [Parameter(
-            ParameterSetName = 'Policy'
         )]
         [string]
         [Alias("Version")]
@@ -34,14 +34,11 @@ function Merge-SepCloudAllowList {
 
         # Exact policy name
         [Parameter(
-            ValueFromPipeline
-            # Mandatory
-            # TODO add mandatory
+            Mandatory
         )]
         [string]
         [Alias("PolicyName")]
-        # TODO remove hardcoded info
-        $Policy_Name = "AB - Testing - Allowlist",
+        $Policy_Name,
 
         # excel path
         [Parameter(
@@ -50,8 +47,7 @@ function Merge-SepCloudAllowList {
         [string]
         [Alias("Excel")]
         [Alias("Path")]
-        # TODO remove hardcoded excel path for dev
-        $excel_path # = ".\Data\Workstations_allowlist.xlsx"
+        $excel_path
     )
 
     # Get policy details to compare with Excel file
@@ -85,11 +81,9 @@ function Merge-SepCloudAllowList {
         # if sha2 appears in both lists
         if ($policy_sha2.sha2.contains($line.sha2)) {
             # No changes needed
-            # TODO can remove sha2 from policy obj to reduce 2nd pass load
             continue
         } else {
-            # if sha2 only in excel list
-            # set the sha to the "add" hive
+            # if sha2 only in excel list, set the sha to the "add" hive
             $obj_body.add.AddProcessFile(
                 $line.sha2,
                 $line.name
@@ -115,11 +109,9 @@ function Merge-SepCloudAllowList {
         # If certs appears in both lists
         if ($policy_certs.signature_fingerprint.value.contains($line.signature_fingerprint.value)) {
             # No changes needed
-            # TODO can remove certs from policy obj to reduce 2nd pass load
             continue
         } else {
-            # if cert only in excel list
-            # set the cert to the "add" hive
+            # if cert only in excel list, set the cert to the "add" hive
             $obj_body.add.AddCertificates(
                 $line.signature_issuer,
                 $line.signature_company_name,
@@ -133,7 +125,7 @@ function Merge-SepCloudAllowList {
     foreach ($line in $policy_certs) {
         # if cert appears only in policy (so not in Excel)
         if (-not $excel_certs.signature_fingerprint.value.contains($line.signature_fingerprint.value)) {
-            # set the sha to the "remove" hive
+            # set the cert to the "remove" hive
             $obj_body.remove.AddCertificates(
                 $line.signature_issuer,
                 $line.signature_company_name,
@@ -150,11 +142,9 @@ function Merge-SepCloudAllowList {
         # If webdomain appears in both lists
         if ($policy_webdomains.domain.contains($line.domain)) {
             # No changes needed
-            # TODO can remove certs from policy obj to reduce 2nd pass load
             continue
         } else {
-            # if webdomain only in excel list
-            # set the cert to the "add" hive
+            # if webdomain only in excel list, set the webdomain to the "add" hive
             $obj_body.add.AddWebDomains(
                 $line.domain
             )
@@ -165,7 +155,7 @@ function Merge-SepCloudAllowList {
     foreach ($line in $policy_webdomains) {
         # if webdomain appears only in policy (so not in Excel)
         if (-not $excel_webdomains.domain.contains($line.domain)) {
-            # set the sha to the "remove" hive
+            # set the webdomain to the "remove" hive
             $obj_body.remove.AddWebDomains(
                 $line.domain
             )
@@ -176,14 +166,12 @@ function Merge-SepCloudAllowList {
     $policy_ips_hosts = $obj_policy.features.configuration.ips_hosts
     $excel_ips_hosts = $obj_policy_excel.ips_hosts
     foreach ($line in $excel_ips_hosts) {
-        # If webdomain appears in both lists
+        # If Ips_hosts appears in both lists
         if ($policy_ips_hosts.ip.contains($line.ip)) {
             # No changes needed
-            # TODO can remove certs from policy obj to reduce 2nd pass load
             continue
         } else {
-            # if webdomain only in excel list
-            # set the cert to the "add" hive
+            # if Ips_hosts only in excel list, set the Ips_hosts to the "add" hive
             $obj_body.add.AddIpsHostsIpv4Address(
                 $line.ip
             )
@@ -192,19 +180,86 @@ function Merge-SepCloudAllowList {
 
     # Parsing then policy object
     foreach ($line in $policy_ips_hosts) {
-        # if webdomain appears only in policy (so not in Excel)
+        # if Ips_hosts appears only in policy (so not in Excel)
         if (-not $excel_ips_hosts.ip.contains($line.ip)) {
-            # set the sha to the "remove" hive
+            # set the Ips_hosts to the "remove" hive
             $obj_body.remove.AddIpsHostsIpv4Address(
                 $line.ip
             )
         }
     }
 
-    # TODO IPS host only currently works for IPv4 addresses, not with subnets
-    # Could be related to Get-SepCloudPolicyDetails function
-    # After initial investigation, looks like the PSObject shows "empty" for every subnet, we can access it
-    # with ...
+    # Comparison with "Ips_Hosts_subnet" tab
+    $policy_ips_hosts_subnet = $obj_policy.features.configuration.ips_hosts.ipv4_subnet
+    $excel_ips_hosts_subnet = $obj_policy_excel.ips_hosts.ipv4_subnet
+    foreach ($line in $excel_ips_hosts_subnet) {
+        # Getting rid of null arrays in IPS subnets
+        if ($null -ne $line) {
+            # If same IP + mask appears in both lists
+            if ($policy_ips_hosts_subnet.ip.contains($line.ip) -and $policy_ips_hosts_subnet.mask.contains($line.mask)) {
+                # No changes needed
+                continue
+            } else {
+                # if Ips_Hosts_subnet only in excel list
+                # set the Ips_Hosts_subnet to the "add" hive
+                $obj_body.add.AddIpsHostsIpv4Subnet(
+                    $line.ip,
+                    $line.mask
+                )
+            }
+        }
+    }
+
+    # Parsing then policy object
+    foreach ($line in $policy_ips_hosts_subnet) {
+        # if Ips_Hosts_subnet appears only in policy (so not in Excel)
+        if (-not $excel_ips_hosts_subnet.ip.contains($line.ip) -and $excel_ips_hosts_subnet.mask.contains($line.mask)) {
+            # set the Ips_Hosts_subnet to the "remove" hive
+            $obj_body.remove.AddIpsHostsIpv4Subnet(
+                $line.ip,
+                $line.mask
+            )
+        }
+    }
+
+    # Comparison with "Extensions" tab
+    $policy_extensions = $obj_policy.features.configuration.extensions
+    $excel_extensions = $obj_policy_excel.extensions
+    foreach ($line in $excel_extensions.names) {
+        # If extension appears in both lists
+        if ($policy_extensions.names.contains($line.names)) {
+            # No changes needed
+            continue
+        } else {
+            # if extension only in excel list, set the extension to the "add" hive
+            [PSCustomObject]$ext = @{
+                Names     = $line
+                scheduled = $true
+                features  = 'AUTO_PROTECT'
+            }
+            $obj_body.add.AddExtensions(
+                $ext
+            )
+        }
+    }
+
+    # Parsing then policy object
+    foreach ($line in $policy_extensions.names) {
+        # if extension appears only in policy (so not in Excel)
+        if (-not $excel_extensions.names.contains($line)) {
+            # set the extension to the "remove" hive
+            [PSCustomObject]$ext = @{
+                Names     = $line
+                scheduled = $true
+                features  = 'AUTO_PROTECT'
+            }
+            $obj_body.remove.AddExtensions(
+                $ext
+                # TODO does not delete remove more than one extension at a time. To investigate
+                # Seems related to the Extensions class
+            )
+        }
+    }
 
     # Comparison ends here
     # ...
