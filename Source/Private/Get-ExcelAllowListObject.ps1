@@ -26,24 +26,16 @@ function Get-ExcelAllowListObject {
         $excel_path # = ".\Data\Workstations_allowlist.xlsx"
     )
     # # List all excel tabs
-    # $AllSheets = Get-ExcelSheetInfo $excel_path
-    # $AllItemsInAllSheets = $AllSheets | ForEach-Object { Import-Excel $_.Path -WorksheetName $_.Name }
-
-    # Init
-    $Applications = Import-Excel -Path "$excel_path" -WorksheetName Applications
-    $Certificates = Import-Excel -Path "$excel_path" -WorksheetName Certificates
-    $Webdomains = Import-Excel -Path "$excel_path" -WorksheetName Webdomains
-    $Ips_Hosts_IPv4 = Import-Excel -Path "$excel_path" -WorksheetName Ips_Hosts
-    $Ips_Hosts_subnet = Import-Excel -Path "$excel_path" -WorksheetName Ips_Hosts_subnet
-    $Extensions = Import-Excel -Path "$excel_path" -WorksheetName Extensions
-    $Files = Import-Excel -Path "$excel_path" -WorksheetName Files
-    $Directories = Import-Excel -Path "$excel_path" -WorksheetName Directories
+    $AllSheets = Get-ExcelSheetInfo $excel_path
+    $SheetsInfo = @{}
+    # Set all info in $SheetsInfo hashtable
+    $AllSheets | ForEach-Object { $SheetsInfo[$_.Name] = Import-Excel $_.Path -WorksheetName $_.Name }
 
     # Get Object from ExceptionStructure Class
     $obj_policy_excel = [ExceptionStructure]::new()
 
     # Add Applications
-    foreach ($line in $Applications) {
+    foreach ($line in $SheetsInfo['Applications']) {
         $obj_policy_excel.AddProcessFile(
             $line.sha2,
             $line.Name
@@ -51,7 +43,7 @@ function Get-ExcelAllowListObject {
     }
 
     # Add Certificates
-    foreach ($line in $Certificates) {
+    foreach ($line in $SheetsInfo['Certificates']) {
         $obj_policy_excel.AddCertificates(
             $line.signature_issuer,
             $line.signature_company_name,
@@ -61,21 +53,21 @@ function Get-ExcelAllowListObject {
     }
 
     # Add WebDomains
-    foreach ($line in $Webdomains) {
+    foreach ($line in $SheetsInfo['Webdomains']) {
         $obj_policy_excel.AddWebDomains(
             $line.domain
         )
     }
 
     # Add IPS Hosts
-    foreach ($line in $Ips_Hosts_IPv4) {
+    foreach ($line in $SheetsInfo['Ips_Hosts']) {
         $obj_policy_excel.AddIpsHostsIpv4Address(
             $line.ip
         )
     }
 
     # Add IPS Subnet
-    foreach ($line in $Ips_Hosts_subnet) {
+    foreach ($line in $SheetsInfo['Ips_Hosts_subnet']) {
         $obj_policy_excel.AddIpsHostsIpv4Subnet(
             $line.ip,
             $line.mask
@@ -83,15 +75,16 @@ function Get-ExcelAllowListObject {
     }
 
     # Add Extensions
+    # no loop required, using Extensions class
     $obj_policy_excel.AddExtensions(@{
-            names     = $Extensions.extensions
+            names     = $sheetsInfo['Extensions'].extensions
             scheduled = $true
             features  = 'AUTO_PROTECT'
         }
     )
 
     # Add Files
-    foreach ($line in $Files) {
+    foreach ($line in $SheetsInfo['Files']) {
         # Parse "features.X" properties to gather the feature_names in an array
         [array]$feature_names = @()
         [array]$nb_features = $line.PSObject.properties.name | Select-String -Pattern feature
@@ -112,7 +105,7 @@ function Get-ExcelAllowListObject {
     }
 
     # Add Directories
-    foreach ($line in $Directories) {
+    foreach ($line in $SheetsInfo['Directories']) {
         # Parse "features.X" properties to gather the feature names in an array
         [array]$feature_names = @()
         [array]$nb_features = $line.PSObject.properties.name | Select-String -Pattern feature
