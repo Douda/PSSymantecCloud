@@ -7,10 +7,10 @@ function Get-SepCloudDeviceInfo {
     )
 
     # Init
-    $BaseURL = (GetConfigurationPath).BaseUrl
+    $BaseURL = (Get-ConfigurationPath).BaseUrl
     $URI_Tokens = 'https://' + $BaseURL + "/v1/devices/$Device_ID"
     # Get token
-    $Token = Get-SEPCloudToken  
+    $Token = Get-SEPCloudToken
 
     if ($null -ne $Token) {
         # HTTP body content containing all the queries
@@ -21,7 +21,7 @@ function Get-SepCloudDeviceInfo {
             Authorization = $Token
             Body          = $Body
         }
-        $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing 
+        $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
         return $Response
     }
 }

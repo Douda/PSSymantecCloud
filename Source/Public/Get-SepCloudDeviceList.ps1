@@ -20,7 +20,7 @@ function Get-SepCloudDeviceList {
 
     .EXAMPLE
     Get-SepCloudDeviceList -Computername MyComputer
-    
+
     .EXAMPLE
     Get-SepCloudDeviceList -is_online -Device_status AT_RISK
         #>
@@ -31,7 +31,7 @@ function Get-SepCloudDeviceList {
         TODO work to allow multiple values from Computername
         More info https://apidocs.securitycloud.symantec.com/#
         name	query	name of the device. [NOTE] Provide comma seperated values in case of multiple name search
-        Note : seems to be limited to 10 values max 
+        Note : seems to be limited to 10 values max
         #>
         [Parameter(
             ValueFromPipeline = $true
@@ -63,20 +63,20 @@ function Get-SepCloudDeviceList {
         [ValidateSet("SECURE", "AT_RISK", "COMPROMISED", "NOT_COMPUTED")]
         $Device_status
     )
-        
+
     # Init
-    $BaseURL = (GetConfigurationPath).BaseUrl
+    $BaseURL = (Get-ConfigurationPath).BaseUrl
     $URI_Tokens = 'https://' + $BaseURL + "/v1/devices"
     # Get token
-    $Token = Get-SEPCloudToken  
-        
+    $Token = Get-SEPCloudToken
+
     if ($null -ne $Token ) {
         # HTTP body content containing all the queries
         $Body = @{}
-        
+
         # Iterating through all parameter and add them to the HTTP body
         if ($Computername -ne "") {
-            $Body.Add("name", "$Computername") 
+            $Body.Add("name", "$Computername")
         }
         if ($is_online -eq $true ) {
             $body.add("is_online", "true")
@@ -99,7 +99,7 @@ function Get-SepCloudDeviceList {
         }
 
         try {
-            $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing 
+            $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
             return $Response
         } catch {
             $StatusCode = $_.Exception.Response.StatusCode

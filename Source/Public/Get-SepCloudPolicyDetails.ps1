@@ -60,7 +60,7 @@ function Get-SepCloudPolicyDetails {
 
             $Policy_UUID = ($obj_policy).policy_uid
             $Policy_Version = ($obj_policy).policy_version
-            $BaseURL = (GetConfigurationPath).BaseUrl
+            $BaseURL = (Get-ConfigurationPath).BaseUrl
             $URI = 'https://' + $BaseURL + "/v1/policies/$Policy_UUID/versions/$Policy_Version"
             # Get token
             $Token = Get-SEPCloudToken

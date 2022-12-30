@@ -1,4 +1,4 @@
-function GetConfigurationPath {
+function Get-ConfigurationPath {
     <#
     .SYNOPSIS
         returns hashtable object with the BaseURL, SepCloudCreds, SepCloudToken full path

@@ -45,7 +45,7 @@ function Get-SepCloudIncidents {
     )
     begin {
         # Init
-        $BaseURL = (GetConfigurationPath).BaseUrl
+        $BaseURL = (Get-ConfigurationPath).BaseUrl
         $URI_Tokens = 'https://' + $BaseURL + "/v1/incidents"
         $ArrayResponse = @()
     }

@@ -41,9 +41,9 @@ function Get-SEPCloudToken {
     )
 
     # init
-    $BaseURL = (GetConfigurationPath).BaseUrl
-    $SepCloudCreds = (GetConfigurationPath).SepCloudCreds
-    $SepCloudToken = (GetConfigurationPath).SepCloudToken
+    $BaseURL = (Get-ConfigurationPath).BaseUrl
+    $SepCloudCreds = (Get-ConfigurationPath).SepCloudCreds
+    $SepCloudToken = (Get-ConfigurationPath).SepCloudToken
     $URI_Tokens = 'https://' + $BaseURL + '/v1/oauth2/tokens'
     $URI_Features = 'https://' + $BaseURL + '/v1/devices/enums'
 

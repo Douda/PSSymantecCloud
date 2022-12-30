@@ -12,15 +12,15 @@ function Get-SepCloudFeatureList {
         Test-MyTestFunction -Verbose
         Explanation of the function or its result. You can include multiple examples with additional .EXAMPLE lines
     #>
-    
+
     param (
     )
-    
+
     # Init
-    $BaseURL = (GetConfigurationPath).BaseUrl
+    $BaseURL = (Get-ConfigurationPath).BaseUrl
     $URI_Tokens = 'https://' + $BaseURL + "/v1/devices/enums"
     # Get token
-    $Token = Get-SEPCloudToken  
+    $Token = Get-SEPCloudToken
 
     if ($null -ne $Token) {
         # HTTP body content containing all the queries
@@ -31,7 +31,7 @@ function Get-SepCloudFeatureList {
             Authorization = $Token
             Body          = $Body
         }
-        $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing 
+        $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
         return $Response
     }
 }
