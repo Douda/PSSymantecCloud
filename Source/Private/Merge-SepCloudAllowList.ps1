@@ -244,22 +244,25 @@ function Merge-SepCloudAllowList {
     }
 
     # Parsing then policy object
+    $extensions_list_to_remove = @()
     foreach ($line in $policy_extensions.names) {
         # if extension appears only in policy (so not in Excel)
+        # Adding it to the $extensions_list_to_remove
         if (-not $excel_extensions.names.contains($line)) {
-            # set the extension to the "remove" hive
-            [PSCustomObject]$ext = @{
-                Names     = $line
-                scheduled = $true
-                features  = 'AUTO_PROTECT'
-            }
-            $obj_body.remove.AddExtensions(
-                $ext
-                # TODO does not delete remove more than one extension at a time. To investigate
-                # Seems related to the Extensions class
-            )
+            $extensions_list_to_remove += $line
         }
     }
+    # If extensions to remove not empty
+    if ($null -ne $extensions_list_to_remove) {
+        # set the extension to the "remove" hive
+        [PSCustomObject]$ext = @{
+            Names     = $extensions_list_to_remove
+            scheduled = $true
+            features  = 'AUTO_PROTECT'
+        }
+        $obj_body.remove.AddExtensions(
+            $ext
+    )}
 
     # Comparison ends here
     # ...
