@@ -1,10 +1,11 @@
 BeforeAll {
-
+    $ScriptName = ($PSCommandPath.Replace('.Tests.ps1', '.ps1')) | Split-Path -Leaf
+    . $PSScriptRoot\..\Source\Private\$ScriptName
 }
 
 Describe 'Get-SEPCloudToken' {
     It 'Given no parameters, it lists all 8 planets' {
-        $allPlanets = Get-Planet
-        $allPlanets.Count | Should -Be 3
+        $token = Get-SEPCloudToken
+        $token | Should -Be [string]
     }
 }
