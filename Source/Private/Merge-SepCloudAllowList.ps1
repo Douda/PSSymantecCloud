@@ -264,6 +264,9 @@ function Merge-SepCloudAllowList {
             $ext
     )}
 
+    # Comparison with "Files" tab
+
+
     # Comparison ends here
     # ...
 

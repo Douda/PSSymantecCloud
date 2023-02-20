@@ -6,6 +6,6 @@ BeforeAll {
 Describe 'Get-SEPCloudToken' {
     It 'Given no parameters, it lists all 8 planets' {
         $token = Get-SEPCloudToken
-        $token | Should -Be [string]
+        $token | Should not be $null
     }
 }
