@@ -64,46 +64,73 @@ function Get-SepCloudDeviceList {
         $Device_status
     )
 
-    # Init
-    $BaseURL = (Get-ConfigurationPath).BaseUrl
-    $URI_Tokens = 'https://' + $BaseURL + "/v1/devices"
-    # Get token
-    $Token = Get-SEPCloudToken
+    begin {
+        # Init
+        $BaseURL = (Get-ConfigurationPath).BaseUrl
+        $URI_Tokens = 'https://' + $BaseURL + "/v1/devices"
+        $ArrayResponse = @()
+    }
 
-    if ($null -ne $Token ) {
-        # HTTP body content containing all the queries
-        $Body = @{}
+    process {
+        # Get token
+        $Token = Get-SEPCloudToken
 
-        # Iterating through all parameter and add them to the HTTP body
-        if ($Computername -ne "") {
-            $Body.Add("name", "$Computername")
-        }
-        if ($is_online -eq $true ) {
-            $body.add("is_online", "true")
-        }
-        if ($include_details -eq $true) {
-            $Body.Add("include_details", "true")
-        }
-        if ($Device_status -ne "") {
-            $Body.Add("device_status", "$Device_status")
-        }
-        if ($Device_group -ne "") {
-            $Body.Add("device_group", "$Device_group")
-        }
+        if ($null -ne $Token ) {
+            # HTTP body content containing all the queries
+            $Body = @{}
 
-        $Headers = @{
-            Host          = $BaseURL
-            Accept        = "application/json"
-            Authorization = $Token
-            Body          = $Body
-        }
+            # Iterating through all parameter and add them to the HTTP body
+            if ($Computername -ne "") {
+                $Body.Add("name", "$Computername")
+            }
+            if ($is_online -eq $true ) {
+                $body.add("is_online", "true")
+            }
+            if ($include_details -eq $true) {
+                $Body.Add("include_details", "true")
+            }
+            if ($Device_status -ne "") {
+                $Body.Add("device_status", "$Device_status")
+            }
+            if ($Device_group -ne "") {
+                $Body.Add("device_group", "$Device_group")
+            }
 
-        try {
-            $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
-            return $Response
-        } catch {
-            $StatusCode = $_.Exception.Response.StatusCode
-            Write-Warning "Query error - Expected HTTP 200, got $([int]$StatusCode)"
+            # Convert body to Json after adding potential query with parameters
+            # $Body_Json = ConvertTo-Json $Body
+
+            $Headers = @{
+                Host          = $BaseURL
+                Accept        = "application/json"
+                Authorization = $Token
+                #Body          = $Body
+            }
+
+            try {
+                $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
+                $ArrayResponse += $Response
+                if ($null -ne $Response.next) {
+                    <# If pagination #>
+                    do {
+                        # change the "next" offset for next query
+                        $Body.Remove("next")
+                        $Body.Add("next", $Response.next)
+                        $Body_Json = ConvertTo-Json $Body
+                        # Run query & add it to the array
+                        $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body_Json -UseBasicParsing
+                        $ArrayResponse += $Response
+                    } until (
+                        ($null -eq $Response.next)
+                    )
+                }
+            } catch {
+                $StatusCode = $_
+                $StatusCode
+            }
         }
+    }
+
+    end {
+        return $ArrayResponse
     }
 }
