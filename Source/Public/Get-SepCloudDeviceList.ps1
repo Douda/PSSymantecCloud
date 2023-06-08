@@ -95,34 +95,32 @@ function Get-SepCloudDeviceList {
             if ($Device_group -ne "") {
                 $Body.Add("device_group", "$Device_group")
             }
-
-            # Convert body to Json after adding potential query with parameters
-            # $Body_Json = ConvertTo-Json $Body
-
             $Headers = @{
                 Host          = $BaseURL
                 Accept        = "application/json"
                 Authorization = $Token
-                #Body          = $Body
             }
 
             try {
                 $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
-                $ArrayResponse += $Response
-                if ($null -ne $Response.next) {
-                    <# If pagination #>
+                $ArrayResponse += $Response.devices
+                $Devices_count_gathered = (($ArrayResponse | Measure-Object).count)
+                <# If pagination #>
+                if ($Response.total -gt $Devices_count_gathered) {
+                    <# Loop through via Offset parameter as there is no "next" parameter for /devices/ API call #>
                     do {
-                        # change the "next" offset for next query
-                        $Body.Remove("next")
-                        $Body.Add("next", $Response.next)
-                        $Body_Json = ConvertTo-Json $Body
-                        # Run query & add it to the array
-                        $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body_Json -UseBasicParsing
-                        $ArrayResponse += $Response
+                        # change the "offset" parameter for next query
+                        $Body.Remove("offset")
+                        $Body.Add("offset", $Devices_count_gathered)
+                        # Run query, add it to the array, increment counter
+                        $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
+                        $ArrayResponse += $Response.devices
+                        $Devices_count_gathered = (($ArrayResponse | Measure-Object).count)
                     } until (
-                        ($null -eq $Response.next)
+                        $Devices_count_gathered -ge $Response.total
                     )
                 }
+
             } catch {
                 $StatusCode = $_
                 $StatusCode
