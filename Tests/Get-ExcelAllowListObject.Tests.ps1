@@ -1,3 +1,8 @@
+BeforeAll {
+    $ScriptName = ($PSCommandPath.Replace('.Tests.ps1', '.ps1')) | Split-Path -Leaf
+    . $PSScriptRoot\..\Source\Private\$ScriptName
+}
+
 Describe 'Get-ExcelAllowListObject' {
     # Create a test file
     $testFile = 'WorkstationsAllowListPolicy.xlsx'
@@ -16,7 +21,7 @@ Describe 'Get-ExcelAllowListObject' {
         # Check if the result is of the correct type (custom PSObject)
         $result | Should BeOfType 'ExceptionStructure'
         # Check if the data in the result is as expected
-        $result.Applications | Should Contain @{
+        $result.Applications | Should -Contain @{
             sha2 = '1234567890'
             Name = 'TestApp'
         }
