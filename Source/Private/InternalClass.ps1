@@ -14,6 +14,7 @@ class UpdateAllowlist {
         $this.add = $ExceptionStructureAdd
         $this.remove = $ExceptionStructureRemove
     }
+
 }
 
 class ExceptionStructure {
