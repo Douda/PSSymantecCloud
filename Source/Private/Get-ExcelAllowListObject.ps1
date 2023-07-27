@@ -9,7 +9,7 @@ function Get-ExcelAllowListObject {
         Get-ExcelAllowListObject -Excel "WorkstationsAllowListPolicy.xlsx"
         Imports the excel file and returns a structured PSObject
     .INPUTS
-        Excel path of allow list policy previously generated from Export-SepCloudPolicyToExcel CmdLet
+        Excel path of allow list policy previously generated from Export-SepCloudAllowListPolicyToExcel CmdLet
     .OUTPUTS
         Custom PSObject
     #>

@@ -51,7 +51,7 @@ function Get-SepCloudPolicyDetails {
         $obj_policy = ($obj_policies | Where-Object { $_.name -eq "$Policy_Name" })
 
         # Use specific version or by default latest
-        if ($null -ne $Policy_version) {
+        if ($Policy_version -ne "") {
             $obj_policy = $obj_policy | Where-Object {
                 $_.name -eq "$Policy_Name" -and $_.policy_version -eq $Policy_Version
             }
