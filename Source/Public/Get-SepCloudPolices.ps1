@@ -1,21 +1,11 @@
 function Get-SepCloudPolices {
     # TODO to finish; test cmd-let
-    param (
-        # Policy UUID
-        [Parameter()]
-        [string]
-        $Policy_UUID
 
-    )
-
-    # Init
-    $BaseURL = (Get-ConfigurationPath).BaseUrl
-    $URI_Tokens = 'https://' + $BaseURL + "/v1/policies"
-    # Get token
-    $Token = Get-SEPCloudToken
-
-    if ($null -ne $Token) {
-        # HTTP body content containing all the queries
+    begin {
+        # Init
+        $BaseURL = (Get-ConfigurationPath).BaseUrl
+        $URI_Tokens = 'https://' + $BaseURL + "/v1/policies"
+        $Token = Get-SEPCloudToken
         $Body = @{}
         $Headers = @{
             Host          = $BaseURL
@@ -23,8 +13,18 @@ function Get-SepCloudPolices {
             Authorization = $Token
             Body          = $Body
         }
-        $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
-        return $Response
     }
 
+    process {
+        try {
+            $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
+        }
+
+        catch {
+            $StatusCode = $_
+            $StatusCode
+        }
+
+        $Response
+    }
 }

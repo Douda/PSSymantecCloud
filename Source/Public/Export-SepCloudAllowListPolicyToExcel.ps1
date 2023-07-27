@@ -1,16 +1,16 @@
-function Export-SepCloudPolicyToExcel {
+function Export-SepCloudAllowListPolicyToExcel {
     <#
     .SYNOPSIS
         Export an Allow List policy object to a human readable excel report
     .INPUTS
-        Policy object from Get-SepCloudPolicyDetails function. Pipeline support
+        PSObject from Get-SepCloudPolicyDetails function. Pipeline support
     .OUTPUTS
         Excel file
     .DESCRIPTION
-        Takes an allow list policy object as input and exports it to an Excel file, with one tab per allow type (filename/file hash/directory etc...)
+        Converts an allow list policy object as input and exports it to an Excel file, with one tab per allow type (filename/file hash/directory etc...)
     .EXAMPLE
-        Get-SepCloudPolicyDetails -Name "My Allow list Policy" | Export-SepCloudPolicyToExcel -Path "allow_list.xlsx"
-        Gathers policy in an object, pipes the output to Export-SepCloudPolicyToExcel to export in excel format
+        Get-SepCloudPolicyDetails -Name "My Allow list Policy" | Export-SepCloudAllowListPolicyToExcel -Path "allow_list.xlsx"
+        Gathers policy in an object, pipes the output to Export-SepCloudAllowListPolicyToExcel to export in excel format
     #>
 
     param (
@@ -31,7 +31,7 @@ function Export-SepCloudPolicyToExcel {
     )
     <#
     Using as a template the following command
-    Get-SepCloudPolicyDetails -Name "MyAllowListPolicy" -Policy_version 1 | Export-SepCloudPolicyToExcel -Path "C:\Test\test5.xlsx"
+    Get-SepCloudPolicyDetails -Name "MyAllowListPolicy" -Policy_version 1 | Export-SepCloudAllowListPolicyToExcel -Path "C:\Test\test5.xlsx"
     Parsing the custom object to get the list of
     $obj_policy.features.configuration.applications
     $obj_policy.features.configuration.applications.processfile

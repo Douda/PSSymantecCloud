@@ -13,7 +13,7 @@ function Merge-SepCloudAllowList {
         Excel file takes precedence in case of conflicts
     .INPUTS
         - SEP cloud allow list policy PSObject
-        - Excel report file path (generated from Export-SepCloudPolicyToExcel CmdLet)
+        - Excel report file path (generated from Export-SepCloudAllowListPolicyToExcel CmdLet)
     .OUTPUTS
         - Custom PSObject
     .EXAMPLE

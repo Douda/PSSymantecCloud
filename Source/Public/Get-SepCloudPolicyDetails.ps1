@@ -17,8 +17,11 @@ function Get-SepCloudPolicyDetails {
 
     param (
         # Policy UUID
-        [Parameter()]
+        [Parameter(
+            ValueFromPipelineByPropertyName = $true
+        )]
         [string]
+        [Alias("policy_uid")]
         $Policy_UUID,
 
         # Policy version
@@ -29,8 +32,8 @@ function Get-SepCloudPolicyDetails {
 
         # Exact policy name
         [Parameter(
-            ValueFromPipeline,
-            Mandatory
+            Mandatory,
+            ValueFromPipeline
         )]
         [string[]]
         [Alias("Name")]
@@ -39,47 +42,39 @@ function Get-SepCloudPolicyDetails {
 
     begin {
         # Init
-        $array_resp = @()
+        $Token = Get-SEPCloudToken
+        $obj_policies = (Get-SepCloudPolices).policies
     }
 
     process {
-        # iterating through policy_name list if more than one obj
-        foreach ($p in $Policy_Name) {
-            # Get list of all SEP Cloud policies
-            $obj_policies = (Get-SepCloudPolices).policies
-            $obj_policy = ($obj_policies | Where-Object { $_.name -eq "$p" })
+        # Get list of all SEP Cloud policies and get only the one with the correct name
+        $obj_policy = ($obj_policies | Where-Object { $_.name -eq "$Policy_Name" })
 
-            # Use specific version or by default latest
-            if ($Policy_version -ne "") {
-                $obj_policy = $obj_policy | Where-Object {
-                    $_.name -eq "$p" -and $_.policy_version -eq $Policy_Version
-                }
-            } else {
-                $obj_policy = ($obj_policy | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
+        # Use specific version or by default latest
+        if ($Policy_version -ne "") {
+            $obj_policy = $obj_policy | Where-Object {
+                $_.name -eq "$Policy_Name" -and $_.policy_version -eq $Policy_Version
             }
-
-            $Policy_UUID = ($obj_policy).policy_uid
-            $Policy_Version = ($obj_policy).policy_version
-            $BaseURL = (Get-ConfigurationPath).BaseUrl
-            $URI = 'https://' + $BaseURL + "/v1/policies/$Policy_UUID/versions/$Policy_Version"
-            # Get token
-            $Token = Get-SEPCloudToken
-
-            if ($null -ne $Token) {
-                $Body = @{}
-                $Headers = @{
-                    Host          = $BaseURL
-                    Accept        = "application/json"
-                    Authorization = $Token
-                    Body          = $Body
-                }
-                $Resp = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
-                $array_resp += $Resp
-            }
+        } else {
+            $obj_policy = ($obj_policy | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
         }
-    }
 
-    end {
-        return $array_resp
+        $Policy_UUID = ($obj_policy).policy_uid
+        $Policy_Version = ($obj_policy).policy_version
+        $BaseURL = (Get-ConfigurationPath).BaseUrl
+        $URI = 'https://' + $BaseURL + "/v1/policies/$Policy_UUID/versions/$Policy_Version"
+
+        if ($null -ne $Token) {
+            $Body = @{}
+            $Headers = @{
+                Host          = $BaseURL
+                Accept        = "application/json"
+                Authorization = $Token
+                Body          = $Body
+            }
+            $Resp = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
+        }
+
+        $Resp
     }
 }

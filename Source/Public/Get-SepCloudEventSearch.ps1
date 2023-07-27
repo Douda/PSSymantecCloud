@@ -1,5 +1,5 @@
-function Get-SepCloudEvents {
-    <# TODO fill description for Get-SepCloudEvents
+function Get-SepCloudEventSearch {
+    <# TODO fill description for Get-SepCloudEventSearch
     .SYNOPSIS
         Get list of SEP Cloud Events. By default, every events for the past 30 days
     .DESCRIPTION
@@ -9,9 +9,9 @@ function Get-SepCloudEvents {
     .LINK
         https://github.com/Douda/PSSymantecCloud
     .EXAMPLE
-        Get-SepCloudEvents -FileDetection
+        Get-SepCloudEventSearch -FileDetection
     .EXAMPLE
-        Get-SepCloudEvents - Query "type_id:8031 OR type_id:8032 OR type_id:8033"
+        Get-SepCloudEventSearch - Query "type_id:8031 OR type_id:8032 OR type_id:8033"
     #>
 
     param (

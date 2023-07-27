@@ -1,29 +1,21 @@
-function Get-SepCloudDeviceList {
+function Get-SepCloudDevices {
     <# TODO fill up description
     .SYNOPSIS
         Gathers list of devices from the SEP Cloud console
-    .DESCRIPTION
-        A longer description of the function, its purpose, common use cases, etc.
-
     .PARAMETER Computername
     Specify one or many computer names. Accepts pipeline (up to 10 devices per query)
     Supports partial match
-
     .PARAMETER is_online
     Switch to lookup only online machines
-
     .PARAMETER Device_status
     Lookup devices per security status. Accepts only "SECURE", "AT_RISK", "COMPROMISED", "NOT_COMPUTED"
-
     .EXAMPLE
-    Get-SepCloudDeviceList
-
+    Get-SepCloudDevices
     .EXAMPLE
-    Get-SepCloudDeviceList -Computername MyComputer
-
+    Get-SepCloudDevices -Computername MyComputer
     .EXAMPLE
-    Get-SepCloudDeviceList -is_online -Device_status AT_RISK
-        #>
+    Get-SepCloudDevices -is_online -Device_status AT_RISK
+    #>
 
     [CmdletBinding()]
     param (
