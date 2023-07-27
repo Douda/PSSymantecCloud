@@ -1,4 +1,4 @@
-function Get-SepCloudDeviceList {
+function Get-SepCloudDevices {
     <# TODO fill up description
     .SYNOPSIS
         Gathers list of devices from the SEP Cloud console
@@ -16,13 +16,13 @@ function Get-SepCloudDeviceList {
     Lookup devices per security status. Accepts only "SECURE", "AT_RISK", "COMPROMISED", "NOT_COMPUTED"
 
     .EXAMPLE
-    Get-SepCloudDeviceList
+    Get-SepCloudDevices
 
     .EXAMPLE
-    Get-SepCloudDeviceList -Computername MyComputer
+    Get-SepCloudDevices -Computername MyComputer
 
     .EXAMPLE
-    Get-SepCloudDeviceList -is_online -Device_status AT_RISK
+    Get-SepCloudDevices -is_online -Device_status AT_RISK
         #>
 
     [CmdletBinding()]
