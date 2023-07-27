@@ -1,10 +1,26 @@
 function Get-SepCloudDeviceDetails {
     # TODO add documentation
+    <#
+    .SYNOPSIS
+        Gathers device details from the SEP Cloud console
+    .DESCRIPTION
+        Gathers device details from the SEP Cloud console
+    .PARAMETER Device_ID
+        id used to lookup a unique computer
+    .NOTES
+        Information or caveats about the function e.g. 'This function is not supported in Linux'
+    .EXAMPLE
+        Get-SepCloudDeviceDetails -id wduiKXDDSr2CVrRaqrFKNx
+    .EXAMPLE
+        Get-SepCloudDeviceDetails -computername MyComputer
+    #>
+
     [CmdletBinding()]
     param (
         # device_ID parameter
         [Parameter(
             ValueFromPipelineByPropertyName = $true)]
+        [Alias("id")]
         [string]
         $Device_ID,
 

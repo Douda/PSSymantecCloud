@@ -27,13 +27,12 @@ function Get-SepThreatIntelFileProtection {
     begin {
         # Init
         $BaseURL = (Get-ConfigurationPath).BaseUrl
-        # Get token
         $Token = Get-SEPCloudToken
     }
 
     process {
-        # $URI_Tokens in the process block for pipeline support
-        $URI_Tokens = 'https://' + $BaseURL + "/v1/threat-intel/protection/file/$file_sha256"
+        # $URI in the process block for pipeline support
+        $URI = 'https://' + $BaseURL + "/v1/threat-intel/protection/file/$file_sha256"
 
         if ($null -ne $Token) {
             # HTTP body content containing all the queries
@@ -44,8 +43,8 @@ function Get-SepThreatIntelFileProtection {
                 Authorization = $Token
                 Body          = $Body
             }
-            $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
-            return $Response
+            $Response = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
+            $Response
         }
     }
 }

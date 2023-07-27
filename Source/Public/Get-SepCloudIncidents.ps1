@@ -63,7 +63,6 @@ function Get-SepCloudIncidents {
             $start_date = ((Get-Date).addDays(-29)  | Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK")
             $Body.Add("start_date", $start_date)
             $Body.Add("end_date", $end_date)
-            $Body_Json = ConvertTo-Json $Body
 
             # Iterating through all parameter and adding them to the HTTP body
             switch ($PSBoundParameters.Keys) {
@@ -80,6 +79,7 @@ function Get-SepCloudIncidents {
                 }
             }
 
+            $Body_Json = ConvertTo-Json $Body
             $Headers = @{
                 Host           = $BaseURL
                 Accept         = "application/json"
