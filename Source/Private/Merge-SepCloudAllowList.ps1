@@ -51,7 +51,17 @@ function Merge-SepCloudAllowList {
     )
 
     # Get policy details to compare with Excel file
-    $obj_policy = Get-SepCloudPolicyDetails -Policy_Name $Policy_Name -Policy_Version $Policy_Version
+    # Use specific version or by default latest version
+    switch ($PSBoundParameters.Keys) {
+        'Policy_Version' {
+            $obj_policy = Get-SepCloudPolicyDetails -Policy_Name $Policy_Name -Policy_Version $Policy_Version
+        }
+        Default {}
+    }
+
+    if ($null -eq $PSBoundParameters['Policy_Version']) {
+        $obj_policy = Get-SepCloudPolicyDetails -Policy_Name $Policy_Name
+    }
 
     # Import excel report as a structured object with
     $obj_policy_excel = Get-ExcelAllowListObject -Path $excel_path
@@ -225,22 +235,30 @@ function Merge-SepCloudAllowList {
     # Comparison with "Extensions" tab
     $policy_extensions = $obj_policy.features.configuration.extensions
     $excel_extensions = $obj_policy_excel.extensions
+    $extensions_list_to_add = @()
+
+
     foreach ($line in $excel_extensions.names) {
         # If extension appears in both lists
-        if ($policy_extensions.names.contains($line.names)) {
+        if ($policy_extensions.names.contains($line)) {
             # No changes needed
             continue
         } else {
             # if extension only in excel list, set the extension to the "add" hive
-            [PSCustomObject]$ext = @{
-                Names     = $line
-                scheduled = $true
-                features  = 'AUTO_PROTECT'
-            }
-            $obj_body.add.AddExtensions(
-                $ext
-            )
+            # Adding it to $extensions_list_to_add
+            $extensions_list_to_add += $line
         }
+    }
+    # If extensions to add not empty
+    if ($null -ne $extensions_list_to_add) {
+        [PSCustomObject]$ext = @{
+            Names     = $extensions_list_to_add
+            scheduled = $true
+            features  = 'AUTO_PROTECT'
+        }
+        $obj_body.add.AddExtensions(
+            $ext
+        )
     }
 
     # Parsing then policy object
