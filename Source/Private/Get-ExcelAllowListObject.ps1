@@ -6,7 +6,7 @@ function Get-ExcelAllowListObject {
         Imports excel allow list report as a PSObject.
         Same structure that Get-SepCloudPolicyDetails uses to compare Excel allow list and SEP Cloud allow list policy
     .EXAMPLE
-        Get-ExcelAllowListObject -Excel "WorkstationsAllowListPolicy.xlsx"
+        Get-ExcelAllowListObject -Path "WorkstationsAllowListPolicy.xlsx"
         Imports the excel file and returns a structured PSObject
     .INPUTS
         Excel path of allow list policy previously generated from Export-SepCloudAllowListPolicyToExcel CmdLet
