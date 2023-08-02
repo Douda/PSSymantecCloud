@@ -16,6 +16,8 @@ function Get-SepCloudTargetRules {
     }
 
     process {
+        # Fake comment
+        #TODO: to remove
         try {
             $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
         }
