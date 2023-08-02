@@ -24,6 +24,8 @@ class ExceptionStructure {
     [object] $ips_hosts
     [Extensions] $Extensions
     [object] $windows
+    [object] $linux
+    [object] $mac
     # Setting up the PSCustomObject structure from the JSON example : https://pastebin.com/FaKYpgw3
     # TODO finish obj structure
     ExceptionStructure() {
