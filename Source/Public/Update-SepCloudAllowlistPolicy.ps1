@@ -70,17 +70,16 @@ function Update-SepCloudAllowlistPolicy {
     # Verify parameters
     switch ($PSBoundParameters.Keys) {
         'Policy_Version' {
-            # Merge cloud policy with excel file
-            $obj_policy = Merge-CloudPolicyWithExcel -Excel $excel_path -Policy_Name $Policy_Name -Policy_Version $Policy_Version
+            # Merge cloud policy with excel file with specified version
+            $obj_policy = Merge-SepCloudAllowList -Excel $excel_path -Policy_Name $Policy_Name -Policy_Version $Policy_Version
         }
-        Default {
-            #Get latest cloud policy if no version specified
-            $CloudPolicy = Get-SepCloudPolicyDetails -Name $Policy_Name
-        }
+        Default {}
     }
 
-    # Excel file to import data from
-    $excel_obj_policy = Get-ExcelAllowListObject -Path $excel_path
+    if ($null -eq $PSBoundParameters['Policy_Version']) {
+        # Merge cloud policy with excel file with latest version
+        $obj_policy = Merge-SepCloudAllowList -Excel $excel_path -Policy_Name $Policy_Name
+    }
 
 
     # Converting PSObj to json
