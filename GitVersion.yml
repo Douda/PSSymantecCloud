@@ -11,6 +11,7 @@ branches:
     increment: Patch
   develop:
     mode: ContinuousDeployment
+    tag: beta
     increment: Minor
 ignore:
   sha: []
