@@ -10,6 +10,7 @@ function Export-SepCloudAllowListPolicyToExcel {
         Excel file
     .DESCRIPTION
         Exports an allow list policy object it to an Excel file, with one tab per allow type (filename/file hash/directory etc...)
+        Supports pipeline input with allowlist policy object
     .EXAMPLE
         Export-SepCloudAllowListPolicyToExcel -Name "My Allow list Policy" -Version 1 -Path "allow_list.xlsx"
         Exports the policy with name "My Allow list Policy" and version 1 to an excel file named "allow_list.xlsx"
@@ -20,7 +21,7 @@ function Export-SepCloudAllowListPolicyToExcel {
 
     param (
         # Path of Export
-        [Parameter()]
+        [Parameter(Mandatory)]
         [Alias("Path")]
         [Alias("Excel")]
         [string]
@@ -33,13 +34,17 @@ function Export-SepCloudAllowListPolicyToExcel {
         $Policy_Version,
 
         # Exact policy name
+        [Parameter()]
+        [string]
+        [Alias("Name")]
+        $Policy_Name,
+
+        # Policy Obj to work with
         [Parameter(
-            Mandatory,
             ValueFromPipeline
         )]
-        [string[]]
-        [Alias("Name")]
-        $Policy_Name
+        [pscustomobject]
+        $obj_policy
     )
     <#
     Using as a template the following command
@@ -58,7 +63,15 @@ function Export-SepCloudAllowListPolicyToExcel {
     $obj_policy.features.configuration.windows.directories
     #>
 
-    $obj_policy = Get-SepCloudPolicyDetails -Name $Policy_Name -Policy_Version $Policy_Version
+    # If no PSObject is provided, get it from Get-SepCloudPolicyDetails
+    if ($null -eq $obj_policy) {
+        # Use specific version or by default latest
+        if ($Policy_version -ne "") {
+            $obj_policy = Get-SepCloudPolicyDetails -Name $Policy_Name -Policy_Version $Policy_Version
+        } else {
+            $obj_policy = Get-SepCloudPolicyDetails -Name $Policy_Name
+        }
+    }
 
     # Init
     $Applications = $obj_policy.features.configuration.applications.processfile
@@ -67,6 +80,10 @@ function Export-SepCloudAllowListPolicyToExcel {
     $Extensions = $obj_policy.features.configuration.extensions.names
     $Files = $obj_policy.features.configuration.windows.files
     $Directories = $obj_policy.features.configuration.windows.directories
+    $linux_Files = $obj_policy.features.configuration.linux.files
+    $linux_Directories = $obj_policy.features.configuration.linux.directories
+    $mac_Files = $obj_policy.features.configuration.mac.files
+    $mac_Directories = $obj_policy.features.configuration.mac.directories
 
     # Split IPS ipv4 addresses & subnet in 2 different arrays to export in 2 different excel sheets
     $Ips_Hosts = @()
@@ -104,4 +121,9 @@ function Export-SepCloudAllowListPolicyToExcel {
 
     $Files | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Files" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
     $Directories | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Directories" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
+    $linux_Files | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Linux Files" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
+    $linux_Directories | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Linux Directories" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
+    $mac_Files | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Mac Files" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
+    $mac_Directories | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Mac Directories" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
+
 }

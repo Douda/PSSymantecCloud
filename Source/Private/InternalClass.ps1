@@ -37,6 +37,14 @@ class ExceptionStructure {
             files       = [System.Collections.Generic.List[object]]::new()
             directories = [System.Collections.Generic.List[object]]::new()
         }
+        $this.Linux = [PSCustomObject]@{
+            files       = [System.Collections.Generic.List[object]]::new()
+            directories = [System.Collections.Generic.List[object]]::new()
+        }
+        $this.mac = [PSCustomObject]@{
+            files       = [System.Collections.Generic.List[object]]::new()
+            directories = [System.Collections.Generic.List[object]]::new()
+        }
     }
 
     # method to add APPLICATIONS tab to the main obj
@@ -107,7 +115,7 @@ class ExceptionStructure {
         $this.Extensions = $Extension
     }
 
-    # Method to add FILES excel tab to obj
+    # Method to add Windows FILES excel tab to obj
     [void] AddWindowsFiles(
         [string] $pathvariable,
         [string] $path,
@@ -122,7 +130,37 @@ class ExceptionStructure {
             })
     }
 
-    # Method to add DIRECTORIES excel tab to obj
+    # Method to add Linux FILES excel tab to obj
+    [void] AddLinuxFiles(
+        [string] $pathvariable,
+        [string] $path,
+        [bool] $scheduled,
+        [array] $features
+    ) {
+        $this.linux.files.add([pscustomobject]@{
+                pathvariable = $pathvariable
+                path         = $path
+                scheduled    = $scheduled
+                features     = $features
+            })
+    }
+
+    # Method to add Mac FILES excel tab to obj
+    [void] AddMacFiles(
+        [string] $pathvariable,
+        [string] $path,
+        [bool] $scheduled,
+        [array] $features
+    ) {
+        $this.mac.files.add([pscustomobject]@{
+                pathvariable = $pathvariable
+                path         = $path
+                scheduled    = $scheduled
+                features     = $features
+            })
+    }
+
+    # Method to add Windows DIRECTORIES excel tab to obj
     [void] AddWindowsDirectories(
         [string] $pathvariable,
         [string] $directory,
@@ -131,6 +169,40 @@ class ExceptionStructure {
         [array] $features
     ) {
         $this.windows.directories.add([pscustomobject]@{
+                pathvariable = $pathvariable
+                directory    = $directory
+                recursive    = $recursive
+                scheduled    = $scheduled
+                features     = $features
+            })
+    }
+
+    # Method to add Linux DIRECTORIES excel tab to obj
+    [void] AddLinuxDirectories(
+        [string] $pathvariable,
+        [string] $directory,
+        [bool] $recursive,
+        [bool] $scheduled,
+        [array] $features
+    ) {
+        $this.linux.directories.add([pscustomobject]@{
+                pathvariable = $pathvariable
+                directory    = $directory
+                recursive    = $recursive
+                scheduled    = $scheduled
+                features     = $features
+            })
+    }
+
+    # Method to add Mac DIRECTORIES excel tab to obj
+    [void] AddMacDirectories(
+        [string] $pathvariable,
+        [string] $directory,
+        [bool] $recursive,
+        [bool] $scheduled,
+        [array] $features
+    ) {
+        $this.mac.directories.add([pscustomobject]@{
                 pathvariable = $pathvariable
                 directory    = $directory
                 recursive    = $recursive
