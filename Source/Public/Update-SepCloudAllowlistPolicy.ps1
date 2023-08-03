@@ -96,7 +96,7 @@ function Update-SepCloudAllowlistPolicy {
             Accept         = "application/json"
             Authorization  = $Token
         }
-        #$Response = Invoke-RestMethod -Method PATCH -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
+        $Response = Invoke-RestMethod -Method PATCH -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
         # TODO uncomment API query
     } else {
         Write-Error "Invalid or empty token - exit"
