@@ -112,6 +112,28 @@ class ExceptionStructure {
             })
     }
 
+    # method to add IPv6 subnet IPS_HOSTS to the main obj
+    [void] AddIpsHostsIpv6Subnet(
+        [string] $ipv6_subnet
+    ) {
+        $this.ips_hosts.add([pscustomobject]@{
+                ipv6_subnet = $ipv6_subnet
+            })
+    }
+
+    #method to add ip ranges to the main obj
+    [void] AddIpsRange(
+        [string] $ip_start,
+        [string] $ip_end
+    ) {
+        $this.ips_hosts.add([pscustomobject]@{
+                ip_range = [pscustomobject]@{
+                    ip_start = $ip_start
+                    ip_end   = $ip_end
+                }
+            })
+    }
+
     # Method to add EXTENSIONS tab to the main obj
     [void] AddExtensions([Extensions] $Extension) {
         $this.Extensions = $Extension
