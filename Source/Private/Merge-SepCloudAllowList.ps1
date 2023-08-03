@@ -1,5 +1,5 @@
 function Merge-SepCloudAllowList {
-    <# TODO add description
+    <#
     .SYNOPSIS
         Merges 2 SEP Cloud allow list policy to a single PSObject
     .DESCRIPTION
@@ -13,15 +13,11 @@ function Merge-SepCloudAllowList {
         Excel file takes precedence in case of conflicts
     .INPUTS
         - SEP cloud allow list policy PSObject
-        - Excel report file path (generated from Export-SepCloudAllowListPolicyToExcel CmdLet)
+        - Excel report file path (previously generated from Export-SepCloudAllowListPolicyToExcel CmdLet)
     .OUTPUTS
         - Custom PSObject
     .EXAMPLE
-        Get-SepCloudPolicyDetails -policy_name "My Policy" -policy_version "5" | Merge-SepCloudAllowList -Excel ".\Data\AllowlistReportForWorkstations.xlsx"
-        Gathers SEP Cloud policy, compare it with an excel based allow list policy and returns differences
-    .EXAMPLE
-        Get-SepCloudPolicyDetails -policy_name "My Policy" | Merge-SepCloudAllowList -Excel ".\Data\Excel.xlsx" | Update-SepCloudAllowlistPolicy
-        TODO : verify this example works
+        Merge-SepCloudAllowList -Policy_Name "My Allow List Policy For Servers" -Excel ".\Data\Centralized_exceptions_for_servers.xlsx" | Update-SepCloudAllowlistPolicy
     #>
 
     param (
@@ -70,20 +66,12 @@ function Merge-SepCloudAllowList {
     # to HTTP JSON Body with "add" and "remove" hive
     $obj_body = [UpdateAllowlist]::new()
 
-    # Comparison starts here
-    <#
-        As there are no built-in ways to compare 2 deeply nested PSObject
-        Parse through every allow list type (Applications/certificates/etc...) and compare as followed :
-        - If exception type (file/hash/etc) found in both excel / baseline policy : no changes
-        - If found in Excel but not in baseline : set it in "add" hive
-        - If found in baseline but not Excel : set it in "remove" hive
+    ###########################
+    # Comparison starts here  #
+    ###########################
 
-        UPDATE
-        - instead of adding the logic in this function (Update-SepCloudAllowlistPolicy)
-        - Create the Merge-SepCloudAllowList function to compare 2 "ExceptionStructure" classes
-    #>
-
-    # Comparison with "Applications" tab
+    # "Applications" tab
+    # Parsing excel object first
     $policy_sha2 = $obj_policy.features.configuration.applications.processfile
     $excel_sha2 = $obj_policy_excel.Applications.processfile
     # Parsing first excel object
@@ -112,7 +100,77 @@ function Merge-SepCloudAllowList {
         }
     }
 
-    # Comparison with "Certificates" tab
+    # "Files" tab
+    # Parsing excel object first
+    $policy_files = $obj_policy.features.configuration.windows.files
+    $excel_files = $obj_policy_excel.windows.files
+    foreach ($line in $excel_files) {
+        # If file appears in both lists
+        if ($policy_files.path.contains($line.Path)) {
+            # No changes needed
+            continue
+        } else {
+            # if file only in excel list, set the file to the "add" hive
+            $obj_body.add.AddWindowsFiles(
+                $line.pathvariable,
+                $line.path,
+                $line.scheduled,
+                $line.features
+            )
+        }
+    }
+    # Parsing then policy object
+    foreach ($line in $policy_files) {
+        # if file appears only in policy (so not in Excel)
+        if (-not $excel_files.path.contains($line.path)) {
+            # set the file to the "remove" hive
+            $obj_body.remove.AddWindowsFiles(
+                $line.pathvariable,
+                $line.path,
+                $line.scheduled,
+                $line.features
+            )
+        }
+    }
+
+    # "Directories" tab
+    # Parsing excel object first
+    $policy_directories = $obj_policy.features.configuration.windows.directories
+    $excel_directories = $obj_policy_excel.windows.directories
+    foreach ($line in $excel_directories) {
+        # If directory appears in both lists
+        if ($policy_directories.directory.contains($line.directory)) {
+            # No changes needed
+            continue
+        } else {
+            # if directory only in excel list, set the directory to the "add" hive
+            $obj_body.add.AddWindowsDirectories(
+                $line.pathvariable,
+                $line.directory,
+                $line.recursive,
+                $line.scheduled,
+                $line.features
+            )
+        }
+    }
+    # parsing then policy object
+    foreach ($line in $policy_directories) {
+        # if directory appears only in policy (so not in Excel)
+        if (-not $excel_directories.directory.contains($line.directory)) {
+            # set the directory to the "remove" hive
+            $obj_body.remove.AddWindowsDirectories(
+                $line.pathvariable,
+                $line.directory,
+                $line.recursive,
+                $line.scheduled,
+                $line.features
+            )
+        }
+    }
+
+    # "Certificates" tab
+    # Parsing excel object first
+    # TODO confirm this is the right way to compare certificates
     $policy_certs = $obj_policy.features.configuration.certificates
     $excel_certs = $obj_policy_excel.certificates
     foreach ($line in $excel_certs) {
@@ -145,7 +203,8 @@ function Merge-SepCloudAllowList {
         }
     }
 
-    # Comparison with "Webdomains" tab
+    # "Webdomains" tab
+    # Parsing excel object first
     $policy_webdomains = $obj_policy.features.configuration.webdomains
     $excel_webdomains = $obj_policy_excel.webdomains
     foreach ($line in $excel_webdomains) {
@@ -172,7 +231,8 @@ function Merge-SepCloudAllowList {
         }
     }
 
-    # Comparison with "Ips_hosts" tab
+    # "Ips_hosts" tab
+    # Parsing excel object first
     $policy_ips_hosts = $obj_policy.features.configuration.ips_hosts
     $excel_ips_hosts = $obj_policy_excel.ips_hosts
     foreach ($line in $excel_ips_hosts) {
@@ -199,19 +259,105 @@ function Merge-SepCloudAllowList {
         }
     }
 
-    # Comparison with "Ips_Hosts_subnet" tab
-    $policy_ips_hosts_subnet = $obj_policy.features.configuration.ips_hosts.ipv4_subnet
-    $excel_ips_hosts_subnet = $obj_policy_excel.ips_hosts.ipv4_subnet
-    foreach ($line in $excel_ips_hosts_subnet) {
-        # Getting rid of null arrays in IPS subnets
-        if ($null -ne $line) {
-            # If same IP + mask appears in both lists
-            if ($policy_ips_hosts_subnet.ip.contains($line.ip) -and $policy_ips_hosts_subnet.mask.contains($line.mask)) {
-                # No changes needed
+    # "Ips_Hosts_subnet_v6" tab
+    # Parsing excel object first
+    $policy_ips_hosts_subnet_v6 = $obj_policy.features.configuration.ips_hosts.ipv6_subnet | Where-Object { $_ }
+    $excel_ips_hosts_subnet_v6 = $obj_policy_excel.ips_hosts.ipv6_subnet | Where-Object { $_ }
+    foreach ($line in $excel_ips_hosts_subnet_v6) {
+        # if subnet appears in both lists
+        if ($policy_ips_hosts_subnet_v6.contains($line)) {
+            # no changes
+            continue
+        } else {
+            # if subnet only in excel list, set the subnet to the "add" hive
+            $obj_body.add.AddIpsHostsIpv6Subnet(
+                $line
+            )
+        }
+        # }
+    }
+
+    # parsing then policy object
+    foreach ($line in $policy_ips_hosts_subnet_v6) {
+        # if subnet appears only in policy (so not in Excel)
+        if (-not $excel_ips_hosts_subnet_v6.contains($line)) {
+            # set the subnet to the "remove" hive
+            $obj_body.remove.AddIpsHostsIpv6Subnet(
+                $line
+            )
+        }
+    }
+
+    # "ip ranges" tab
+    # Parsing excel object first
+    $policy_ip_range = $obj_policy.features.configuration.ips_hosts.ip_range | Where-Object { $_ }
+    $excel_ip_range = $obj_policy_excel.ips_hosts.ip_range | Where-Object { $_ }
+    foreach ($line in $excel_ip_range) {
+        # If ip_start appears in both lists
+        if ($policy_ip_range.ip_start.contains($line.ip_start)) {
+            # find the index of the ip_start in the policy list
+            $policy_index = $policy_ip_range.ip_start.IndexOf($line.ip_start)
+            # use index to find the corresponding ip_end
+            $policy_ip_end = $policy_ip_range.ip_end[$policy_index]
+            # if policy_ip_end is the same as in excel list, no changes needed
+            if ($policy_ip_end -eq $line.ip_end) {
                 continue
             } else {
-                # if Ips_Hosts_subnet only in excel list
-                # set the Ips_Hosts_subnet to the "add" hive
+                # if policy_ip_end is different, remove the ip_start & ip_end from policy and ...
+                $obj_body.remove.AddIpsRange(
+                    $policy_ip_range.ip_start[$policy_index],
+                    $policy_ip_range.ip_end[$policy_index]
+                )
+                # ... set the ip range from excel to the "add" hive
+                $obj_body.add.AddIpsRange(
+                    $line.ip_start,
+                    $line.ip_end
+                )
+            }
+        }
+        # if ip_start appears only in excel list
+        else {
+            # set the ip range to the "add" hive
+            $obj_body.add.AddIpsRange(
+                $line.ip_start,
+                $line.ip_end
+            )
+        }
+    }
+
+    # then parsing policy object
+    foreach ($line in $policy_ip_range) {
+        # if ip_start appears only in policy (so not in Excel)
+        if (-not $excel_ip_range.ip_start.contains($line.ip_start)) {
+            # set the ip range to the "remove" hive
+            $obj_body.remove.AddIpsRange(
+                $line.ip_start,
+                $line.ip_end
+            )
+        }
+    }
+
+    # "Ips_Hosts_subnet_v4" tab
+    # Parsing excel object first
+    $policy_ips_hosts_subnet_v4 = $obj_policy.features.configuration.ips_hosts.ipv4_subnet | Where-Object { $_ }
+    $excel_ips_hosts_subnet_v4 = $obj_policy_excel.ips_hosts.ipv4_subnet | Where-Object { $_ }
+    foreach ($line in $excel_ips_hosts_subnet_v4) {
+        # If ip appears in both lists
+        if ($policy_ips_hosts_subnet_v4.ip.contains($line.ip)) {
+            # find the index of the ip in the policy list
+            $policy_index = $policy_ips_hosts_subnet_v4.ip.IndexOf($line.ip)
+            # use index to find the corresponding mask
+            $policy_mask = $policy_ips_hosts_subnet_v4.mask[$policy_index]
+            # if policy_mask is the same as in excel list, no changes needed
+            if ($policy_mask -eq $line.mask) {
+                continue
+            } else {
+                # if policy_mask is different, remove the ip and mask from policy and ...
+                $obj_body.remove.AddIpsHostsIpv4Subnet(
+                    $policy_ips_hosts_subnet_v4.ip[$policy_index],
+                    $policy_ips_hosts_subnet_v4.mask[$policy_index]
+                )
+                # ... set the ip from excel to the "add" hive
                 $obj_body.add.AddIpsHostsIpv4Subnet(
                     $line.ip,
                     $line.mask
@@ -220,11 +366,11 @@ function Merge-SepCloudAllowList {
         }
     }
 
-    # Parsing then policy object
-    foreach ($line in $policy_ips_hosts_subnet) {
-        # if Ips_Hosts_subnet appears only in policy (so not in Excel)
-        if (-not $excel_ips_hosts_subnet.ip.contains($line.ip) -and $excel_ips_hosts_subnet.mask.contains($line.mask)) {
-            # set the Ips_Hosts_subnet to the "remove" hive
+    # then parsing policy object
+    foreach ($line in $policy_ips_hosts_subnet_v4) {
+        # if ip appears only in policy (so not in Excel)
+        if (-not $excel_ips_hosts_subnet_v4.ip.contains($line.ip)) {
+            # set the ip to the "remove" hive
             $obj_body.remove.AddIpsHostsIpv4Subnet(
                 $line.ip,
                 $line.mask
@@ -232,12 +378,11 @@ function Merge-SepCloudAllowList {
         }
     }
 
-    # Comparison with "Extensions" tab
+    # "Extensions" tab
+    # Parsing excel object first
     $policy_extensions = $obj_policy.features.configuration.extensions
     $excel_extensions = $obj_policy_excel.extensions
     $extensions_list_to_add = @()
-
-
     foreach ($line in $excel_extensions.names) {
         # If extension appears in both lists
         if ($policy_extensions.names.contains($line)) {
@@ -280,13 +425,149 @@ function Merge-SepCloudAllowList {
         }
         $obj_body.remove.AddExtensions(
             $ext
-    )}
+        )
+    }
 
-    # Comparison with "Files" tab
+    # "Linux Files" tab
+    # Parsing excel object first
+    $policy_linux_files = $obj_policy.features.configuration.linux.files
+    $excel_linux_files = $obj_policy_excel.linux.files
+    foreach ($line in $excel_linux_files) {
+        # If file appears in both lists
+        if ($policy_linux_files.contains($line.Path)) {
+            # No changes needed
+            continue
+        } else {
+            # if file only in excel list, set the file to the "add" hive
+            $obj_body.add.AddLinuxFiles(
+                $line.pathvariable,
+                $line.path,
+                $line.scheduled,
+                $line.features
+            )
+        }
+    }
 
+    # Parsing then policy object
+    foreach ($line in $policy_linux_files) {
+        # if file appears only in policy (so not in Excel)
+        if (-not $excel_linux_files.path.contains($line.path)) {
+            # set the file to the "remove" hive
+            $obj_body.remove.AddLinuxFiles(
+                $line.pathvariable,
+                $line.path,
+                $line.scheduled,
+                $line.features
+            )
+        }
+    }
 
-    # Comparison ends here
-    # ...
+    # "Linux Directories" tab
+    # Parsing excel object first
+    $policy_linux_directories = $obj_policy.features.configuration.linux.directories
+    $excel_linux_directories = $obj_policy_excel.linux.directories
+    foreach ($line in $excel_linux_directories) {
+        # If directory appears in both lists
+        if ($policy_linux_directories.contains($line.directory)) {
+            # No changes needed
+            continue
+        } else {
+            # if directory only in excel list, set the directory to the "add" hive
+            $obj_body.add.AddLinuxDirectories(
+                $line.pathvariable,
+                $line.directory,
+                $line.recursive,
+                $line.scheduled,
+                $line.features
+            )
+        }
+    }
+
+    # Parsing then policy object
+    foreach ($line in $policy_linux_directories) {
+        # if directory appears only in policy (so not in Excel)
+        if (-not $excel_linux_directories.directory.contains($line.directory)) {
+            # set the directory to the "remove" hive
+            $obj_body.remove.AddLinuxDirectories(
+                $line.pathvariable,
+                $line.directory,
+                $line.recursive,
+                $line.scheduled,
+                $line.features
+            )
+        }
+    }
+
+    # "Mac Files" tab
+    # Parsing excel object first
+    $policy_mac_files = $obj_policy.features.configuration.mac.files
+    $excel_mac_files = $obj_policy_excel.mac.files
+    foreach ($line in $excel_mac_files) {
+        # If file appears in both lists
+        if ($policy_mac_files.contains($line.Path)) {
+            # No changes needed
+            continue
+        } else {
+            # if file only in excel list, set the file to the "add" hive
+            $obj_body.add.AddMacFiles(
+                $line.pathvariable,
+                $line.path,
+                $line.scheduled,
+                $line.features
+            )
+        }
+    }
+
+    # Parsing then policy object
+    foreach ($line in $policy_mac_files) {
+        # if file appears only in policy (so not in Excel)
+        if (-not $excel_mac_files.path.contains($line.path)) {
+            # set the file to the "remove" hive
+            $obj_body.remove.AddMacFiles(
+                $line.pathvariable,
+                $line.path,
+                $line.scheduled,
+                $line.features
+            )
+        }
+    }
+
+    # "Mac Directories" tab
+    # Parsing excel object first
+    $policy_mac_directories = $obj_policy.features.configuration.mac.directories
+    $excel_mac_directories = $obj_policy_excel.mac.directories
+    foreach ($line in $excel_mac_directories) {
+        # If directory appears in both lists
+        if ($policy_mac_directories.contains($line.directory)) {
+            # No changes needed
+            continue
+        } else {
+            # if directory only in excel list, set the directory to the "add" hive
+            $obj_body.add.AddMacDirectories(
+                $line.pathvariable,
+                $line.directory,
+                $line.recursive,
+                $line.scheduled,
+                $line.features
+            )
+        }
+    }
+
+    # Parsing then policy object
+    foreach ($line in $policy_mac_directories) {
+        # if directory appears only in policy (so not in Excel)
+        if (-not $excel_mac_directories.directory.contains($line.directory)) {
+            # set the directory to the "remove" hive
+            $obj_body.remove.AddMacDirectories(
+                $line.pathvariable,
+                $line.directory,
+                $line.recursive,
+                $line.scheduled,
+                $line.features
+            )
+        }
+    }
+
 
     return $obj_body
 }
