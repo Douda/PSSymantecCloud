@@ -24,6 +24,8 @@ class ExceptionStructure {
     [object] $ips_hosts
     [Extensions] $Extensions
     [object] $windows
+    [object] $linux
+    [object] $mac
     # Setting up the PSCustomObject structure from the JSON example : https://pastebin.com/FaKYpgw3
     # TODO finish obj structure
     ExceptionStructure() {
@@ -34,6 +36,14 @@ class ExceptionStructure {
         $this.extensions = [Extensions]::new()
         # TODO Extensions obj be hashtable. Converting to JSON will not be incorrect format (list instead of k/v pair)
         $this.windows = [PSCustomObject]@{
+            files       = [System.Collections.Generic.List[object]]::new()
+            directories = [System.Collections.Generic.List[object]]::new()
+        }
+        $this.Linux = [PSCustomObject]@{
+            files       = [System.Collections.Generic.List[object]]::new()
+            directories = [System.Collections.Generic.List[object]]::new()
+        }
+        $this.mac = [PSCustomObject]@{
             files       = [System.Collections.Generic.List[object]]::new()
             directories = [System.Collections.Generic.List[object]]::new()
         }
@@ -102,12 +112,34 @@ class ExceptionStructure {
             })
     }
 
+    # method to add IPv6 subnet IPS_HOSTS to the main obj
+    [void] AddIpsHostsIpv6Subnet(
+        [string] $ipv6_subnet
+    ) {
+        $this.ips_hosts.add([pscustomobject]@{
+                ipv6_subnet = $ipv6_subnet
+            })
+    }
+
+    #method to add ip ranges to the main obj
+    [void] AddIpsRange(
+        [string] $ip_start,
+        [string] $ip_end
+    ) {
+        $this.ips_hosts.add([pscustomobject]@{
+                ip_range = [pscustomobject]@{
+                    ip_start = $ip_start
+                    ip_end   = $ip_end
+                }
+            })
+    }
+
     # Method to add EXTENSIONS tab to the main obj
     [void] AddExtensions([Extensions] $Extension) {
         $this.Extensions = $Extension
     }
 
-    # Method to add FILES excel tab to obj
+    # Method to add Windows FILES excel tab to obj
     [void] AddWindowsFiles(
         [string] $pathvariable,
         [string] $path,
@@ -122,7 +154,37 @@ class ExceptionStructure {
             })
     }
 
-    # Method to add DIRECTORIES excel tab to obj
+    # Method to add Linux FILES excel tab to obj
+    [void] AddLinuxFiles(
+        [string] $pathvariable,
+        [string] $path,
+        [bool] $scheduled,
+        [array] $features
+    ) {
+        $this.linux.files.add([pscustomobject]@{
+                pathvariable = $pathvariable
+                path         = $path
+                scheduled    = $scheduled
+                features     = $features
+            })
+    }
+
+    # Method to add Mac FILES excel tab to obj
+    [void] AddMacFiles(
+        [string] $pathvariable,
+        [string] $path,
+        [bool] $scheduled,
+        [array] $features
+    ) {
+        $this.mac.files.add([pscustomobject]@{
+                pathvariable = $pathvariable
+                path         = $path
+                scheduled    = $scheduled
+                features     = $features
+            })
+    }
+
+    # Method to add Windows DIRECTORIES excel tab to obj
     [void] AddWindowsDirectories(
         [string] $pathvariable,
         [string] $directory,
@@ -131,6 +193,40 @@ class ExceptionStructure {
         [array] $features
     ) {
         $this.windows.directories.add([pscustomobject]@{
+                pathvariable = $pathvariable
+                directory    = $directory
+                recursive    = $recursive
+                scheduled    = $scheduled
+                features     = $features
+            })
+    }
+
+    # Method to add Linux DIRECTORIES excel tab to obj
+    [void] AddLinuxDirectories(
+        [string] $pathvariable,
+        [string] $directory,
+        [bool] $recursive,
+        [bool] $scheduled,
+        [array] $features
+    ) {
+        $this.linux.directories.add([pscustomobject]@{
+                pathvariable = $pathvariable
+                directory    = $directory
+                recursive    = $recursive
+                scheduled    = $scheduled
+                features     = $features
+            })
+    }
+
+    # Method to add Mac DIRECTORIES excel tab to obj
+    [void] AddMacDirectories(
+        [string] $pathvariable,
+        [string] $directory,
+        [bool] $recursive,
+        [bool] $scheduled,
+        [array] $features
+    ) {
+        $this.mac.directories.add([pscustomobject]@{
                 pathvariable = $pathvariable
                 directory    = $directory
                 recursive    = $recursive
