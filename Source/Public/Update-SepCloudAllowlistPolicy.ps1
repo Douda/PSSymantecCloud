@@ -1,5 +1,5 @@
 function Update-SepCloudAllowlistPolicy {
-    <#
+    <# TODO verify description
     .SYNOPSIS
         Updates Symantec Allow List policy using an excel file
     .DESCRIPTION
@@ -53,8 +53,8 @@ function Update-SepCloudAllowlistPolicy {
         )]
         [string]
         [Alias("PolicyName")]
-        # TODO remove hardcoded info
-        $Policy_Name = "AB - Testing - Allowlist",
+        # TODO remove hardcoded value
+        $Policy_Name = "AB - Testing - Servers - Core - Allow List Policy",
 
         # Excel file to import data from
         [Parameter(
@@ -64,18 +64,26 @@ function Update-SepCloudAllowlistPolicy {
         [string]
         [Alias("Excel")]
         # TODO remove hardcoded excel path for dev
-        $excel_path = ".\Data\Workstations_allowlist.xlsx"
+        $excel_path = "C:\Amcor\Module\Workstations_allowlist.xlsx"
     )
 
-    # Get PSObject with Merge function
-    # Merge-SepCloudAllowList -obj_policy ***** -Excel ****
-    # To perform once merge function is ready
+    # Verify parameters
+    switch ($PSBoundParameters.Keys) {
+        'Policy_Version' {
+            # Merge cloud policy with excel file with specified version
+            $obj_policy = Merge-SepCloudAllowList -Excel $excel_path -Policy_Name $Policy_Name -Policy_Version $Policy_Version
+        }
+        Default {}
+    }
 
-    # At this stage $obj_body contains the full import of excel allow list files/directories etc..
-    # Now we need to compare this obj_body to the policy we'll update to remove duplicates
+    if ($null -eq $PSBoundParameters['Policy_Version']) {
+        # Merge cloud policy with excel file with latest version
+        $obj_policy = Merge-SepCloudAllowList -Excel $excel_path -Policy_Name $Policy_Name
+    }
+
 
     # Converting PSObj to json
-    $Body = $obj_body | ConvertTo-Json -Depth 10
+    $Body = $obj_policy | ConvertTo-Json -Depth 10
 
     # Get token for API query
     $Token = Get-SEPCloudToken
