@@ -46,47 +46,6 @@ function Get-ExcelAllowListObject {
             )
         }
 
-        # Add Certificates
-        foreach ($line in $SheetsInfo['Certificates']) {
-            $obj_policy_excel.AddCertificates(
-                $line.signature_issuer,
-                $line.signature_company_name,
-                $line."signature_fingerprint.algorithm",
-                $line."signature_fingerprint.value"
-            )
-        }
-
-        # Add WebDomains
-        foreach ($line in $SheetsInfo['Webdomains']) {
-            $obj_policy_excel.AddWebDomains(
-                $line.domain
-            )
-        }
-
-        # Add IPS Hosts
-        foreach ($line in $SheetsInfo['Ips_Hosts']) {
-            $obj_policy_excel.AddIpsHostsIpv4Address(
-                $line.ip
-            )
-        }
-
-        # Add IPS Subnet
-        foreach ($line in $SheetsInfo['Ips_Hosts_subnet']) {
-            $obj_policy_excel.AddIpsHostsIpv4Subnet(
-                $line.ip,
-                $line.mask
-            )
-        }
-
-        # Add Extensions
-        # no loop required, whole array needed
-        $obj_policy_excel.AddExtensions(@{
-                names     = $sheetsInfo['Extensions'].extensions
-                scheduled = $true
-                features  = 'AUTO_PROTECT'
-            }
-        )
-
         # Add Files
         foreach ($line in $SheetsInfo['Files']) {
             # Parse "features.X" properties to gather the feature_names in an array
@@ -105,6 +64,84 @@ function Get-ExcelAllowListObject {
                 $line.path,
                 $line.scheduled,
                 $feature_names
+            )
+        }
+
+        # Add Directories
+        foreach ($line in $SheetsInfo['Directories']) {
+            # Parse "features.X" properties to gather the feature names in an array
+            [array]$feature_names = @()
+            [array]$nb_features = $line.PSObject.properties.name | Select-String -Pattern feature
+            $i = 0
+            foreach ($feat in $nb_features) {
+                if ($null -ne $line.($nb_features[$i])) {
+                    $feature_names += $line.($nb_features[$i])
+                }
+                $i++
+            }
+            # Use AddWindowsDirectories
+            $obj_policy_excel.AddWindowsDirectories(
+                $line.pathvariable,
+                $line.directory,
+                $line.recursive,
+                $line.scheduled,
+                $feature_names
+            )
+        }
+
+        # Add Extensions
+        # no loop required, whole array needed
+        $obj_policy_excel.AddExtensions(@{
+                names     = $sheetsInfo['Extensions'].extensions
+                scheduled = $true
+                features  = 'AUTO_PROTECT'
+            }
+        )
+
+        # Add WebDomains
+        foreach ($line in $SheetsInfo['Webdomains']) {
+            $obj_policy_excel.AddWebDomains(
+                $line.domain
+            )
+        }
+
+        # Add IPS Hosts
+        foreach ($line in $SheetsInfo['Ips_Hosts']) {
+            $obj_policy_excel.AddIpsHostsIpv4Address(
+                $line.ip
+            )
+        }
+
+        # Add IPS Subnet v4
+        foreach ($line in $SheetsInfo['Ips_Hosts_subnet_v4']) {
+            $obj_policy_excel.AddIpsHostsIpv4Subnet(
+                $line.ip,
+                $line.mask
+            )
+        }
+
+        # Add IPS Subnet v6
+        foreach ($line in $SheetsInfo['Ips_Hosts_subnet_v6']) {
+            $obj_policy_excel.AddIpsHostsIpv6Subnet(
+                $line.ipv6_subnet
+            )
+        }
+
+        # Add IPs ranges (includes both IPv4 & v6)
+        foreach ($line in $SheetsInfo['Ips_range']) {
+            $obj_policy_excel.AddIpsRange(
+                $line.ip_start,
+                $line.ip_end
+            )
+        }
+
+        # Add Certificates
+        foreach ($line in $SheetsInfo['Certificates']) {
+            $obj_policy_excel.AddCertificates(
+                $line.signature_issuer,
+                $line.signature_company_name,
+                $line."signature_fingerprint.algorithm",
+                $line."signature_fingerprint.value"
             )
         }
 
@@ -150,27 +187,7 @@ function Get-ExcelAllowListObject {
             )
         }
 
-        # Add Directories
-        foreach ($line in $SheetsInfo['Directories']) {
-            # Parse "features.X" properties to gather the feature names in an array
-            [array]$feature_names = @()
-            [array]$nb_features = $line.PSObject.properties.name | Select-String -Pattern feature
-            $i = 0
-            foreach ($feat in $nb_features) {
-                if ($null -ne $line.($nb_features[$i])) {
-                    $feature_names += $line.($nb_features[$i])
-                }
-                $i++
-            }
-            # Use AddWindowsDirectories
-            $obj_policy_excel.AddWindowsDirectories(
-                $line.pathvariable,
-                $line.directory,
-                $line.recursive,
-                $line.scheduled,
-                $feature_names
-            )
-        }
+
 
         # Add Linux Directories
         foreach ($line in $SheetsInfo['Linux Directories']) {
