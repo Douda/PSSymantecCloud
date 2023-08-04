@@ -18,7 +18,7 @@ function Export-SepCloudAllowListPolicyToExcel {
         Get-SepCloudPolicyDetails -Name "My Allow list Policy" | Export-SepCloudAllowListPolicyToExcel -Path "allow_list.xlsx"
         Gathers policy in an object, pipes the output to Export-SepCloudAllowListPolicyToExcel to export in excel format
     #>
-
+    [CmdletBinding(DefaultParameterSetName = 'PolicyName')]
     param (
         # Path of Export
         [Parameter(Mandatory)]
@@ -28,20 +28,25 @@ function Export-SepCloudAllowListPolicyToExcel {
         $excel_path,
 
         # Policy version
-        [Parameter()]
+        [Parameter(
+            ParameterSetName = 'PolicyName'
+        )]
         [string]
         [Alias("Version")]
         $Policy_Version,
 
         # Exact policy name
-        [Parameter()]
+        [Parameter(
+            ParameterSetName = 'PolicyName'
+        )]
         [string]
         [Alias("Name")]
         $Policy_Name,
 
         # Policy Obj to work with
         [Parameter(
-            ValueFromPipeline
+            ValueFromPipeline,
+            ParameterSetName = 'PolicyObj'
         )]
         [pscustomobject]
         $obj_policy
@@ -64,7 +69,7 @@ function Export-SepCloudAllowListPolicyToExcel {
     #>
 
     # If no PSObject is provided, get it from Get-SepCloudPolicyDetails
-    if ($null -eq $obj_policy) {
+    if ($null -eq $PSBoundParameters['obj_policy']) {
         # Use specific version or by default latest
         if ($Policy_version -ne "") {
             $obj_policy = Get-SepCloudPolicyDetails -Name $Policy_Name -Policy_Version $Policy_Version
@@ -72,6 +77,7 @@ function Export-SepCloudAllowListPolicyToExcel {
             $obj_policy = Get-SepCloudPolicyDetails -Name $Policy_Name
         }
     }
+
 
     # Init
     $Applications = $obj_policy.features.configuration.applications.processfile
@@ -99,7 +105,7 @@ function Export-SepCloudAllowListPolicyToExcel {
         $Extensions += $obj
     }
 
-    # formating Ips_Hosts_subnet_v6
+    # split ipv6 subnet in an array of objects for correct formating
     $Ips_Hosts_subnet_v6 = @()
     foreach ($line in $Ips_Hosts_subnet_v6_list) {
         $obj = New-Object -TypeName PSObject
