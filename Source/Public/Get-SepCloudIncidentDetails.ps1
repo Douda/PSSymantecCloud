@@ -14,7 +14,7 @@ function Get-SepCloudIncidentDetails {
     Test-MyTestFunction -Verbose
     Explanation of the function or its result. You can include multiple examples with additional .EXAMPLE lines
 #>
-
+    [CmdletBinding()]
     param (
         # Incident GUID
         [Parameter(

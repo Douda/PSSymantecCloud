@@ -13,7 +13,7 @@ function Get-SepCloudEventSearch {
     .EXAMPLE
         Get-SepCloudEventSearch - Query "type_id:8031 OR type_id:8032 OR type_id:8033"
     #>
-
+    [CmdletBinding()]
     param (
         # file Detection
         [Parameter()]
