@@ -72,7 +72,13 @@
     # DscResourcesToExport = @()
 
     # Modules that must be imported into the global environment prior to importing this module
-    # RequiredModules = @()
+    RequiredModules   = @(
+        @{
+            moduleName    = 'ImportExcel';
+            moduleVersion = '7.8.5';
+            GUID          = '60dd4136-feff-401a-ba27-a84458c57ede'
+        }
+    )
 
     # Assemblies that must be loaded prior to importing this module
     # RequiredAssemblies = @()
