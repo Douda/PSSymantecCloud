@@ -1,5 +1,5 @@
 function Get-SepCloudDevices {
-    <# TODO fill up description
+    <#
     .SYNOPSIS
         Gathers list of devices from the SEP Cloud console
     .PARAMETER Computername
@@ -15,19 +15,14 @@ function Get-SepCloudDevices {
     Get-SepCloudDevices -Computername MyComputer
     .EXAMPLE
     Get-SepCloudDevices -is_online -Device_status AT_RISK
+    .EXAMPLE
+    Get-SepCloudDevices -group "Aw7oerlBROSIl9O_IPFewx"
     #>
 
     [CmdletBinding()]
     param (
-        <# Optional ComputerName parameter
-        TODO work to allow multiple values from Computername
-        More info https://apidocs.securitycloud.symantec.com/#
-        name	query	name of the device. [NOTE] Provide comma seperated values in case of multiple name search
-        Note : seems to be limited to 10 values max
-        #>
-        [Parameter(
-            ValueFromPipeline = $true
-        )]
+        # Optional ComputerName parameter
+        [Parameter(ValueFromPipeline = $true)]
         [string]
         $Computername,
 
@@ -61,66 +56,68 @@ function Get-SepCloudDevices {
         $BaseURL = (Get-ConfigurationPath).BaseUrl
         $URI_Tokens = 'https://' + $BaseURL + "/v1/devices"
         $ArrayResponse = @()
+        $Token = Get-SEPCloudToken
     }
 
     process {
-        # Get token
-        $Token = Get-SEPCloudToken
 
-        if ($null -ne $Token ) {
-            # HTTP body content containing all the queries
-            $Body = @{}
+        # HTTP body content containing all the queries
+        $Body = @{}
 
-            # Iterating through all parameter and add them to the HTTP body
-            if ($Computername -ne "") {
+
+        # Iterating through all parameters and add them to the HTTP body
+        switch ($PSBoundParameters.Keys) {
+            Computername {
                 $Body.Add("name", "$Computername")
             }
-            if ($is_online -eq $true ) {
-                $body.add("is_online", "true")
+            is_online {
+                $Body.Add("is_online", "true")
             }
-            if ($include_details -eq $true) {
+            include_details {
                 $Body.Add("include_details", "true")
             }
-            if ($Device_status -ne "") {
+            Device_status {
                 $Body.Add("device_status", "$Device_status")
             }
-            if ($Device_group -ne "") {
+            Device_group {
                 $Body.Add("device_group", "$Device_group")
             }
-            $Headers = @{
-                Host          = $BaseURL
-                Accept        = "application/json"
-                Authorization = $Token
-            }
-
-            try {
-                $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
-                $ArrayResponse += $Response.devices
-                $Devices_count_gathered = (($ArrayResponse | Measure-Object).count)
-                <# If pagination #>
-                if ($Response.total -gt $Devices_count_gathered) {
-                    <# Loop through via Offset parameter as there is no "next" parameter for /devices/ API call #>
-                    do {
-                        # change the "offset" parameter for next query
-                        $Body.Remove("offset")
-                        $Body.Add("offset", $Devices_count_gathered)
-                        # Run query, add it to the array, increment counter
-                        $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
-                        $ArrayResponse += $Response.devices
-                        $Devices_count_gathered = (($ArrayResponse | Measure-Object).count)
-                    } until (
-                        $Devices_count_gathered -ge $Response.total
-                    )
-                }
-
-            } catch {
-                $StatusCode = $_
-                $StatusCode
-            }
+            Default {}
         }
-    }
 
-    end {
+        # Setup Headers
+        $Headers = @{
+            Host          = $BaseURL
+            Accept        = "application/json"
+            Authorization = $Token
+        }
+
+        try {
+            $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
+            $ArrayResponse += $Response.devices
+            $Devices_count_gathered = (($ArrayResponse | Measure-Object).count)
+            <# If pagination #>
+            if ($Response.total -gt $Devices_count_gathered) {
+                <# Loop through via Offset parameter as there is no "next" parameter for /devices/ API call #>
+                do {
+                    # change the "offset" parameter for next query
+                    $Body.Remove("offset")
+                    $Body.Add("offset", $Devices_count_gathered)
+                    # Run query, add it to the array, increment counter
+                    $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
+                    $ArrayResponse += $Response.devices
+                    $Devices_count_gathered = (($ArrayResponse | Measure-Object).count)
+                } until (
+                    $Devices_count_gathered -ge $Response.total
+                )
+            }
+
+        } catch {
+            $StatusCode = $_
+            $StatusCode
+        }
+
         return $ArrayResponse
     }
+
 }
