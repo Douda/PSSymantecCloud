@@ -53,10 +53,6 @@ function Get-SEPCloudToken {
     }
 
     process {
-        # get client/secret from user
-
-
-
         # Test if we have a token locally stored
         if (Test-Path -Path $SepCloudToken) {
             <# If true, test it against the API #>
@@ -107,9 +103,9 @@ function Get-SEPCloudToken {
             }
         }
 
-        <# If no token nor OAuth creds available locally
-    # Encode ClientID and Secret to create Basic Auth string
-    # Authentication requires the following "Basic + encoded CliendID:ClientSecret" #>
+        # If no token nor OAuth creds available locally
+        # Encode ClientID and Secret to create Basic Auth string
+        # Authentication requires the following "Basic + encoded CliendID:ClientSecret"
         if ($clientID -eq "" -or $Secret -eq "") {
             Write-Host "No local credentials found"
             $ClientID = Read-Host -Prompt "Enter ClientID"
