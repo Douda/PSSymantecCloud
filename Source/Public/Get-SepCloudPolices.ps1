@@ -1,5 +1,4 @@
 function Get-SepCloudPolices {
-    # TODO to finish; test cmd-let
 
     begin {
         # Init
