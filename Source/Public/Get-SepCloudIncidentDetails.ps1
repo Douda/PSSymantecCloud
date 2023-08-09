@@ -14,7 +14,7 @@ function Get-SepCloudIncidentDetails {
     Test-MyTestFunction -Verbose
     Explanation of the function or its result. You can include multiple examples with additional .EXAMPLE lines
 #>
-
+    [CmdletBinding()]
     param (
         # Incident GUID
         [Parameter(
@@ -26,7 +26,6 @@ function Get-SepCloudIncidentDetails {
 
         # Incident number
         [Parameter(
-            Mandatory,
             ValueFromPipeline
         )]
         [string[]]
@@ -36,19 +35,13 @@ function Get-SepCloudIncidentDetails {
 
     begin {
         # Init
+        $BaseURL = (Get-ConfigurationPath).BaseUrl
         $Token = Get-SEPCloudToken
-        # Get list of all SEP Cloud policies
-        $obj_policies = (Get-SepCloudPolices).policies
+        #$obj_incidents = Get-SepCloudIncidents
     }
 
     process {
-        # Filter only the policy with the correct name
-        $obj_policy = ($obj_policies | Where-Object { $_.name -eq "$Policy_Name" })
-
-        $Policy_UUID = ($obj_policy).policy_uid
-        $Policy_Version = ($obj_policy).policy_version
-        $BaseURL = (Get-ConfigurationPath).BaseUrl
-        $URI = 'https://' + $BaseURL + "/v1/policies/$Policy_UUID/versions/$Policy_Version"
+        $URI = 'https://' + $BaseURL + "/v1/incidents/$Incident_ID"
 
         $Body = @{}
         $Headers = @{

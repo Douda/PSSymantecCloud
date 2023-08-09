@@ -15,11 +15,12 @@ function Get-SepCloudDeviceDetails {
         Get-SepCloudDeviceDetails -computername MyComputer
     #>
 
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Computername')]
     param (
         # device_ID parameter
         [Parameter(
-            ValueFromPipelineByPropertyName = $true)]
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName = 'Device_ID')]
         [Alias("id")]
         [string]
         $Device_ID,
@@ -27,8 +28,10 @@ function Get-SepCloudDeviceDetails {
         # Computer Name
         [Parameter(
             ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName = 'Computername'
         )]
+        [ValidateNotNullOrEmpty()]
         [Alias("Computer")]
         [Alias("Device")]
         [Alias("host")]
@@ -39,30 +42,31 @@ function Get-SepCloudDeviceDetails {
     begin {
         # Init
         $BaseURL = (Get-ConfigurationPath).BaseUrl
-        # Get token
         $Token = Get-SEPCloudToken
     }
 
     process {
-        # Get Device_ID from the computername
-        if ($null -ne $Computername) {
-            $Device_ID = (Get-SepCloudDevices -Computername $Computername).id
+        switch ($PSBoundParameters.Keys) {
+            Computername {
+                # Get Device_ID if computername is provided
+                $Device_ID = (Get-SepCloudDevices -Computername $Computername).id
+            }
+            Default {}
         }
 
         # Setup URI
         $URI = 'https://' + $BaseURL + "/v1/devices/$Device_ID"
 
-        if ($null -ne $Token) {
-            $Body = @{}
-            $Headers = @{
-                Host          = $BaseURL
-                Accept        = "application/json"
-                Authorization = $Token
-                Body          = $Body
-            }
-            $Response = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
-            return $Response
+        # Setup Headers
+        $Body = @{}
+        $Headers = @{
+            Host          = $BaseURL
+            Accept        = "application/json"
+            Authorization = $Token
+            Body          = $Body
         }
+        $Response = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
+        return $Response
 
     }
 }

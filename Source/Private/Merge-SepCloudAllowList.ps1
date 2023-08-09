@@ -19,7 +19,7 @@ function Merge-SepCloudAllowList {
     .EXAMPLE
         Merge-SepCloudAllowList -Policy_Name "My Allow List Policy For Servers" -Excel ".\Data\Centralized_exceptions_for_servers.xlsx" | Update-SepCloudAllowlistPolicy
     #>
-
+    [CmdletBinding()]
     param (
         # Policy version
         [Parameter(

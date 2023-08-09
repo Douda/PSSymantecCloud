@@ -9,8 +9,6 @@ function Update-SepCloudAllowlistPolicy {
         - Excel file generated from Export-SepCloudAllowListPolicyToExcel function
         - Policy name to update
         - OPTIONAL : policy version (default latest version)
-    .PARAMETER Policy_UUID
-        Optional parameter - GUID of the policy. Optional. The function can gathers the UUID from the policy name
     .PARAMETER Policy_Version
         Optional parameter - Version of the policy to update. By default, latest version selected
     .PARAMETER Policy_Name
@@ -18,9 +16,6 @@ function Update-SepCloudAllowlistPolicy {
     .PARAMETER ExcelFile
         Path fo the Excel file that contains updated information on Allow list to update
         Takes Excel template from Export-SepCloudAllowListPolicyToExcel function
-    .NOTES
-        Currently supports only filehash/filename
-        TODO update NOTES when more options will be supported
     .EXAMPLE
         TODO review & add more examples
         Get-SepCloudPolicyDetails
@@ -28,19 +23,9 @@ function Update-SepCloudAllowlistPolicy {
         the file MyAllowList.xlsx can be generated from : get-sepcloudpolicyDetails -name "Workstations Allow List Policy" | Export-SepCloudAllowListPolicyToExcel -Path .\Data\WorkstationsAllowList.xlsx
     #>
 
-
-    # TODO to finish; test ParameterSetName Policy
     param (
-        # Policy UUID
-        [Parameter(
-            ParameterSetName = 'Policy'
-        )]
-        [string]
-        $Policy_UUID,
-
         # Policy version
         [Parameter(
-            ParameterSetName = 'Policy'
         )]
         [string]
         [Alias("Version")]
@@ -53,8 +38,7 @@ function Update-SepCloudAllowlistPolicy {
         )]
         [string]
         [Alias("PolicyName")]
-        # TODO remove hardcoded value
-        $Policy_Name = "AB - Testing - Servers - Core - Allow List Policy",
+        $Policy_Name,
 
         # Excel file to import data from
         [Parameter(
@@ -63,45 +47,48 @@ function Update-SepCloudAllowlistPolicy {
         )]
         [string]
         [Alias("Excel")]
-        # TODO remove hardcoded excel path for dev
-        $excel_path = "C:\Amcor\Module\Workstations_allowlist.xlsx"
+        $excel_path
     )
 
-    # Verify parameters
+    # init
+    $BaseURL = (Get-ConfigurationPath).BaseUrl
+    $Token = Get-SEPCloudToken
+    # Get list of all versions of the SEP Cloud policy
+    $obj_policy = ((Get-SepCloudPolices).policies | Where-Object { $_.name -eq "$Policy_Name" })
+
+
     switch ($PSBoundParameters.Keys) {
         'Policy_Version' {
             # Merge cloud policy with excel file with specified version
-            $obj_policy = Merge-SepCloudAllowList -Excel $excel_path -Policy_Name $Policy_Name -Policy_Version $Policy_Version
+            $obj_merged_policy = Merge-SepCloudAllowList -Excel $excel_path -Policy_Name $Policy_Name -Policy_Version $Policy_Version
+            $obj_policy = $obj_policy | Where-Object {
+                $_.name -eq "$Policy_Name" -and $_.policy_version -eq $Policy_Version
+            }
         }
         Default {}
     }
 
     if ($null -eq $PSBoundParameters['Policy_Version']) {
         # Merge cloud policy with excel file with latest version
-        $obj_policy = Merge-SepCloudAllowList -Excel $excel_path -Policy_Name $Policy_Name
+        $obj_merged_policy = Merge-SepCloudAllowList -Excel $excel_path -Policy_Name $Policy_Name
+        $obj_policy = ($obj_policy | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
     }
 
-
-    # Converting PSObj to json
-    $Body = $obj_policy | ConvertTo-Json -Depth 10
-
-    # Get token for API query
-    $Token = Get-SEPCloudToken
+    # Setup API query
+    $Body = $obj_merged_policy | ConvertTo-Json -Depth 10
+    $Policy_UUID = ($obj_policy).policy_uid
+    $Policy_Version = ($obj_policy).policy_version
+    $URI = 'https://' + $BaseURL + "/v1/policies/allow-list/$Policy_UUID/versions/$Policy_Version"
 
     # API query
-    if ($null -ne $Token) {
-        $Headers = @{
-            Host           = $BaseURL
-            "Content-Type" = "application/json"
-            Accept         = "application/json"
-            Authorization  = $Token
-        }
-        $Response = Invoke-RestMethod -Method PATCH -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
-        # TODO uncomment API query
-    } else {
-        Write-Error "Invalid or empty token - exit"
-        break
+    $Headers = @{
+        Host           = $BaseURL
+        "Content-Type" = "application/json"
+        Accept         = "application/json"
+        Authorization  = $Token
     }
-    # TODO See if we need to remove return once finished
+    #$Response = Invoke-RestMethod -Method PATCH -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
+    # TODO uncomment API query when development is done
+
     return $Response
 }

@@ -42,38 +42,32 @@ function Get-SepCloudPolicyDetails {
 
     begin {
         # Init
+        $BaseURL = (Get-ConfigurationPath).BaseUrl
         $Token = Get-SEPCloudToken
         $obj_policies = (Get-SepCloudPolices).policies
+        $Body = @{}
+        $Headers = @{
+            Host          = $BaseURL
+            Accept        = "application/json"
+            Authorization = $Token
+            Body          = $Body
+        }
+        # Get list of all SEP Cloud policies and get only the one with the correct name
+        $obj_policy = ($obj_policies | Where-Object { $_.name -eq "$Policy_Name" })
     }
 
     process {
-        # Get list of all SEP Cloud policies and get only the one with the correct name
-        $obj_policy = ($obj_policies | Where-Object { $_.name -eq "$Policy_Name" })
-
-        # Use specific version or by default latest
-        if ($Policy_version -ne "") {
-            $obj_policy = $obj_policy | Where-Object {
-                $_.name -eq "$Policy_Name" -and $_.policy_version -eq $Policy_Version
-            }
-        } else {
+        if ($null -eq $Policy_version ) {
             $obj_policy = ($obj_policy | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
+            $Policy_Version = ($obj_policy).policy_version
         }
+
 
         $Policy_UUID = ($obj_policy).policy_uid
-        $Policy_Version = ($obj_policy).policy_version
-        $BaseURL = (Get-ConfigurationPath).BaseUrl
         $URI = 'https://' + $BaseURL + "/v1/policies/$Policy_UUID/versions/$Policy_Version"
 
-        if ($null -ne $Token) {
-            $Body = @{}
-            $Headers = @{
-                Host          = $BaseURL
-                Accept        = "application/json"
-                Authorization = $Token
-                Body          = $Body
-            }
-            $Resp = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
-        }
+        $Resp = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
+
 
         $Resp
     }
