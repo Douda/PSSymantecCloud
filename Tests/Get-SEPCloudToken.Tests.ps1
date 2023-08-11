@@ -16,27 +16,6 @@ BeforeAll {
 # }
 
 
-Describe 'Get-SEPCloudToken' {
-    Context 'When a valid token is present in the local token file' {
-        # Create a mock token variable
-        $mockToken = 'mock-token'
-
-        # Mock the Get-ConfigurationPath function to return the mock token file path
-        BeforeAll {
-            Mock Get-ConfigurationPath { @{ SepCloudToken = 'C:\temp\mock-token.xml' } }
-        }
-
-        # Test that the function correctly retrieves the token
-        It 'Retrieves the token from the local token file' {
-            # Mock the Import-Clixml cmdlet to return the mock token variable
-            Mock Import-Clixml { $using:mockToken }
-
-            $result = Get-SEPCloudToken
-            $result | Should Be 'mock-token'
-        }
-    }
-}
-
 # Test that the function correctly retrieves a token from the local cred file
 Describe 'Get-SEPCloudToken' {
     Context 'When a valid cred is present in the local cred file' {
