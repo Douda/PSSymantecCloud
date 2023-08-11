@@ -48,7 +48,7 @@ function Get-SepCloudEventSearch {
         $BaseURL = (Get-ConfigurationPath).BaseUrl
         $URI_Tokens = 'https://' + $BaseURL + "/v1/event-search"
         $ArrayResponse = @()
-        $Token = Get-SEPCloudToken
+        $Token = (Get-SEPCloudToken).Token_Bearer
     }
 
     process {

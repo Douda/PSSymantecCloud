@@ -28,7 +28,7 @@ function Get-SepThreatIntelNetworkProtection {
     begin {
         # Init
         $BaseURL = (Get-ConfigurationPath).BaseUrl
-        $Token = Get-SEPCloudToken
+        $Token = (Get-SEPCloudToken).Token_Bearer
         $Body = @{}
         $Headers = @{
             Host          = $BaseURL

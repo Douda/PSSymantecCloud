@@ -3,25 +3,35 @@ BeforeAll {
     . $PSScriptRoot\..\Source\Private\$ScriptName
 }
 
-Describe 'Get-SEPCloudToken' {
-    It 'Given no parameters, it lists all 8 planets' {
-        $token = Get-SEPCloudToken
-        $token | Should not be $null
-    }
-}
+# Describe "Get-SEPCloudToken" {
+#     BeforeAll {
 
-# Test that the function correctly retrieves a token from the local token file
+#     }
+
+#     It "returns the correct token" {
+#         $result = Get-SEPCloudToken
+#         $result | Should -BeOfType 'System.String'
+#         $result | Should -StartWith 'Bearer: '
+#     }
+# }
+
+
 Describe 'Get-SEPCloudToken' {
     Context 'When a valid token is present in the local token file' {
-        # Create a mock token file
-        before {
-            $token = 'mock-token'
-            $token | Export-Clixml -Path 'C:\temp\mock-token.xml'
+        # Create a mock token variable
+        $mockToken = 'mock-token'
+
+        # Mock the Get-ConfigurationPath function to return the mock token file path
+        BeforeAll {
+            Mock Get-ConfigurationPath { @{ SepCloudToken = 'C:\temp\mock-token.xml' } }
         }
 
         # Test that the function correctly retrieves the token
         It 'Retrieves the token from the local token file' {
-            $result = Get-SEPCloudToken -SepCloudToken 'C:\temp\mock-token.xml'
+            # Mock the Import-Clixml cmdlet to return the mock token variable
+            Mock Import-Clixml { $using:mockToken }
+
+            $result = Get-SEPCloudToken
             $result | Should Be 'mock-token'
         }
     }

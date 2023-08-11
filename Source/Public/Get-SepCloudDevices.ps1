@@ -56,7 +56,7 @@ function Get-SepCloudDevices {
         $BaseURL = (Get-ConfigurationPath).BaseUrl
         $URI_Tokens = 'https://' + $BaseURL + "/v1/devices"
         $ArrayResponse = @()
-        $Token = Get-SEPCloudToken
+        $Token = (Get-SEPCloudToken).Token_Bearer
     }
 
     process {

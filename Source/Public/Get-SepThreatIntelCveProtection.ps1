@@ -28,7 +28,7 @@ function Get-SepThreatIntelCveProtection {
     begin {
         # Init
         $BaseURL = (Get-ConfigurationPath).BaseUrl
-        $Token = Get-SEPCloudToken
+        $Token = (Get-SEPCloudToken).Token_Bearer
         # HTTP body content containing all the queries
         $Body = @{}
         $Headers = @{
