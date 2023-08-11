@@ -34,7 +34,7 @@ function Get-ExcelAllowListObject {
         $AllSheets | ForEach-Object { $SheetsInfo[$_.Name] = Import-Excel $_.Path -WorksheetName $_.Name }
 
         # Get Object from ExceptionStructure Class
-        $obj_policy_excel = [ExceptionStructure]::new()
+        $obj_policy_excel = [AllowListStructure]::new()
 
         # Populates $obj_policy_excel
 
