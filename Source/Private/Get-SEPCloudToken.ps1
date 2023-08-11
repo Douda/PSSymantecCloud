@@ -44,56 +44,57 @@ function Get-SEPCloudToken {
         $Secret
     )
     begin {
-        # init
-        $BaseURL = (Get-ConfigurationPath).BaseUrl
-        $SepCloudCreds = (Get-ConfigurationPath).SepCloudCreds
-        $SepCloudToken = (Get-ConfigurationPath).SepCloudToken
-        $URI_Tokens = 'https://' + $BaseURL + '/v1/oauth2/tokens'
-        $URI_Features = 'https://' + $BaseURL + '/v1/devices/enums'
+        try {
+            # init
+            $BaseURL = (Get-ConfigurationPath).BaseUrl
+            $SepCloudCreds = (Get-ConfigurationPath).SepCloudCreds
+            $CachedTokenPath = (Get-ConfigurationPath).CachedTokenPath
+            $URI_Tokens = 'https://' + $BaseURL + '/v1/oauth2/tokens'
+
+            if (-not $BaseURL) { throw "Missing 'BaseUrl' configuration value" }
+            if (-not $SepCloudCreds) { throw "Missing 'SepCloudCreds' configuration value" }
+            if (-not $CachedTokenPath) { throw "Missing 'CachedTokenPath' configuration value" }
+        } catch {
+            throw "Error initializing SEPCloudToken: $_"
+        }
     }
 
     process {
-        # Test if we have a token locally stored
-        if (Test-Path -Path $SepCloudToken) {
-            <# If true, test it against the API #>
-            $Token = Import-Clixml -Path $SepCloudToken
-            $Headers = @{
-                Host          = $BaseURL
-                Accept        = "application/json"
-                Authorization = $Token
-            }
-
-            try {
-                $response = Invoke-RestMethod -Method POST -Uri $URI_Features -Headers $Headers
-                # Valid token, returning it
-                Write-Verbose "Local token - valid"
-                return $Token
-            } catch {
-                $StatusCode = $_.Exception.Response.StatusCode
-                Write-Verbose "Authentication error - From locally stored token - Expected HTTP 200, got $([int]$StatusCode) - Continue ..."
-                # Invalid token, deleting local token file
-                Remove-Item $SepCloudToken
+        # Check if we already have a valid token
+        if (Test-Path -Path "$CachedTokenPath") {
+            $CachedToken = Import-Clixml -Path $CachedTokenPath
+            # Check if still valid
+            if ((Get-Date) -lt $CachedToken.Expiration) {
+                Write-Verbose "cached token valid - returning"
+                return $CachedToken
+            } else {
+                Write-Verbose "Cached token expired - deleting"
+                Remove-Item $CachedTokenPath
             }
         }
 
         # Test if OAuth cred present on the disk
         if (Test-Path -Path "$SepCloudCreds") {
             <# If true, Attempt to get a token #>
-            $OAuth = Import-Clixml -Path $SepCloudCreds
-            $OAuth_Basic = "Basic " + $OAuth
+            $OAuth = "Basic " + (Import-Clixml -Path $SepCloudCreds)
             $Headers = @{
                 Host          = $BaseURL
                 Accept        = "application/json"
-                Authorization = $OAuth_Basic
+                Authorization = $OAuth
             }
 
             try {
                 $response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers
                 # Get the auth token from the response & store it locally
                 Write-Verbose "Valid credentials - returning valid token"
-                $null = $Bearer_Token = "Bearer " + $response.access_token
-                $Bearer_Token | Export-Clixml -Path $SepCloudToken
-                return $Bearer_Token
+                $CachedToken = [PSCustomObject]@{
+                    Token        = $response.access_token
+                    Token_Type   = $response.token_type
+                    Token_Bearer = $response.token_type + " " + $response.access_token
+                    Expiration   = (Get-Date).AddSeconds($response.expires_in) # token expiration is 3600s
+                }
+                $CachedToken | Export-Clixml -Path $CachedTokenPath
+                return $CachedToken
 
             } catch {
                 $StatusCode = $_.Exception.Response.StatusCode
@@ -122,10 +123,15 @@ function Get-SEPCloudToken {
             Authorization = $BasicAuth
         }
         $Response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers -UseBasicParsing
-
-        # Get the auth token from the response and store it
-        $Bearer_Token = "Bearer " + $Response.access_token
-        $Bearer_Token | Export-Clixml -Path $SepCloudToken
-        return $Bearer_Token
+        # Get the auth token from the response & store it locally
+        Write-Verbose "Valid credentials - returning valid Bearer token"
+        $CachedToken = [PSCustomObject]@{
+            Token        = $response.access_token
+            Token_Type   = $response.token_type
+            Token_Bearer = $response.token_type + " " + $response.access_token
+            Expiration   = (Get-Date).AddSeconds($response.expires_in) # token expiration is 3600s
+        }
+        $CachedToken | Export-Clixml -Path $CachedTokenPath
+        return $CachedToken
     }
 }

@@ -1,11 +1,10 @@
 function Get-SepCloudTargetRules {
-    # TODO to finish; test cmd-let
 
     begin {
         # Init
         $BaseURL = (Get-ConfigurationPath).BaseUrl
         $URI_Tokens = 'https://' + $BaseURL + "/v1/policies/target-rules"
-        $Token = Get-SEPCloudToken
+        $Token = (Get-SEPCloudToken).Token_Bearer
         $Body = @{}
         $Headers = @{
             Host          = $BaseURL
