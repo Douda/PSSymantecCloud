@@ -12,7 +12,7 @@ function Get-ConfigurationPath {
     @{
         BaseUrl       = "api.sep.securitycloud.symantec.com"
         SepCloudCreds = "$env:TEMP\SepCloudOAuthCredentials.xml"
-        SepCloudToken = "$env:TEMP\SepCloudToken.xml"
+        CachedTokenPath   = "$env:TEMP\SepCloudCachedToken.xml"
     }
 
 }

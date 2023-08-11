@@ -52,7 +52,7 @@ function Update-SepCloudAllowlistPolicy {
 
     # init
     $BaseURL = (Get-ConfigurationPath).BaseUrl
-    $Token = Get-SEPCloudToken
+    $Token = (Get-SEPCloudToken).Token_Bearer
     # Get list of all versions of the SEP Cloud policy
     $obj_policy = ((Get-SepCloudPolices).policies | Where-Object { $_.name -eq "$Policy_Name" })
 

@@ -36,8 +36,7 @@ function Get-SepCloudIncidentDetails {
     begin {
         # Init
         $BaseURL = (Get-ConfigurationPath).BaseUrl
-        $Token = Get-SEPCloudToken
-        #$obj_incidents = Get-SepCloudIncidents
+        $Token = (Get-SEPCloudToken).Token_Bearer
     }
 
     process {

@@ -48,7 +48,7 @@ function Get-SepCloudEventSearch {
         $BaseURL = (Get-ConfigurationPath).BaseUrl
         $URI_Tokens = 'https://' + $BaseURL + "/v1/event-search"
         $ArrayResponse = @()
-        $Token = Get-SEPCloudToken
+        $Token = (Get-SEPCloudToken).Token_Bearer
     }
 
     process {
@@ -59,9 +59,9 @@ function Get-SepCloudEventSearch {
             "feature_name" = "ALL"
         }
         <# Setting dates for the query Date Format required : -UFormat "%Y-%m-%dT%T.000+00:00"
-            Example :
-            "start_date": "2022-10-16T00:00:00.000+00:00",
-            "end_date": "2022-11-16T00:00:00.000+00:00" #>
+        Example :
+        "start_date": "2022-10-16T00:00:00.000+00:00",
+        "end_date": "2022-11-16T00:00:00.000+00:00" #>
 
         $end_date = Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK"
         $start_date = ((Get-Date).addDays(-29) | Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK")
@@ -95,19 +95,16 @@ function Get-SepCloudEventSearch {
         try {
             $Response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers -Body $Body_Json -UseBasicParsing
             $ArrayResponse += $Response
-            if ($null -ne $Response.next) {
-                <# If pagination #>
-                do {
-                    # change the "next" offset for next query
-                    $Body.Remove("next")
-                    $Body.Add("next", $Response.next)
-                    $Body_Json = ConvertTo-Json $Body
-                    # Run query & add it to the array
-                    $Response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers -Body $Body_Json -UseBasicParsing
-                    $ArrayResponse += $Response
-                } until (
-                        ($null -eq $Response.next)
-                )
+
+            while ($Response.next) {
+                # change the "next" offset for pagination
+                $Body.Remove("next")
+                $Body.Add("next", $Response.next)
+                $Body_Json = ConvertTo-Json $Body
+
+                # Run query & add it to the array
+                $Response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers -Body $Body_Json -UseBasicParsing
+                $ArrayResponse += $Response
             }
         } catch {
             $StatusCode = $_

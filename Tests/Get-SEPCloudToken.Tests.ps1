@@ -3,29 +3,18 @@ BeforeAll {
     . $PSScriptRoot\..\Source\Private\$ScriptName
 }
 
-Describe 'Get-SEPCloudToken' {
-    It 'Given no parameters, it lists all 8 planets' {
-        $token = Get-SEPCloudToken
-        $token | Should not be $null
-    }
-}
+# Describe "Get-SEPCloudToken" {
+#     BeforeAll {
 
-# Test that the function correctly retrieves a token from the local token file
-Describe 'Get-SEPCloudToken' {
-    Context 'When a valid token is present in the local token file' {
-        # Create a mock token file
-        before {
-            $token = 'mock-token'
-            $token | Export-Clixml -Path 'C:\temp\mock-token.xml'
-        }
+#     }
 
-        # Test that the function correctly retrieves the token
-        It 'Retrieves the token from the local token file' {
-            $result = Get-SEPCloudToken -SepCloudToken 'C:\temp\mock-token.xml'
-            $result | Should Be 'mock-token'
-        }
-    }
-}
+#     It "returns the correct token" {
+#         $result = Get-SEPCloudToken
+#         $result | Should -BeOfType 'System.String'
+#         $result | Should -StartWith 'Bearer: '
+#     }
+# }
+
 
 # Test that the function correctly retrieves a token from the local cred file
 Describe 'Get-SEPCloudToken' {

@@ -42,7 +42,7 @@ function Get-SepCloudDeviceDetails {
     begin {
         # Init
         $BaseURL = (Get-ConfigurationPath).BaseUrl
-        $Token = Get-SEPCloudToken
+        $Token = Get-SEPCloudToken.Token_Bearer
     }
 
     process {

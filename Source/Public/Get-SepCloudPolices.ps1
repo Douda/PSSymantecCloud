@@ -4,7 +4,7 @@ function Get-SepCloudPolices {
         # Init
         $BaseURL = (Get-ConfigurationPath).BaseUrl
         $URI_Tokens = 'https://' + $BaseURL + "/v1/policies"
-        $Token = Get-SEPCloudToken
+        $Token = (Get-SEPCloudToken).Token_Bearer
         $Body = @{}
         $Headers = @{
             Host          = $BaseURL
