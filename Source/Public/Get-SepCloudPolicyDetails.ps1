@@ -64,14 +64,14 @@ function Get-SepCloudPolicyDetails {
 
         if ($null -eq $Policy_version ) {
             $obj_policy = ($obj_policy | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
-            $Policy_Version = ($obj_policy).policy_version
         }
 
+        $Policy_Version = ($obj_policy).policy_version
         $Policy_UUID = ($obj_policy).policy_uid
         $URI = 'https://' + $BaseURL + "/v1/policies/$Policy_UUID/versions/$Policy_Version"
 
         $Resp = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
 
-        $Resp
+        return $Resp
     }
 }
