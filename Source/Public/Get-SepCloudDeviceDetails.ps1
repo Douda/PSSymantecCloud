@@ -32,9 +32,7 @@ function Get-SepCloudDeviceDetails {
             ParameterSetName = 'Computername'
         )]
         [ValidateNotNullOrEmpty()]
-        [Alias("Computer")]
-        [Alias("Device")]
-        [Alias("host")]
+        [Alias('Computer','Device','Hostname','Host')]
         [string]
         $Computername
     )

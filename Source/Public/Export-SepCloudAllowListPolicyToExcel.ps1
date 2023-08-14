@@ -22,8 +22,7 @@ function Export-SepCloudAllowListPolicyToExcel {
     param (
         # Path of Export
         [Parameter(Mandatory)]
-        [Alias("Path")]
-        [Alias("Excel")]
+        [Alias('Excel', 'Path')]
         [string]
         $excel_path,
 

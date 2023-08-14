@@ -21,8 +21,7 @@ function Get-SepThreatIntelCveProtection {
         [Parameter(
             Mandatory,
             ValueFromPipeline = $true)]
-        [Alias('vuln')]
-        [Alias('vulnerability')]
+        [Alias('vuln', 'vulnerability')]
         [string[]]
         $cve
     )
