@@ -9,11 +9,9 @@ function Get-SepCloudEventSearch {
     .PARAMETER PastDays
         Number of days to go back in the past. Default is 29 days
     .PARAMETER FullScan
-        Runs the following query under the hood "Event Type Id:8020-Scan AND Scan Name:Full Scan"
+        Runs the following Lucene query "Event Type Id:8020-Scan AND Scan Name:Full Scan"
     .PARAMETER FileDetection
-        Runs the following query under the hood "feature_name:MALWARE_PROTECTION AND ( type_id:8031 OR type_id:8032 OR type_id:8033 OR type_id:8027 OR type_id:8028 ) AND ( id:12 OR id:11 AND type_id:8031 )"
-    .LINK
-        https://github.com/Douda/PSSymantecCloud
+        Runs the following Lucene query "feature_name:MALWARE_PROTECTION AND ( type_id:8031 OR type_id:8032 OR type_id:8033 OR type_id:8027 OR type_id:8028 ) AND ( id:12 OR id:11 AND type_id:8031 )"
     .EXAMPLE
         Get-SepCloudEventSearch
         Gather all possible events. ** very slow approach & limited to 10k events **

@@ -2,15 +2,16 @@ function Get-SepCloudIncidents {
 
     <# TODO fill description for Get-SepCloudIncidents
     .SYNOPSIS
-        Get list of SEP Cloud incidents. By default, shows opened incidents
+        Get list of SEP Cloud incidents. By default, shows only opened incidents
     .DESCRIPTION
-        Get list of SEP Cloud incidents. Using the LUCENE query syntax, you can customize which incidents to gather. More information : https://techdocs.broadcom.com/us/en/symantec-security-software/endpoint-security-and-management/endpoint-security/sescloud/Endpoint-Detection-and-Response/investigation-page-overview-v134374740-d38e87486/Cloud-Database-Search/query-and-filter-operators-by-data-type-v134689952-d38e88796.html
+        Get list of SEP Cloud incidents. Using the LUCENE query syntax, you can customize which incidents to gather.
+        More information : https://techdocs.broadcom.com/us/en/symantec-security-software/endpoint-security-and-management/endpoint-security/sescloud/Endpoint-Detection-and-Response/investigation-page-overview-v134374740-d38e87486/Cloud-Database-Search/query-and-filter-operators-by-data-type-v134689952-d38e88796.html
     .PARAMETER Open
         filters only opened incidents. Simulates a query "state_id: [0 TO 3]" which represents incidents with the following states <0 Unknown | 1 New | 2 In Progress | 3 On Hold>
     .PARAMETER Include_events
         Includes every events that both are part of the context & triggered incident events
     .PARAMETER Query
-        Type your customer Lucene query to pass to the API
+        Custom Lucene query to pass to the API
     .OUTPUTS
         PSObject containing all SEP incidents
     .EXAMPLE
@@ -18,8 +19,6 @@ function Get-SepCloudIncidents {
     .EXAMPLE
         Get-SepCloudIncidents -Query "state_id: [0 TO 5]"
         This query a list of every possible incidents (opened, closed and with "Unknown" status)
-    .LINK
-        https://github.com/Douda/PSSymantecCloud
     #>
     [CmdletBinding(DefaultParameterSetName = 'QueryOpen')]
     param (

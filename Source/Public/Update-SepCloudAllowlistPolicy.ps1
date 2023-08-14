@@ -4,7 +4,7 @@ function Update-SepCloudAllowlistPolicy {
         Updates Symantec Allow List policy using an excel file
     .DESCRIPTION
         Gathers Allow List policy information from an Excel file generated from Export-SepCloudAllowListPolicyToExcel function
-        You can manually add lines to the Excel file, and the updated Excel will be used to add new exceptions to the Allow list policy of your choice
+        You can manually add or remove lines to the Excel file, and the updated Excel will be used to add or remove new exceptions to the Allow list policy of your choice
     .INPUTS
         - Excel file generated from Export-SepCloudAllowListPolicyToExcel function
         - Policy name to update
@@ -17,10 +17,11 @@ function Update-SepCloudAllowlistPolicy {
         Path fo the Excel file that contains updated information on Allow list to update
         Takes Excel template from Export-SepCloudAllowListPolicyToExcel function
     .EXAMPLE
-        TODO review & add more examples
-        Get-SepCloudPolicyDetails
-        Update-SepCloudAllowlistPolicy -policy "My Policy" -ExcelFile .\WorkstationsAllowList.xlsx
-        the file MyAllowList.xlsx can be generated from : get-sepcloudpolicyDetails -name "Workstations Allow List Policy" | Export-SepCloudAllowListPolicyToExcel -Path .\Data\WorkstationsAllowList.xlsx
+        First generate an excel file from the policy you want to update
+        Get-SepCloudPolicyDetails -name "Workstations Allow List Policy" | Export-SepCloudAllowListPolicyToExcel -Path .\Data\WorkstationsAllowList.xlsx
+        Manualy perform changes to the Excel file (add or remove exceptions)
+        Then update the policy to reflect the changes to the cloud
+        Update-SepCloudAllowlistPolicy -policy "Workstations Allow List Policy" -ExcelFile .\WorkstationsAllowList.xlsx
     #>
 
     param (

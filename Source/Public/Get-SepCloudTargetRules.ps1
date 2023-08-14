@@ -1,4 +1,17 @@
 function Get-SepCloudTargetRules {
+    <#
+    .SYNOPSIS
+        Provides a list of all target rules in your SEP Cloud account
+    .DESCRIPTION
+        Provides a list of all target rules in your SEP Cloud account. Formely known as SEP Location awareness
+    .PARAMETER
+        None
+    .OUTPUTS
+        PSObject
+    .EXAMPLE
+        Get-SepCloudTargetRules
+        Gathers all possible target rules
+    #>
 
     begin {
         # Init

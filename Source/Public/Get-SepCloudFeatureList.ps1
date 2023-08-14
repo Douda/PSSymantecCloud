@@ -10,7 +10,7 @@ function Get-SepCloudFeatureList {
         PSObject
     .EXAMPLE
         Get-SepCloudFeatureList
-        Explanation of the function or its result. You can include multiple examples with additional .EXAMPLE lines
+        Gathers all possible feature name, content name, security status and reason codes the API can provide and its related IDs
     #>
     [CmdletBinding()]
     param ()
