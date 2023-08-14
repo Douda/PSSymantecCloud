@@ -9,15 +9,15 @@ class UpdateAllowlist {
     [object] $add
     [object] $remove
     UpdateAllowlist() {
-        $ExceptionStructureAdd = [ExceptionStructure]::new()
-        $ExceptionStructureRemove = [ExceptionStructure]::new()
+        $ExceptionStructureAdd = [AllowListStructure]::new()
+        $ExceptionStructureRemove = [AllowListStructure]::new()
         $this.add = $ExceptionStructureAdd
         $this.remove = $ExceptionStructureRemove
     }
 
 }
 
-class ExceptionStructure {
+class AllowListStructure {
     [object] $Applications
     [object] $Certificates
     [object] $webdomains
@@ -27,14 +27,13 @@ class ExceptionStructure {
     [object] $linux
     [object] $mac
     # Setting up the PSCustomObject structure from the JSON example : https://pastebin.com/FaKYpgw3
-    # TODO finish obj structure
     ExceptionStructure() {
         $this.applications = [System.Collections.Generic.List[object]]::new()
         $this.Certificates = [System.Collections.Generic.List[object]]::new()
         $this.webdomains = [System.Collections.Generic.List[object]]::new()
         $this.ips_hosts = [System.Collections.Generic.List[object]]::new()
+        # Extensions obj be hashtable. Converting to JSON will not be incorrect format (list instead of k/v pair)
         $this.extensions = [Extensions]::new()
-        # TODO Extensions obj be hashtable. Converting to JSON will not be incorrect format (list instead of k/v pair)
         $this.windows = [PSCustomObject]@{
             files       = [System.Collections.Generic.List[object]]::new()
             directories = [System.Collections.Generic.List[object]]::new()

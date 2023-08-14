@@ -14,7 +14,7 @@
 .NOTES
     Created by: Aurélien BOUMANNE (02122022)
 .EXAMPLE
-    .\GetFileDetectionReports.ps1 -Path C:\Script\MyMonthlyFileDetectionReport.xlsx
+    .\Get-FileDetectionReport.ps1 -Path C:\Script\MyMonthlyFileDetectionReport.xlsx
 #>
 
 param (

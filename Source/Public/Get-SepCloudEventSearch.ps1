@@ -6,24 +6,27 @@ function Get-SepCloudEventSearch {
         Get list of SEP Cloud Events. You can use the following parameters to filter the results: FileDetection, FullScan, or a custom Lucene query
     .PARAMETER Query
         Runs a custom Lucene query
+    .PARAMETER PastDays
+        Number of days to go back in the past. Default is 29 days
     .PARAMETER FullScan
-        Runs the following query under the hood "Event Type Id:8020-Scan AND Scan Name:Full Scan"
+        Runs the following Lucene query "Event Type Id:8020-Scan AND Scan Name:Full Scan"
     .PARAMETER FileDetection
-        Runs the following query under the hood "feature_name:MALWARE_PROTECTION AND ( type_id:8031 OR type_id:8032 OR type_id:8033 OR type_id:8027 OR type_id:8028 ) AND ( id:12 OR id:11 AND type_id:8031 )"
-    .LINK
-        https://github.com/Douda/PSSymantecCloud
+        Runs the following Lucene query "feature_name:MALWARE_PROTECTION AND ( type_id:8031 OR type_id:8032 OR type_id:8033 OR type_id:8027 OR type_id:8028 ) AND ( id:12 OR id:11 AND type_id:8031 )"
     .EXAMPLE
         Get-SepCloudEventSearch
-        Gather all possible events. ** very slow approach **
+        Gather all possible events. ** very slow approach & limited to 10k events **
     .EXAMPLE
-        Get-SepCloudEventSearch -FileDetection
-        Gather all file detection events
+        Get-SepCloudEventSearch -FileDetection -pastdays 20
+        Gather all file detection events for the past 20 days
     .EXAMPLE
         Get-SepCloudEventSearch -FullScan
         Gather all full scan events
     .EXAMPLE
         Get-SepCloudEventSearch -Query "type_id:8031 OR type_id:8032 OR type_id:8033"
         Runs a custom Lucene query
+    .EXAMPLE
+        Get-SepCloudEventSearch -Query "type_id:8031 OR type_id:8032 OR type_id:8033" -PastDays 14
+        Runs a custom Lucene query for the past 14 days
     #>
     [CmdletBinding(DefaultParameterSetName = 'Query')]
     param (
@@ -40,7 +43,13 @@ function Get-SepCloudEventSearch {
         # Custom query to run
         [Parameter(ParameterSetName = 'Query')]
         [string]
-        $Query
+        $Query,
+
+        # Date parameter
+        [Parameter()]
+        [Alias("Days")]
+        [int]
+        $PastDays = 29
     )
 
     begin {
@@ -63,8 +72,9 @@ function Get-SepCloudEventSearch {
         "start_date": "2022-10-16T00:00:00.000+00:00",
         "end_date": "2022-11-16T00:00:00.000+00:00" #>
 
-        $end_date = Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK"
-        $start_date = ((Get-Date).addDays(-29) | Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK")
+        # Setting dates for the query Date Format required : -UFormat "%Y-%m-%dT%T.000+00:00"
+        $end_date = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK")
+        $start_date = ((Get-Date).AddDays(-$PastDays) | Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK")
         $Body.Add("start_date", $start_date)
         $Body.Add("end_date", $end_date)
 

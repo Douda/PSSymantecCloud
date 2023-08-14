@@ -3,16 +3,15 @@ function Get-SepCloudIncidentDetails {
     <# TODO fill description
     TODO finish up the API query from incident_number and not UID for ease of use
 .SYNOPSIS
-    A short one-line action-based description, e.g. 'Tests if a function is valid'
+    Gathers details about an open incident
 .DESCRIPTION
-    A longer description of the function, its purpose, common use cases, etc.
-.NOTES
-    Information or caveats about the function e.g. 'This function is not supported in Linux'
-.LINK
-    Specify a URI to a help page, this will show when Get-Help -Online is used.
+    Gathers details about an open incident. Currently only supports gathering details from an incident UID
+.PARAMETER incident_uid
+    Incident GUID
+.PARAMETER incident_number
+    Incident number -- NOT IMPLEMENTED YET --
 .EXAMPLE
-    Test-MyTestFunction -Verbose
-    Explanation of the function or its result. You can include multiple examples with additional .EXAMPLE lines
+    Get-SepCloudIncidentDetails -incident_uid "ed5924c6-b36d-4449-88c1-4a1f974a01bb"
 #>
     [CmdletBinding()]
     param (
@@ -22,15 +21,15 @@ function Get-SepCloudIncidentDetails {
         )]
         [string]
         [Alias("incident_uid")]
-        $Incident_ID,
+        $Incident_ID
 
-        # Incident number
-        [Parameter(
-            ValueFromPipeline
-        )]
-        [string[]]
-        [Alias("Name")]
-        $Incident_number
+        # # Incident number
+        # [Parameter(
+        #     ValueFromPipeline
+        # )]
+        # [string[]]
+        # [Alias("Name")]
+        # $Incident_number
     )
 
     begin {

@@ -64,6 +64,10 @@ function Export-SepCloudAllowListPolicyToExcel {
             }
         }
 
+        # Verify the policy is an allow list policy
+        if ($obj_policy.features.properties.name -ne "EXCEPTION") {
+            throw "ERROR - The policy is not an allow list policy"
+        }
 
         # Init
         $Applications = $obj_policy.features.configuration.applications.processfile

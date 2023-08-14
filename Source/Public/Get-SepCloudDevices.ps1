@@ -1,7 +1,7 @@
 function Get-SepCloudDevices {
     <#
     .SYNOPSIS
-        Gathers list of devices from the SEP Cloud console
+    Gathers list of devices from the SEP Cloud console
     .PARAMETER Computername
     Specify one or many computer names. Accepts pipeline (up to 10 devices per query)
     Supports partial match
@@ -14,7 +14,7 @@ function Get-SepCloudDevices {
     .EXAMPLE
     Get-SepCloudDevices -Computername MyComputer
     .EXAMPLE
-    Get-SepCloudDevices -is_online -Device_status AT_RISK
+    Get-SepCloudDevices -Online -Device_status AT_RISK
     .EXAMPLE
     Get-SepCloudDevices -group "Aw7oerlBROSIl9O_IPFewx"
     #>

@@ -5,8 +5,14 @@ function Get-SepCloudPolicyDetails {
         Gathers detailed information on SEP Cloud policy
     .DESCRIPTION
         Gathers detailed information on SEP Cloud policy
-    .NOTES
-        Information or caveats about the function e.g. 'This function is not supported in Linux'
+    .PARAMETER Policy_UUID
+        Policy UUID
+    .PARAMETER Policy_Version
+        Policy version
+    .PARAMETER Policy_Name
+        Exact policy name
+    .OUTPUTS
+        PSObject
     .EXAMPLE
     Get-SepCloudPolicyDetails -name "My Policy"
     Gathers detailed information on the latest version SEP Cloud policy named "My Policy"
@@ -14,8 +20,8 @@ function Get-SepCloudPolicyDetails {
     Get-SepCloudPolicyDetails -name "My Policy" -version 1
     Gathers detailed information on the version 1 of SEP Cloud policy named "My Policy"
     .EXAMPLE
-    "My Policy" | Get-SepCloudPolicyDetails
-    Piped string is used as policy name to gather detailed information on the latest version SEP Cloud policy named "My Policy"
+    "My Policy","My Policy 2" | Get-SepCloudPolicyDetails
+    Piped strings are used as policy name to gather detailed information on the latest version SEP Cloud policy named "My Policy" & "My Policy 2"
     #>
 
 
@@ -64,14 +70,14 @@ function Get-SepCloudPolicyDetails {
 
         if ($null -eq $Policy_version ) {
             $obj_policy = ($obj_policy | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
-            $Policy_Version = ($obj_policy).policy_version
         }
 
+        $Policy_Version = ($obj_policy).policy_version
         $Policy_UUID = ($obj_policy).policy_uid
         $URI = 'https://' + $BaseURL + "/v1/policies/$Policy_UUID/versions/$Policy_Version"
 
         $Resp = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
 
-        $Resp
+        return $Resp
     }
 }

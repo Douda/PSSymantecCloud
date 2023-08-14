@@ -4,13 +4,19 @@ function Get-SepThreatIntelFileProtection {
         Provide information whether a given file has been blocked by any of Symantec technologies
     .DESCRIPTION
         Provide information whether a given file has been blocked by any of Symantec technologies.
-        These technologies include Antivirus (AV), Intrusion Prevention System (IPS) and Behavioral Analysis & System Heuristics (BASH).
-
+        These technologies include Antivirus (AV), Intrusion Prevention System (IPS) and Behavioral Analysis & System Heuristics (BASH)
+    .INPUTS
+        sha256
+    .OUTPUTS
+        PSObject
     .PARAMETER file_sha256
-        Specify one sha256 hash
-
+        Specify one or many sha256 hash
     .EXAMPLE
         Get-SepThreatIntelFileProtection -file_sha256 eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d
+        Gathers information whether the file with sha256 has been blocked by any of Symantec technologies
+    .EXAMPLE
+        "eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d","eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8e" | Get-SepThreatIntelFileProtection
+        Gathers sha from pipeline by value whether the files with sha256 have been blocked by any of Symantec technologies
     #>
 
     [CmdletBinding()]
@@ -38,11 +44,12 @@ function Get-SepThreatIntelFileProtection {
     }
 
     process {
-        # $URI in the process block for pipeline support
-        $URI = 'https://' + $BaseURL + "/v1/threat-intel/protection/file/$file_sha256"
-
-        $Response = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
-        $Response
-
+        $array_file_sha256 = @()
+        foreach ($f in $file_sha256) {
+            $URI = 'https://' + $BaseURL + "/v1/threat-intel/protection/file/" + $f
+            $Response = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
+            $array_file_sha256 += $Response
+        }
+        return $array_file_sha256
     }
 }

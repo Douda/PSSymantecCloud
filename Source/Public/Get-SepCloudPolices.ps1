@@ -1,4 +1,17 @@
 function Get-SepCloudPolices {
+    <#
+    .SYNOPSIS
+        Provides a list of all policies in your SEP Cloud account
+    .DESCRIPTION
+        Provides a list of all policies in your SEP Cloud account
+    .PARAMETER
+        None
+    .OUTPUTS
+        PSObject
+    .EXAMPLE
+        Get-SepCloudPolices
+        Gathers all possible policies in your SEP Cloud account
+    #>
 
     begin {
         # Init

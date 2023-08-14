@@ -1,4 +1,14 @@
 function Test-SepCloudConnectivity {
+    <#
+    .SYNOPSIS
+        Test SEP Cloud connectivity
+    .DESCRIPTION
+        Test SEP Cloud connectivity. returns boolean $true if OK, $false if not
+    .EXAMPLE
+        Test-SepCloudConnectivity
+        Test SEP Cloud connectivity and return $true if OK, $false if not
+
+    #>
     param (
     )
 
