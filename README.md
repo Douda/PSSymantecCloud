@@ -103,7 +103,7 @@ Get-SepCloudIncidents -Query "(state_id: 4 OR state_id: 5 ) AND conclusion:"Mali
 ```
 
 #### Threat Intel
-The Protection APIs provide information whether a given file, domain or CVE has been blocked by any of Symantec technologies
+The Protection APIs provide information whether a given file, domain or CVE has been blocked/covered by any of Symantec technologies
 
 file coverage
 ```PowerShell
