@@ -4,13 +4,17 @@ function Get-SepThreatIntelNetworkProtection {
         Provide information whether a given URL/domain has been blocked by any of Symantec technologies
     .DESCRIPTION
         Provide information whether a given URL/domain has been blocked by any of Symantec technologies.
-        These technologies include Antivirus (AV), Intrusion Prevention System (IPS) and Behavioral Analysis & System Heuristics (BASH).
-
-    .PARAMETER network
-        Specify one domain
-
+        These technologies include Antivirus (AV), Intrusion Prevention System (IPS) and Behavioral Analysis & System Heuristics (BASH)
+    .PARAMETER domain
+        Specify one or many URL/domain to check
+    .OUTPUTS
+        PSObject
     .EXAMPLE
         Get-SepThreatIntelNetworkProtection -domain nicolascoolman.eu
+        Gathers information whether the URL/domain has been blocked by any of Symantec technologies
+    .EXAMPLE
+        "nicolascoolman.eu","google.com" | Get-SepThreatIntelNetworkProtection
+        Gathers somains from pipeline by value whether the URLs/domains have been blocked by any of Symantec technologies
     #>
 
     [CmdletBinding()]
@@ -39,11 +43,12 @@ function Get-SepThreatIntelNetworkProtection {
     }
 
     process {
-        # $URI in the process block for pipeline support
-        $URI = 'https://' + $BaseURL + "/v1/threat-intel/protection/network/$network"
-
-        $Response = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
-        $Response
-
+        $array_network = @()
+        foreach ($n in $network) {
+            $URI = 'https://' + $BaseURL + "/v1/threat-intel/protection/network/" + $n
+            $Response = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
+            $array_network += $Response
+        }
+        return $array_network
     }
 }
