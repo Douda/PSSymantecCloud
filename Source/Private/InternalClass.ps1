@@ -9,10 +9,10 @@ class UpdateAllowlist {
     [object] $add
     [object] $remove
     UpdateAllowlist() {
-        $ExceptionStructureAdd = [AllowListStructure]::new()
-        $ExceptionStructureRemove = [AllowListStructure]::new()
-        $this.add = $ExceptionStructureAdd
-        $this.remove = $ExceptionStructureRemove
+        $AllowListStructureAdd = [AllowListStructure]::new()
+        $AllowListStructureRemove = [AllowListStructure]::new()
+        $this.add = $AllowListStructureAdd
+        $this.remove = $AllowListStructureRemove
     }
 
 }
@@ -233,4 +233,76 @@ class AllowListStructure {
                 features     = $features
             })
     }
+}
+
+# TODO - Verify the structure is the expected one when converting to JSON
+class DenyListStructure {
+    [object] $blacklistrules
+    [object] $nonperules
+    denylistStructure() {
+        $this.blacklistrules = [System.Collections.Generic.List[object]]::new()
+        $this.nonperules = [System.Collections.Generic.List[object]]::new()
+    }
+
+    # Method to add blacklist rules to the main obj (called "Executable files" in the cloud policy)
+    [void] AddBlacklistRules(
+        [string] $sha2,
+        [string] $name
+    ) {
+        $this.blacklistrules.Add([pscustomobject]@{
+                processfile = [pscustomobject]@{
+                    sha2 = $sha2
+                    name = $name
+                }
+            })
+    }
+
+    # Method to add nonpe rules to the main obj (called "Non-executable files" in the cloud policy)
+    [void] AddNonPeRules(
+        [string] $file_name,
+        [string] $file_sha2,
+        [int] $file_size,
+        [string] $file_directory,
+        [string] $actor_directory,
+        [string] $actor_sha2,
+        [string] $actor_md5
+    ) {
+        $this.nonperules.Add([pscustomobject]@{
+                file = [pscustomobject]@{
+                    name      = $file_name
+                    sha2      = $file_sha2
+                    size      = $file_size
+                    directory = $file_directory
+                }
+            })
+        # Add actor directory if it is not empty
+        if ($actor_directory -ne "") {
+            $this.nonperules.file.actor = [pscustomobject]@{
+                directory = $actor_directory
+            }
+        }
+        # Add actor sha2 if it is not empty
+        if ($actor_sha2 -ne "") {
+            $this.nonperules.file.actor = [pscustomobject]@{
+                sha2 = $actor_sha2
+            }
+        }
+        # Add actor md5 if it is not empty
+        if ($actor_md5 -ne "") {
+            $this.nonperules.file.actor = [pscustomobject]@{
+                md5 = $actor_md5
+            }
+        }
+    }
+}
+class UpdateDenylist {
+    [object] $add
+    [object] $remove
+    UpdateDenylist() {
+        $DenyListStructureAdd = [DenyListStructure]::new()
+        $DenyListStructureRemove = [DenyListStructure]::new()
+        $this.add = $DenyListStructureAdd
+        $this.remove = $DenyListStructureRemove
+    }
+
 }

@@ -64,7 +64,7 @@ function Export-SepCloudAllowListPolicyToExcel {
         }
 
         # Verify the policy is an allow list policy
-        if ($obj_policy.features.properties.name -ne "EXCEPTION") {
+        if ($obj_policy.type -ne "EXCEPTION") {
             throw "ERROR - The policy is not an allow list policy"
         }
 
