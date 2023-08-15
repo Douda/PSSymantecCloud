@@ -1,7 +1,7 @@
 function Export-SepCloudDenyListPolicyToExcel {
     <# TODO : change help for deny list
     .SYNOPSIS
-        Export an Allow List policy to a human readable excel report
+        Export a Deny List policy to a human readable excel report
     .INPUTS
         Policy name
         Policy version
@@ -9,14 +9,14 @@ function Export-SepCloudDenyListPolicyToExcel {
     .OUTPUTS
         Excel file
     .DESCRIPTION
-        Exports an allow list policy object it to an Excel file, with one tab per allow type (filename/file hash/directory etc...)
+        Exports a Deny list policy object it to an Excel file, with one tab per allow type (Executable file / Non-PE file etc...)
         Supports pipeline input with allowlist policy object
     .EXAMPLE
-        Export-SepCloudAllowListPolicyToExcel -Name "My Allow list Policy" -Version 1 -Path "allow_list.xlsx"
-        Exports the policy with name "My Allow list Policy" and version 1 to an excel file named "allow_list.xlsx"
+        Export-SepCloudDenyListPolicyToExcel -Name "My Deny list Policy" -Version 1 -Path "deny_list.xlsx"
+        Exports the policy with name "My Deny list Policy" and version 1 to an excel file named "deny_list.xlsx"
     .EXAMPLE
-        Get-SepCloudPolicyDetails -Name "My Allow list Policy" | Export-SepCloudAllowListPolicyToExcel -Path "allow_list.xlsx"
-        Gathers policy in an object, pipes the output to Export-SepCloudAllowListPolicyToExcel to export in excel format
+        Get-SepCloudPolicyDetails -Name "My Deny list Policy" | Export-SepCloudDenyListPolicyToExcel -Path "deny_list.xlsx"
+        Gathers policy in an object, pipes the output to Export-SepCloudDenyListPolicyToExcel to export in excel format
     #>
     [CmdletBinding(DefaultParameterSetName = 'PolicyName')]
     param (
@@ -28,7 +28,7 @@ function Export-SepCloudDenyListPolicyToExcel {
 
         # Policy version
         [Parameter(
-            ParameterSetName = 'PolicyName'
+            # ParameterSetName = 'PolicyName'
         )]
         [string]
         [Alias("Version")]
@@ -36,7 +36,7 @@ function Export-SepCloudDenyListPolicyToExcel {
 
         # Exact policy name
         [Parameter(
-            ParameterSetName = 'PolicyName'
+            # ParameterSetName = 'PolicyName'
         )]
         [string]
         [Alias("Name")]
@@ -72,9 +72,36 @@ function Export-SepCloudDenyListPolicyToExcel {
         $Executable_Files = $obj_policy.features.configuration.blacklistrules
         $NonPEFiles = $obj_policy.features.configuration.nonperules
 
+        # formating data
+        # Explicitely define the properties to export for file actors
+        $params_actor = @{
+            Property = 'sha2', 'md5', 'directory'
+        }
+        # Explicitely define the properties to export for file actors
+        $params_file = @{
+            Property = 'name', 'sha2', 'size', 'directory'
+        }
+        # loop through all files and actors to select the properties we want to export
+        $i = 0
+        foreach ($n in $NonPEFiles) {
+            $actors = $NonPEFiles[$i].actor | Select-Object @params_actor
+            $NonPEFiles[$i].actor = $actors
+
+            $files = $NonPEFiles[$i].file | Select-Object @params_file
+            $NonPEFiles[$i].file = $files
+            $i++
+        }
+
         # Exporting data to Excel
+        $excel_params = @{
+            ClearSheet   = $true
+            BoldTopRow   = $true
+            AutoSize     = $true
+            FreezeTopRow = $true
+            AutoFilter   = $true
+        }
         Import-Module -Name ImportExcel
-        $Executable_Files | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Executable Files" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $NonPEFiles | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Non-PE Files" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
+        $Executable_Files | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Executable Files" @excel_params
+        $NonPEFiles | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Non-PE Files" @excel_params
     }
 }

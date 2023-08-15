@@ -23,7 +23,7 @@ function Update-SepCloudAllowlistPolicy {
         Then update the policy to reflect the changes to the cloud
         Update-SepCloudAllowlistPolicy -policy "Workstations Allow List Policy" -ExcelFile .\WorkstationsAllowList.xlsx
     #>
-
+    [CmdletBinding(DefaultParameterSetName = 'ByExcelFile')]
     param (
         # Policy version
         [Parameter(
@@ -45,6 +45,7 @@ function Update-SepCloudAllowlistPolicy {
         [Parameter(
             # Mandatory
             # TODO add this parameter as mandatory once development is done
+            ParameterSetName = 'ByExcelFile'
         )]
         [string]
         [Alias("Excel")]
@@ -74,6 +75,9 @@ function Update-SepCloudAllowlistPolicy {
         $obj_merged_policy = Merge-SepCloudAllowList -Excel $excel_path -Policy_Name $Policy_Name
         $obj_policy = ($obj_policy | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
     }
+
+    # if parameter excel is provided, use it
+
 
     # Setup API query
     $Body = $obj_merged_policy | ConvertTo-Json -Depth 10
