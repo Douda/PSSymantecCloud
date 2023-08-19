@@ -17,6 +17,86 @@ class UpdateAllowlist {
 
 }
 
+class NewAllowListStructure {
+    [System.Collections.Generic.List[PSObject]] $Objects
+    hidden [bool] $AddListCreated = $false
+    hidden [bool] $RemoveListCreated = $false
+
+    NewAllowListStructure() {
+        $this.Objects = New-Object -TypeName 'System.Collections.Generic.List[PSObject]'
+    }
+
+    [void] CreateAddList() {
+        if ($this.AddListCreated -eq $false) {
+            $addList = New-Object -TypeName 'System.Collections.Generic.List[PSObject]'
+            $this.Objects.Add([PSCustomObject]@{
+                    Add = $addList
+                })
+            $this.AddListCreated = $true
+            return
+        }
+    }
+
+    [void] CreateRemoveList() {
+        if ($this.RemoveListCreated -eq $false) {
+            $removeList = New-Object -TypeName 'System.Collections.Generic.List[PSObject]'
+            $this.Objects.Add([PSCustomObject]@{
+                    Remove = $removeList
+                })
+            $this.RemoveListCreated = $true
+            return
+        }
+    }
+
+    # [void] AddItem($item) {
+    #     if ($this.Objects.Exists({ $_.Add })) {
+    #         $this.Objects.Find({ $_.Add }).Add.Add($item)
+    #     }
+    # }
+
+    # [void] RemoveItem($item) {
+    #     if ($this.Objects.Exists({ $_.Remove })) {
+    #         $this.Objects.Find({ $_.Remove }).Remove.Remove($item)
+    #     }
+    # }
+
+    # [void] ClearAddList() {
+    #     if ($this.Objects.Exists({ $_.Add })) {
+    #         $this.Objects.Find({ $_.Add }).Add.Clear()
+    #     }
+    # }
+
+    # [void] ClearRemoveList() {
+    #     if ($this.Objects.Exists({ $_.Remove })) {
+    #         $this.Objects.Find({ $_.Remove }).Remove.Clear()
+    #     }
+    # }
+
+    # [bool] ContainsItem($item) {
+    #     return $this.Objects.Exists({ $_.Add.Contains($item) }) -or $this.Objects.Exists({ $_.Remove.Contains($item) })
+    # }
+
+    # [void] CopyTo($array, $index) {
+    #     $this.Objects.CopyTo($array, $index)
+    # }
+
+    # [int] IndexOf($item) {
+    #     return $this.Objects.IndexOf($item)
+    # }
+
+    # [void] Insert($index, $item) {
+    #     $this.Objects.Insert($index, $item)
+    # }
+
+    # [void] Remove($item) {
+    #     $this.Objects.Remove($item)
+    # }
+
+    # [void] RemoveAt($index) {
+    #     $this.Objects.RemoveAt($index)
+    # }
+}
+
 class AllowListStructure {
     [object] $Applications
     [object] $Certificates
@@ -27,7 +107,7 @@ class AllowListStructure {
     [object] $linux
     [object] $mac
     # Setting up the PSCustomObject structure from the JSON example : https://pastebin.com/FaKYpgw3
-    ExceptionStructure() {
+    AllowListStructure() {
         $this.applications = [System.Collections.Generic.List[object]]::new()
         $this.Certificates = [System.Collections.Generic.List[object]]::new()
         $this.webdomains = [System.Collections.Generic.List[object]]::new()
