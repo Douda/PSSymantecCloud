@@ -22,8 +22,7 @@ function Export-SepCloudAllowListPolicyToExcel {
     param (
         # Path of Export
         [Parameter(Mandatory)]
-        [Alias("Path")]
-        [Alias("Excel")]
+        [Alias('Excel', 'Path')]
         [string]
         $excel_path,
 
@@ -65,7 +64,7 @@ function Export-SepCloudAllowListPolicyToExcel {
         }
 
         # Verify the policy is an allow list policy
-        if ($obj_policy.features.properties.name -ne "EXCEPTION") {
+        if ($obj_policy.type -ne "EXCEPTION") {
             throw "ERROR - The policy is not an allow list policy"
         }
 
@@ -104,20 +103,27 @@ function Export-SepCloudAllowListPolicyToExcel {
         }
 
         # Exporting data to Excel
+        $excel_params = @{
+            ClearSheet   = $true
+            BoldTopRow   = $true
+            AutoSize     = $true
+            FreezeTopRow = $true
+            AutoFilter   = $true
+        }
         # Import-Module -Name ImportExcel
-        $Applications | Export-Excel $excel_path -WorksheetName "Applications" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $Files | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Files" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $Directories | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Directories" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $Extensions |  Export-Excel $excel_path -WorksheetName "Extensions" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $Webdomains | Export-Excel $excel_path -WorksheetName "Webdomains" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $Ips_Hosts | Export-Excel $excel_path -WorksheetName "Ips_Hosts" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $Ips_Hosts_subnet_v4 | Export-Excel $excel_path -WorksheetName "Ips_Hosts_subnet_v4" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $Ips_Hosts_subnet_v6 | Export-Excel $excel_path -WorksheetName "Ips_Hosts_subnet_v6" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $Ips_range | Export-Excel $excel_path -WorksheetName "Ips_range" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $Certificates | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Certificates" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $linux_Files | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Linux Files" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $linux_Directories | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Linux Directories" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $mac_Files | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Mac Files" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
-        $mac_Directories | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Mac Directories" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
+        $Applications | Export-Excel $excel_path -WorksheetName "Applications" @excel_params
+        $Files | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Files" @excel_params
+        $Directories | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Directories" @excel_params
+        $Extensions |  Export-Excel $excel_path -WorksheetName "Extensions" @excel_params
+        $Webdomains | Export-Excel $excel_path -WorksheetName "Webdomains" @excel_params
+        $Ips_Hosts | Export-Excel $excel_path -WorksheetName "Ips_Hosts" @excel_params
+        $Ips_Hosts_subnet_v4 | Export-Excel $excel_path -WorksheetName "Ips_Hosts_subnet_v4" @excel_params
+        $Ips_Hosts_subnet_v6 | Export-Excel $excel_path -WorksheetName "Ips_Hosts_subnet_v6" @excel_params
+        $Ips_range | Export-Excel $excel_path -WorksheetName "Ips_range" @excel_params
+        $Certificates | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Certificates" @excel_params
+        $linux_Files | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Linux Files" @excel_params
+        $linux_Directories | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Linux Directories" @excel_params
+        $mac_Files | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Mac Files" @excel_params
+        $mac_Directories | ConvertTo-FlatObject | Export-Excel $excel_path -WorksheetName "Mac Directories" @excel_params
     }
 }

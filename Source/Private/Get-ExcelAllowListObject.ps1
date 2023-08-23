@@ -20,8 +20,7 @@ function Get-ExcelAllowListObject {
             ValueFromPipeline
         )]
         [string[]]
-        [Alias("Excel")]
-        [Alias("Path")]
+        [Alias('Excel', 'Path')]
         $excel_path
     )
 

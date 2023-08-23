@@ -23,8 +23,7 @@ function Get-SepThreatIntelNetworkProtection {
         [Parameter(
             Mandatory,
             ValueFromPipeline = $true)]
-        [Alias('domain')]
-        [Alias('URL')]
+        [Alias('domain', 'url')]
         [string[]]
         $network
     )

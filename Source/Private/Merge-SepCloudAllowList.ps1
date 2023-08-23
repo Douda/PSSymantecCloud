@@ -41,8 +41,7 @@ function Merge-SepCloudAllowList {
             Mandatory
         )]
         [string]
-        [Alias("Excel")]
-        [Alias("Path")]
+        [Alias('Excel', 'Path')]
         $excel_path
     )
 
