@@ -1,58 +1,116 @@
 function Optimize-SepCloudAllowListPolicyObject {
-    <#
-    .SYNOPSIS
-        Deletes empty properties from a Symantec Endpoint Cloud Allow List policy object
-    .DESCRIPTION
-        This function is used to remove empty properties from a Symantec Endpoint Cloud Allow List policy object.
-        This is used before converting the object to JSON to avoid having empty properties in the JSON file used to update the policy
-    .INPUTS
-        - Symantec Endpoint Cloud Allow List policy object object
-    .OUTPUTS
-        - PSObject with empty properties removed
-    .EXAMPLE
-
-
-    #>
-
 
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [PSObject[]]
-        $InputObject
+        [PSObject]
+        $obj
     )
 
     process {
-        foreach ($obj in $InputObject) {
-            # Listing all properties of the object
-            $AllProperties = $obj.psobject.properties.Name
-            foreach ($property in $AllProperties) {
-                # # If the property is different from null (does not include empty strings)
-                # if ($null -ne $obj.$property) {
-                #     # parsing specific scenarios first
-                #     # Specific use case. If the property is called "extensions",lookup if names is empty. If so, remove the whole extensions property
-                #     if ( $obj.$property.PSObject.Properties.name -eq "Extensions") {
-                #         if ($obj.$property.Extensions.names.Count -eq 0) {
-                #             $obj.$property.PSObject.Properties.Remove("Extensions")
-                #         }
-                #     }
-
-                # If the property is an object
-                if ($obj.$property -is [object] -and $obj.$property -isnot [string]) {
-                    # if nested object has empty property, remove it from the object
-                    if ($obj.$property.Count -eq 0) {
-                        $obj.PSObject.Properties.Remove($property)
-                    } else {
-                        # else, recursively call the function to dig deeper
-                        Optimize-SepCloudAllowListPolicyObject $obj.$property
-                        # if nested object has no property names (to avoid having empty objects that still return count to 1), remove the object
-                        if ($null -eq $obj.$property.PSObject.Properties.name) {
-                            $obj.psobject.Properties.Remove($property)
-                        }
+        # Listing all properties of the object
+        $AllProperties = $obj | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name
+        foreach ($property in $AllProperties) {
+            switch ($property) {
+                "add" {
+                    # recursively call the function to dig deeper
+                    $obj.add = Optimize-SepCloudAllowListPolicyObject $obj.$property
+                    # Verify if the add object has no properties
+                    if (($obj.add | Get-Member -MemberType NoteProperty).count -eq 0) {
+                        # Remove the "add"  property from the object
+                        $obj = $obj | Select-Object -ExcludeProperty $property
                     }
                 }
+                "remove" {
+                    # recursively call the function to dig deeper
+                    $obj.remove = Optimize-SepCloudAllowListPolicyObject $obj.$property
+                    # Verify if the remove object has no properties
+                    if (($obj.remove | Get-Member -MemberType NoteProperty).count -eq 0) {
+                        # Remove the "remove" property from the object
+                        $obj = $obj | Select-Object -ExcludeProperty $property
+                    }
+                }
+                "applications" {
+                    if ($obj.$property.processfile.count -eq 0) {
+                        # Remove Applications property
+                        $obj = $obj | Select-Object -ExcludeProperty $property
+                    }
+                }
+                "webdomains" {
+                    if ($obj.$property.count -eq 0) {
+                        # Remove webdomains property
+                        $obj = $obj | Select-Object -ExcludeProperty $property
+                    }
+                }
+                "certificates" {
+                    if ($obj.$property.count -eq 0) {
+                        # Remove certificates property
+                        $obj = $obj | Select-Object -ExcludeProperty $property
+                    }
+                }
+                "ips_hosts" {
+                    if ($obj.$property.count -eq 0) {
+                        # Remove ips_hosts property
+                        $obj = $obj | Select-Object -ExcludeProperty $property
+                    }
+                }
+                "extensions" {
+                    if ($obj.$property.names.count -eq 0) {
+                        # Remove extensions property
+                        $obj = $obj | Select-Object -ExcludeProperty $property
+                    }
+                }
+                "linux" {
+                    # Checking linux files
+                    if ($obj.$property.files.count -eq 0) {
+                        # Remove linux files property only
+                        $obj.$property = $obj.$property | Select-Object -ExcludeProperty "files"
+                    }
+                    # Checking linux folders
+                    if ($obj.$property.directories.count -eq 0) {
+                        # Remove linux folders property only
+                        $obj.$property = $obj.$property | Select-Object -ExcludeProperty "directories"
+                    }
+                    # If both files and folders are empty, remove the property
+                    if ($obj.$property.files.count -eq 0 -and $obj.$property.directories.count -eq 0) {
+                        $obj = $obj | Select-Object -ExcludeProperty $property
+                    }
+                }
+                "windows" {
+                    # Checking windows files
+                    if ($obj.$property.files.count -eq 0) {
+                        # Remove windows files property only
+                        $obj.$property = $obj.$property | Select-Object -ExcludeProperty "files"
+                    }
+                    # Checking windows folders
+                    if ($obj.$property.directories.count -eq 0) {
+                        # Remove windows folders property only
+                        $obj.$property = $obj.$property | Select-Object -ExcludeProperty "directories"
+                    }
+                    # If both files and folders are empty, remove the property
+                    if ($obj.$property.files.count -eq 0 -and $obj.$property.directories.count -eq 0) {
+                        $obj = $obj | Select-Object -ExcludeProperty $property
+                    }
+                }
+                "mac" {
+                    # Checking mac files
+                    if ($obj.$property.files.count -eq 0) {
+                        # Remove mac files property only
+                        $obj.$property = $obj.$property | Select-Object -ExcludeProperty "files"
+                    }
+                    # Checking mac folders
+                    if ($obj.$property.directories.count -eq 0) {
+                        # Remove mac folders property only
+                        $obj.$property = $obj.$property | Select-Object -ExcludeProperty "directories"
+                    }
+                    # If both files and folders are empty, remove the property
+                    if ($obj.$property.files.count -eq 0 -and $obj.$property.directories.count -eq 0) {
+                        $obj = $obj | Select-Object -ExcludeProperty $property
+                    }
+                }
+                Default {}
             }
         }
-        return $InputObject
+        return $obj
     }
 }
