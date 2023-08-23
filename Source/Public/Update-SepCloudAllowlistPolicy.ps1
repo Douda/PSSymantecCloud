@@ -107,7 +107,7 @@ function Update-SepCloudAllowlistPolicy {
         }
 
         # Setup API query
-        $Body = $obj_merged_policy | ConvertTo-Json -Depth 10
+        $Body = $obj_merged_policy | Optimize-SepCloudAllowListPolicyObject | ConvertTo-Json -Depth 100
         $Policy_UUID = ($obj_policy).policy_uid
         $Policy_Version = ($obj_policy).policy_version
         $URI = 'https://' + $BaseURL + "/v1/policies/allow-list/$Policy_UUID/versions/$Policy_Version"
@@ -155,8 +155,12 @@ function Update-SepCloudAllowlistPolicy {
             )
         }
 
+        # Convert $obj_body from a custom class to a PSCustomObject
+        $obj_body = $obj_body | ConvertTo-Json -Depth 100 | ConvertFrom-Json -Depth 100
+
         # Setup API query
-        $Body = $obj_body | Optimize-SepCloudAllowListPolicyObject | ConvertTo-Json -Depth 10
+        # Running on body Optimize-SepCloudAllowListPolicyObject to remove empty properties before converting to JSON
+        $Body = $obj_body | Optimize-SepCloudAllowListPolicyObject | ConvertTo-Json -Depth 100
         $Policy_UUID = ($obj_policy).policy_uid
         $Policy_Version = ($obj_policy).policy_version
         $URI = 'https://' + $BaseURL + "/v1/policies/allow-list/$Policy_UUID/versions/$Policy_Version"
