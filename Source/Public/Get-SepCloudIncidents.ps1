@@ -1,6 +1,6 @@
 function Get-SepCloudIncidents {
 
-    <# TODO fill description for Get-SepCloudIncidents
+    <#
     .SYNOPSIS
         Get list of SEP Cloud incidents. By default, shows only opened incidents
     .DESCRIPTION
@@ -12,6 +12,8 @@ function Get-SepCloudIncidents {
         Includes every events that both are part of the context & triggered incident events
     .PARAMETER Query
         Custom Lucene query to pass to the API
+    .INPUTS
+        None
     .OUTPUTS
         PSObject containing all SEP incidents
     .EXAMPLE

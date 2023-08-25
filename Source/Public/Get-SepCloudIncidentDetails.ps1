@@ -1,7 +1,7 @@
 function Get-SepCloudIncidentDetails {
 
-    <# TODO fill description
-    TODO finish up the API query from incident_number and not UID for ease of use
+    <#
+    TODO finish up the API query from incident_number and not UID for ease of use. So far, not implemented in the API to query a closed INC by incident number
 .SYNOPSIS
     Gathers details about an open incident
 .DESCRIPTION
@@ -10,6 +10,10 @@ function Get-SepCloudIncidentDetails {
     Incident GUID
 .PARAMETER incident_number
     Incident number -- NOT IMPLEMENTED YET --
+.INPUTS
+    None
+.OUTPUTS
+    PSObject
 .EXAMPLE
     Get-SepCloudIncidentDetails -incident_uid "ed5924c6-b36d-4449-88c1-4a1f974a01bb"
 #>

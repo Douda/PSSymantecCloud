@@ -4,6 +4,13 @@ function Get-SepCloudEventSearch {
         Get list of SEP Cloud Events. By default it will gather data for past 30 days
     .DESCRIPTION
         Get list of SEP Cloud Events. You can use the following parameters to filter the results: FileDetection, FullScan, or a custom Lucene query
+    .INPUTS
+        [string] Query
+        [int] PastDays
+        [switch] FileDetection
+        [switch] FullScan
+    .OUTPUTS
+        [PSCustomObject] Events
     .PARAMETER Query
         Runs a custom Lucene query
     .PARAMETER PastDays
