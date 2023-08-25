@@ -18,6 +18,5 @@
         "titleBar.inactiveBackground": "#18978099",
         "titleBar.inactiveForeground": "#e7e7e799"
     },
-    "peacock.color": "#189780",
-    "pester.autoRunOnSave": false
+    "peacock.color": "#189780"
 }
