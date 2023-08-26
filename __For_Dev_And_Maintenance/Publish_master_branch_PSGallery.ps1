@@ -11,4 +11,4 @@ if ($null -eq $API_KEY) {
 
 # Publish Module
 $MajorMinorPatch = dotnet-gitversion | ConvertFrom-Json | Select-Object -Expand MajorMinorPatch
-Publish-Module -Path "C:\Users\aurel\OneDrive\Documents\Projects\PSSymantecCloud\Output\PSSymantecCloud\$MajorMinorPatch\" -NuGetApiKey $APIKey -Verbose
+Publish-Module -Path "$ModuleDevPath\Output\PSSymantecCloud\$MajorMinorPatch\" -NuGetApiKey $APIKey -Verbose
