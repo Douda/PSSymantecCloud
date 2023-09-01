@@ -1,4 +1,18 @@
 {
+    // PowerShell settings to comply with the repo standards
+    "powershell.codeFormatting.alignPropertyValuePairs": true,
+    "powershell.codeFormatting.autoCorrectAliases": true,
+    "powershell.codeFormatting.newLineAfterOpenBrace": true,
+    "powershell.codeFormatting.pipelineIndentationStyle": "IncreaseIndentationForFirstPipeline",
+    "powershell.codeFormatting.preset": "OTBS",
+    "powershell.codeFormatting.useCorrectCasing": true,
+    "powershell.codeFormatting.whitespaceBetweenParameters": false,
+    "powershell.codeFormatting.addWhitespaceAroundPipe": true,
+    "powershell.codeFormatting.trimWhitespaceAroundPipe": true,
+    // Editor
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "modifications",
     "workbench.colorCustomizations": {
         "activityBar.activeBackground": "#1fc3a5",
         "activityBar.background": "#1fc3a5",
@@ -19,5 +33,5 @@
         "titleBar.inactiveForeground": "#e7e7e799"
     },
     "peacock.color": "#189780",
-    "pester.autoRunOnSave": false
+    
 }
