@@ -4,6 +4,10 @@ function Test-SepCloudConnectivity {
         Test SEP Cloud connectivity
     .DESCRIPTION
         Test SEP Cloud connectivity. returns boolean $true if OK, $false if not
+    .INPUTS
+        None
+    .OUTPUTS
+        [boolean] $true or $false
     .EXAMPLE
         Test-SepCloudConnectivity
         Test SEP Cloud connectivity and return $true if OK, $false if not
@@ -16,7 +20,7 @@ function Test-SepCloudConnectivity {
         Write-Host "Authentication OK"
         return $true
         else {
-            Write-Host "Authentication failed"
+            Write-Host "Authentication failed - Use Clear-SepCloudAuthentication to clear your API token and try again"
             return $false
         }
     }

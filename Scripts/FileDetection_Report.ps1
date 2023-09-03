@@ -43,8 +43,14 @@ if (Get-Module -ListAvailable -Name ImportExcel) {
 # Query examples
 # 'feature_name:MALWARE_PROTECTION AND type_id:8031'
 # 'device_name:MachineName AND type_id:8031'
+Write-Verbose "Querying SEP Cloud API"
 $resp = Get-SepCloudEvents -Query 'feature_name:MALWARE_PROTECTION AND type_id:8031'
 $array = @()
+$i = 0
+$total = $resp.Count
+
+# Parse response
+Write-Verbose "Processing SEP Cloud events"
 foreach ($r in $resp) {
     $Obj = [pscustomobject]@{
         ComputerName      = $r.device_name
@@ -58,6 +64,9 @@ foreach ($r in $resp) {
         DetectionFullPath = $r.file.path
     }
     $array += $Obj
+    $i++
+    $percentComplete = ($i / $total) * 100
+    Write-Progress -Activity "Processing SEP Cloud events" -Status "Processing event $i of $total" -PercentComplete $percentComplete
 }
 
 # Convert ID action value to human readable string
@@ -92,4 +101,14 @@ foreach ($Item in $array) {
     }
 }
 
-$array | Export-Excel $Path -WorksheetName "File Detection" -ClearSheet -BoldTopRow -AutoSize -FreezeTopRow -AutoFilter
+
+# Exporting data to Excel
+$excel_params = @{
+    ClearSheet   = $true
+    BoldTopRow   = $true
+    AutoSize     = $true
+    FreezeTopRow = $true
+    AutoFilter   = $true
+}
+
+$array | Export-Excel $Path -WorksheetName "File Detection" @excel_params

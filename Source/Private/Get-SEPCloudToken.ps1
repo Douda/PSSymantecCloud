@@ -2,7 +2,6 @@ function Get-SEPCloudToken {
     <#
     .SYNOPSIS
     Generates an authenticated Token from the SEP Cloud API
-
     .DESCRIPTION
     Gathers Bearer Token from the SEP Cloud console to interact with the authenticated API
     Securely stores credentials or valid token locally (By default on TEMP location)
@@ -13,12 +12,18 @@ function Get-SEPCloudToken {
 
     .PARAMETER Secret
     Secret parameter required in combinaison to ClientID to generate a token
+    .INPUTS
+    [string] ClientID
+    [string] Secret
+    .OUTPUTS
+    [PSCustomObject] Token
 
     .EXAMPLE
     Get-SEPCloudToken
-
     .EXAMPLE
     Get-SEPCloudToken(ClientID,Secret)
+    .EXAMPLE
+    Get-SEPCloudToken -ClientID "myclientid" -Secret "mysecret"
 
     .NOTES
     Function logic
@@ -26,6 +31,7 @@ function Get-SEPCloudToken {
     2. Test locally stored encrypted Client/Secret to generate a token
     3. Requests Client/Secret to generate token
     #>
+
 
     [CmdletBinding()]
     param (

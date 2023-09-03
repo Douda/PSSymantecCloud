@@ -2,15 +2,23 @@ function Export-SepCloudAllowListPolicyToExcel {
     <#
     .SYNOPSIS
         Export an Allow List policy to a human readable excel report
+    .DESCRIPTION
+        Exports an allow list policy object it to an Excel file, with one tab per allow type (filename/file hash/directory etc...)
+        Supports pipeline input with allowlist policy object
     .INPUTS
         Policy name
         Policy version
         Excel path
     .OUTPUTS
         Excel file
-    .DESCRIPTION
-        Exports an allow list policy object it to an Excel file, with one tab per allow type (filename/file hash/directory etc...)
-        Supports pipeline input with allowlist policy object
+    .PARAMETER Policy_Name
+        Name of the policy to export
+    .PARAMETER Policy_Version
+        Version of the policy to export
+    .PARAMETER Excel_Path
+        Path of the excel file to export
+    .PARAMETER obj_policy
+        Policy object to export
     .EXAMPLE
         Export-SepCloudAllowListPolicyToExcel -Name "My Allow list Policy" -Version 1 -Path "allow_list.xlsx"
         Exports the policy with name "My Allow list Policy" and version 1 to an excel file named "allow_list.xlsx"

@@ -6,9 +6,11 @@ function Update-SepCloudAllowlistPolicy {
         Gathers Allow List policy information from an Excel file generated from Export-SepCloudAllowListPolicyToExcel function
         You can manually add or remove lines to the Excel file, and the updated Excel will be used to add or remove new exceptions to the Allow list policy of your choice
     .INPUTS
-        - Excel file generated from Export-SepCloudAllowListPolicyToExcel function
-        - Policy name to update
-        - OPTIONAL : policy version (default latest version)
+        [string] Policy_Name
+        [string] ExcelFile
+        optional [string] Policy_Version
+    .OUTPUTS
+        [PSCustomObject] Policy
     .PARAMETER Policy_Version
         Optional parameter - Version of the policy to update. By default, latest version selected
     .PARAMETER Policy_Name
@@ -16,6 +18,14 @@ function Update-SepCloudAllowlistPolicy {
     .PARAMETER ExcelFile
         Path fo the Excel file that contains updated information on Allow list to update
         Takes Excel template from Export-SepCloudAllowListPolicyToExcel function
+    .PARAMETER Add
+        [switch] Add content to the policy. Supports only -sha2 and -name parameters
+    .PARAMETER Remove
+        [switch] Remove content from the policy. Supports only -sha2 and -name parameters
+    .PARAMETER sha2
+        [string] sha2 hash to add or remove from the policy
+    .PARAMETER name
+        [string] name of the file to add or remove from the policy
     .EXAMPLE
         First generate an excel file from the policy you want to update
         Get-SepCloudPolicyDetails -name "Workstations Allow List Policy" | Export-SepCloudAllowListPolicyToExcel -Path .\Data\WorkstationsAllowList.xlsx

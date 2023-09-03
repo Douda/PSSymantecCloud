@@ -1,6 +1,6 @@
 function Get-SepCloudIncidents {
 
-    <# TODO fill description for Get-SepCloudIncidents
+    <#
     .SYNOPSIS
         Get list of SEP Cloud incidents. By default, shows only opened incidents
     .DESCRIPTION
@@ -12,6 +12,8 @@ function Get-SepCloudIncidents {
         Includes every events that both are part of the context & triggered incident events
     .PARAMETER Query
         Custom Lucene query to pass to the API
+    .INPUTS
+        None
     .OUTPUTS
         PSObject containing all SEP incidents
     .EXAMPLE
@@ -47,7 +49,7 @@ function Get-SepCloudIncidents {
         $BaseURL = (Get-ConfigurationPath).BaseUrl
         $URI_Tokens = 'https://' + $BaseURL + "/v1/incidents"
         $ArrayResponse = @()
-        $Token = Get-SEPCloudToken
+        $Token = (Get-SEPCloudToken).Token_Bearer
     }
 
     process {
@@ -57,7 +59,7 @@ function Get-SepCloudIncidents {
 
         # Settings dates
         $end_date = Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK"
-        $start_date = ((Get-Date).addDays(-29)  | Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK")
+        $start_date = ((Get-Date).addDays(-29) | Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK")
         $Body.Add("start_date", $start_date)
         $Body.Add("end_date", $end_date)
 
@@ -76,7 +78,6 @@ function Get-SepCloudIncidents {
             }
         }
 
-        $Body_Json = ConvertTo-Json $Body
         $Headers = @{
             Host           = $BaseURL
             Accept         = "application/json"
@@ -84,27 +85,25 @@ function Get-SepCloudIncidents {
             Authorization  = $Token
         }
 
+
         try {
-            $Response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers -Body $Body_Json -UseBasicParsing
-            $ArrayResponse += $Response
-            if ($null -ne $Response.next) {
-                <# If pagination #>
-                do {
-                    # change the "next" offset for next query
-                    $Body.Remove("next")
-                    $Body.Add("next", $Response.next)
-                    $Body_Json = ConvertTo-Json $Body
-                    # Run query & add it to the array
-                    $Response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers -Body $Body_Json -UseBasicParsing
-                    $ArrayResponse += $Response
-                } until (
-                        ($null -eq $Response.next)
-                )
-            }
+            do {
+                $params = @{
+                    Uri             = $URI_Tokens
+                    Method          = 'POST'
+                    Body            = $Body | ConvertTo-Json
+                    Headers         = $Headers
+                    UseBasicParsing = $true
+                }
+
+                $Response = Invoke-RestMethod @params
+                $ArrayResponse += $Response
+                $Body.Remove("next")
+                $Body.Add("next", $Response.next)
+            } until ($null -eq $Response.next)
         } catch {
-            $StatusCode = $_
-            $StatusCode
-        }
+                Write-Warning -Message "Error: $_"
+            }
 
         return $ArrayResponse.incidents
     }

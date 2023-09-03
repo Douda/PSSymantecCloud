@@ -1,10 +1,12 @@
 function Get-SepCloudFeatureList {
-    <# TODO : fill in description Get-SepCloudFeatureList
+    <#
     .SYNOPSIS
         retrieve SES enumeration details for your devices like feature names, security status and reason codes.
     .DESCRIPTION
         retrieve SES enumeration details for your devices like feature names, security status and reason codes.
     .PARAMETER
+        None
+    .INPUTS
         None
     .OUTPUTS
         PSObject

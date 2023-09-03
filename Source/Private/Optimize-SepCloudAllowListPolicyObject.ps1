@@ -1,4 +1,12 @@
 function Optimize-SepCloudAllowListPolicyObject {
+    <#
+    .SYNOPSIS
+        Removes empty properties from the SEP Cloud Allow List Policy Object
+    .DESCRIPTION
+        Removes empty properties from the SEP Cloud Allow List Policy Object. This is required to avoid errors when creating a new policy.
+    .EXAMPLE
+        $AllowListPolicyOptimized = $AllowListPolicy | Optimize-SepCloudAllowListPolicyObject
+    #>
 
     [CmdletBinding()]
     param (

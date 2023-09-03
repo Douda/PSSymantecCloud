@@ -1,5 +1,5 @@
 function Get-ExcelAllowListObject {
-    <# TODO fill description
+    <#
     .SYNOPSIS
         Imports excel allow list report from its file path as a PSObject
     .DESCRIPTION
@@ -35,7 +35,9 @@ function Get-ExcelAllowListObject {
         # Get Object from ExceptionStructure Class
         $obj_policy_excel = [AllowListStructure]::new()
 
-        # Populates $obj_policy_excel
+        ###############################
+        # Populates $obj_policy_excel #
+        ###############################
 
         # Add Applications
         foreach ($line in $SheetsInfo['Applications']) {
@@ -185,8 +187,6 @@ function Get-ExcelAllowListObject {
                 $feature_names
             )
         }
-
-
 
         # Add Linux Directories
         foreach ($line in $SheetsInfo['Linux Directories']) {
