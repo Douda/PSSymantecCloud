@@ -1,4 +1,4 @@
-function Get-SepCloudEventSearch {
+function Get-SepCloudEvents {
     <#
     .SYNOPSIS
         Get list of SEP Cloud Events. By default it will gather data for past 30 days
@@ -20,19 +20,19 @@ function Get-SepCloudEventSearch {
     .PARAMETER FileDetection
         Runs the following Lucene query "feature_name:MALWARE_PROTECTION AND ( type_id:8031 OR type_id:8032 OR type_id:8033 OR type_id:8027 OR type_id:8028 ) AND ( id:12 OR id:11 AND type_id:8031 )"
     .EXAMPLE
-        Get-SepCloudEventSearch
+        Get-SepCloudEvents
         Gather all possible events. ** very slow approach & limited to 10k events **
     .EXAMPLE
-        Get-SepCloudEventSearch -FileDetection -pastdays 20
+        Get-SepCloudEvents -FileDetection -pastdays 20
         Gather all file detection events for the past 20 days
     .EXAMPLE
-        Get-SepCloudEventSearch -FullScan
+        Get-SepCloudEvents -FullScan
         Gather all full scan events
     .EXAMPLE
-        Get-SepCloudEventSearch -Query "type_id:8031 OR type_id:8032 OR type_id:8033"
+        Get-SepCloudEvents -Query "type_id:8031 OR type_id:8032 OR type_id:8033"
         Runs a custom Lucene query
     .EXAMPLE
-        Get-SepCloudEventSearch -Query "type_id:8031 OR type_id:8032 OR type_id:8033" -PastDays 14
+        Get-SepCloudEvents -Query "type_id:8031 OR type_id:8032 OR type_id:8033" -PastDays 14
         Runs a custom Lucene query for the past 14 days
     #>
     [CmdletBinding(DefaultParameterSetName = 'Query')]
@@ -99,9 +99,6 @@ function Get-SepCloudEventSearch {
             Default {}
         }
 
-        # Convert body to Json after adding potential query with parameters
-        $Body_Json = ConvertTo-Json $Body
-
         $Headers = @{
             Host           = $BaseURL
             Accept         = "application/json"
@@ -110,7 +107,14 @@ function Get-SepCloudEventSearch {
         }
 
         try {
-            $Response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers -Body $Body_Json -UseBasicParsing
+            $params = @{
+                Uri             = $URI_Tokens
+                Method          = 'POST'
+                Body            = $Body | ConvertTo-Json
+                Headers         = $Headers
+                UseBasicParsing = $true
+            }
+            $Response = Invoke-RestMethod @params
             $ArrayResponse += $Response
 
             while ($Response.next) {
