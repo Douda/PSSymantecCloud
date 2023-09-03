@@ -1,11 +1,17 @@
 # PSSymantecCloud
 
-This PowerShell module provides a series of cmdlets for interacting with the [Symantec Endpoint Protection Cloud REST API](https://apidocs.securitycloud.symantec.com/#/doc?id=ses_auth)
+This PowerShell module provides a series of cmdlets to interact with the [Symantec Endpoint Protection Cloud REST API](https://apidocs.securitycloud.symantec.com/#/doc?id=ses_auth)
 
-Contributions are welcomed and encouraged. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/PSSymantecCloud?style=flat-square)](https://www.powershellgallery.com/packages/PSSymantecCloud)
+[![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/PSSymantecCloud?style=flat-square)](https://www.powershellgallery.com/packages/PSSymantecCloud)
+![GitHub](https://img.shields.io/github/license/Douda/PSSymantecCloud?style=flat-square)
 
 ## Overview
-This small project is an attempt to interact with the Symantec/Broadcom API to manage Symantec Endpoint Protection (SEP) Cloud.
+This small project is an attempt to interact with the Symantec/Broadcom API to manage 
+
+- Symantec Endpoint Protection (SEP) Cloud 
+- [Symantec Endpoint Security](https://sep.securitycloud.symantec.com/v2/home/dashboard) (SES) Platform.
+
 To interact with your SEP Cloud platform you need to 
 - Create an [integration application](https://techdocs.broadcom.com/us/en/symantec-security-software/endpoint-security-and-management/endpoint-security/sescloud/Settings/creating-a-client-application-v132702110-d4152e4057.html) and get your ClientID & Secret from your [Symantec Cloud Platform](https://sep.securitycloud.symantec.com/v2/home/dashboard)
 - Generate your [authentication token](https://apidocs.securitycloud.symantec.com/#/doc?id=ses_auth) (Go to SES > Generating your token bearer)
@@ -20,11 +26,16 @@ This module follows the [Module Builder Project](https://github.com/PoshCode/Mod
 
 ## List of commands
 ```PowerShell
+Block-SepCloudFile
+Clear-SepCloudAuthentication
 Export-SepCloudAllowListPolicyToExcel
+Export-SepCloudDenyListPolicyToExcel
+Get-EDRDumps
+Get-SepCloudCommands
 Get-SepCloudDeviceDetails
 Get-SepCloudDevices
-Get-SepCloudEventSearch
-Get-SepCloudFeatureList
+Get-SepCloudEvents
+Get-SepCloudFilesInfo
 Get-SepCloudIncidentDetails
 Get-SepCloudIncidents
 Get-SepCloudPolices
@@ -33,9 +44,15 @@ Get-SepCloudTargetRules
 Get-SepThreatIntelCveProtection
 Get-SepThreatIntelFileProtection
 Get-SepThreatIntelNetworkProtection
+New-EDRFullDump
+Start-SepCloudDefinitionUpdate
+Start-SepCloudFullScan
+Start-SepCloudQuickScan
 Test-SepCloudConnectivity
 Update-SepCloudAllowlistPolicy
 ```
+
+For detailed information about each command, use `Get-Help <command> -Full`
 
 ### Authentication
 Generate your authentication token via your [SEP Cloud console integration menu](https://sep.securitycloud.symantec.com/v2/integration/client-applications) and keep your ClientID & Secret
@@ -50,17 +67,17 @@ True
 #### Devices
 list of all your devices
 ```PowerShell
-Get-SepCloudDeviceList
+Get-SepCloudDevices
 ```
 
 list of all your devices that are considered "SECURE", "AT_RISK", or "COMPROMISED"
 ```PowerShell
-Get-SepCloudDeviceList -Device_Status "AT_RISK"
+Get-SepCloudDevices -Device_Status "AT_RISK"
 ```
 
 Get details from a specific device
 ```PowerShell
-Get-SepCloudDeviceList -Computername MyComputer
+Get-SepCloudDevices -Computername MyComputer
 
 id                       : abcdefghijkl
 name                     : MyComputer
@@ -80,7 +97,7 @@ connection_status        : ONLINE
 ```
 Get detailed info from an asset using device_ID
 ```PowerShell
-Get-SepCloudDeviceInfo -Device_ID abcdefghijkl
+Get-SepCloudDeviceDetails -Device_ID abcdefghijkl
 ```
 #### Incidents
 
@@ -99,7 +116,7 @@ Get a custom list of incidents based on a specific query, using supported [Lucen
 
 Example : different incident states : 0 Unknown | 1 New | 2 In Progress | 3 On Hold | 4 Resolved | 5 Closed
 ```PowerShell
-Get-SepCloudIncidents -Query "(state_id: 4 OR state_id: 5 ) AND conclusion:"Malicious Activity""
+Get-SepCloudIncidents -Query "(state_id: 4 OR state_id: 5)"
 ```
 
 #### Threat Intel
