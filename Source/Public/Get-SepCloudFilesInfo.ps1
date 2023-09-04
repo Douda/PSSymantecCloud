@@ -9,13 +9,12 @@ function Get-SepCloudFilesInfo {
         Get-SepCloudFilesInfo -FileHash 423b212eab8073b53c46522ee2e2a5f14ffe090b5835f385b9818b08c242c2b6
 
         Gets information about a specific file hash and provides amount of devices seen on
-        C:\Users\aurel\OneDrive\Documents\Projects\PSSymantecCloud> $test
+        C:\PSSymantecCloud> $test
 
         most_prevalent_file_name : relog.exe
         folders                  : {C:\Windows\WinSxS\wow64_microsoft-windows-p..ncetoolscommandline_31bf3856ad364e35_10.0.19041.546_none_49716c2392052aca\r,
                                     C:\Windows\servicing\LCU\Package_for_RollupFix~31bf3856ad364e35~amd64~~19041.1706.1.7\wow64_microsoft-windows-p..ncetoolscommandline_31bf3856ad364e35_10.0.19041.546_none_49716c2392052aca\r,
-                                    C:\Windows\servicing\LCU\Package_for_RollupFix~31bf3856ad364e35~amd64~~19041.1645.1.11\wow64_microsoft-windows-p..ncetoolscommandline_31bf3856ad364e35_10.0.19041.546_none_49716c2392052aca\r,
-                                    C:\Users\adm.xzhang\AppData\Local\Temp\2F71C663-9ACA-4494-8EF2-89861E02C23B\_Windows10.0-KB5009543-x64.cab_\wow64_microsoft-windows-p..ncetoolscommandline_31bf3856ad364e35_10.0.19041.546_none_49716c2392052aca\r…}
+                                    C:\Windows\servicing\LCU\Package_for_RollupFix~31bf3856ad364e35~amd64~~19041.1645.1.11\wow64_microsoft-windows-p..ncetoolscommandline_31bf3856ad364e35_10.0.19041.546_none_49716c2392052aca\r }
         file_hash                : 423b212eab8073b53c46522ee2e2a5f14ffe090b5835f385b9818b08c242c2b6
         risk                     : VERY_LOW
         certificate_signer       : Unsigned
