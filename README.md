@@ -2,6 +2,8 @@
 
 This PowerShell module provides a series of cmdlets to interact with the [Symantec Endpoint Protection Cloud REST API](https://apidocs.securitycloud.symantec.com/#/doc?id=ses_auth)
 
+To interact with the SEP on-premise version API, you can use [PSSymantecSEPM](https://github.com/Douda/PSSymantecSEPM) module instead
+
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/PSSymantecCloud?style=flat-square)](https://www.powershellgallery.com/packages/PSSymantecCloud)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/PSSymantecCloud?style=flat-square)](https://www.powershellgallery.com/packages/PSSymantecCloud)
 ![GitHub](https://img.shields.io/github/license/Douda/PSSymantecCloud?style=flat-square)
