@@ -40,6 +40,9 @@ function Get-SepCloudFilesInfo {
         $IncludeDevices,
 
         # file hash string
+        [Parameter(
+            ValueFromPipeline
+        )]
         [string]
         $FileHash
     )
