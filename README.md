@@ -16,14 +16,17 @@ This small project is an attempt to interact with the Symantec/Broadcom API to m
 
 To interact with your SEP Cloud platform you need to 
 - Create an [integration application](https://techdocs.broadcom.com/us/en/symantec-security-software/endpoint-security-and-management/endpoint-security/sescloud/Settings/creating-a-client-application-v132702110-d4152e4057.html) and get your ClientID & Secret from your [Symantec Cloud Platform](https://sep.securitycloud.symantec.com/v2/home/dashboard)
+- Create an [integration application](https://techdocs.broadcom.com/us/en/symantec-security-software/endpoint-security-and-management/endpoint-security/sescloud/Settings/creating-a-client-application-v132702110-d4152e4057.html) and get your ClientID & Secret from your [Symantec Cloud Platform](https://sep.securitycloud.symantec.com/v2/home/dashboard)
 - Generate your [authentication token](https://apidocs.securitycloud.symantec.com/#/doc?id=ses_auth) (Go to SES > Generating your token bearer)
 
 
+This module follows the [Module Builder Project](https://github.com/PoshCode/ModuleBuilder) folder structure for easy maintenance and versioning
 This module follows the [Module Builder Project](https://github.com/PoshCode/ModuleBuilder) folder structure for easy maintenance and versioning
 
 ## Usage
 2 ways to install this module :
 - Via [Powershell Gallery](https://www.powershellgallery.com/packages/PSSymantecCloud/) with `Install-Module PSSymantecCloud`
+- Build it from sources See [Building your module](##Building-your-module)
 - Build it from sources See [Building your module](##Building-your-module)
 
 ## List of commands
@@ -39,9 +42,14 @@ Get-SepCloudDevices
 Get-SepCloudEvents
 Get-SepCloudFilesInfo
 Get-SepCloudIncidentDetails
+Get-SepCloudIncidentDetails
 Get-SepCloudIncidents
 Get-SepCloudPolices
 Get-SepCloudPolicyDetails
+Get-SepCloudTargetRules
+Get-SepThreatIntelCveProtection
+Get-SepThreatIntelFileProtection
+Get-SepThreatIntelNetworkProtection
 Get-SepCloudTargetRules
 Get-SepThreatIntelCveProtection
 Get-SepThreatIntelFileProtection
@@ -52,6 +60,7 @@ Start-SepCloudFullScan
 Start-SepCloudQuickScan
 Test-SepCloudConnectivity
 Update-SepCloudAllowlistPolicy
+Update-SepCloudAllowlistPolicy
 ```
 
 For detailed information about each command, use `Get-Help <command> -Full`
@@ -60,6 +69,7 @@ For detailed information about each command, use `Get-Help <command> -Full`
 Generate your authentication token via your [SEP Cloud console integration menu](https://sep.securitycloud.symantec.com/v2/integration/client-applications) and keep your ClientID & Secret
 
 ### Examples
+Test your authentication against the API
 Test your authentication against the API
 ```PowerShell
 Test-SepCloudConnectivity
@@ -122,7 +132,7 @@ Get-SepCloudIncidents -Query "(state_id: 4 OR state_id: 5)"
 ```
 
 #### Threat Intel
-The Protection APIs provide information whether a given file, domain or CVE has been blocked/covered by any of Symantec technologies
+The Protection APIs provide information whether a given file, domain or CVE has been blocked by any of Symantec technologies
 
 file coverage
 ```PowerShell
@@ -167,9 +177,16 @@ Get-SepCloudPolicyDetails -Name "My Policy" -Version 5
 
 ##### Allow list policy
 Easily export any allow list policy in an Excel format
+Easily export any allow list policy in an Excel format
 ```PowerShell
 Get-SepCloudPolicyDetails -Name "My Allow List Policy" | Export-SepCloudPolicyToExcel -Path "allow_list.xlsx"
 ```
+
+You can manually update your excel file (add or remove lines) and import it back to your SEP Cloud platform
+```PowerShell
+Update-SepCloudAllowlistPolicy -Name "My Allow List Policy" -Path "allow_list.xlsx"
+```
+
 
 You can manually update your excel file (add or remove lines) and import it back to your SEP Cloud platform
 ```PowerShell
@@ -193,8 +210,10 @@ cd PSSymantecCloud
 4. run `Build-Module .\Source -SemVer 1.0.0`
    
 **Note**: a build version will be required when building the module, eg. 1.0.0
+**Note**: a build version will be required when building the module, eg. 1.0.0
 compiled module appears in the `Output` folder
 
+5. import the newly built module `Import-Module .\Output\PSSymantecCloud\1.0.0\PSSymantecCloud.ps1m -Force`
 5. import the newly built module `Import-Module .\Output\PSSymantecCloud\1.0.0\PSSymantecCloud.ps1m -Force`
 
 
@@ -207,4 +226,5 @@ To manually create a new version run `Build-Module .\Source -SemVer 0.0.2`
 
 ## Additional Information
 
+ModuleBuilder - https://github.com/PoshCode/ModuleBuilder
 ModuleBuilder - https://github.com/PoshCode/ModuleBuilder

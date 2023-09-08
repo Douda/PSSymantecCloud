@@ -43,8 +43,13 @@ function Get-SepThreatIntelCveProtection {
     process {
         $array_cve = @()
         foreach ($c in $cve) {
-            $URI = 'https://' + $BaseURL + "/v1/threat-intel/protection/cve/" + $c
-            $Response = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
+            $params = @{
+                Uri             = 'https://' + $BaseURL + "/v1/threat-intel/protection/cve/" + $c
+                Method          = 'GET'
+                Headers         = $Headers
+                UseBasicParsing = $true
+            }
+            $Response = Invoke-RestMethod @params
             $array_cve += $Response
         }
         return $array_cve

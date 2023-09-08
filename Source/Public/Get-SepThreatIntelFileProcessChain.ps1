@@ -1,10 +1,9 @@
-function Get-SepThreatIntelFileProtection {
+function Get-SepThreatIntelFileProcessChain {
     <#
     .SYNOPSIS
-        Provide information whether a given file has been blocked by any of Symantec technologies
+        Provide topK process lineage enrichment for the provided file sha256.
     .DESCRIPTION
-        Provide information whether a given file has been blocked by any of Symantec technologies.
-        These technologies include Antivirus (AV), Intrusion Prevention System (IPS) and Behavioral Analysis & System Heuristics (BASH)
+        Provide topK process lineage enrichment for the provided file sha256.
     .INPUTS
         sha256
     .OUTPUTS
@@ -12,11 +11,20 @@ function Get-SepThreatIntelFileProtection {
     .PARAMETER file_sha256
         Specify one or many sha256 hash
     .EXAMPLE
-        Get-SepThreatIntelFileProtection -file_sha256 eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d
-        Gathers information whether the file with sha256 has been blocked by any of Symantec technologies
-    .EXAMPLE
-        "eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d","eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8e" | Get-SepThreatIntelFileProtection
-        Gathers sha from pipeline by value whether the files with sha256 have been blocked by any of Symantec technologies
+        PS C:\PSSymantecCloud> $ProcessChain =  Get-SepThreatIntelFileProcessChain -file_sha256 eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d
+
+        file                                                             chain
+        ----                                                             -----
+        eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d {@{parent=}}
+
+        PS C:\PSSymantecCloud> $ProcessChain.chain
+
+        parent
+        ------
+        @{parent=; file=18bba9ff311154415404e2fb16f3784e4c82b57ad110092ea5f9b76ed549e7cb; processName=fe392ea0a9f14s4dfeda8d9u0233a6ioq6e47a5n3.exe}
+
+        .EXAMPLE
+        "eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d" | Get-SepThreatIntelFileProcessChain
     #>
 
     [CmdletBinding()]
@@ -47,7 +55,7 @@ function Get-SepThreatIntelFileProtection {
         $array_file_sha256 = @()
         foreach ($f in $file_sha256) {
             $params = @{
-                Uri             = 'https://' + $BaseURL + "/v1/threat-intel/protection/file/" + $f
+                Uri             = 'https://' + $BaseURL + "/v1/threat-intel/processchain/file/" + $f
                 Method          = 'GET'
                 Headers         = $Headers
                 UseBasicParsing = $true

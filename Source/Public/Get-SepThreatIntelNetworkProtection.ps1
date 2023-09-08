@@ -44,8 +44,13 @@ function Get-SepThreatIntelNetworkProtection {
     process {
         $array_network = @()
         foreach ($n in $network) {
-            $URI = 'https://' + $BaseURL + "/v1/threat-intel/protection/network/" + $n
-            $Response = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
+            $params = @{
+                Uri             = 'https://' + $BaseURL + "/v1/threat-intel/protection/network/" + $n
+                Method          = 'GET'
+                Headers         = $Headers
+                UseBasicParsing = $true
+            }
+            $Response = Invoke-RestMethod @params
             $array_network += $Response
         }
         return $array_network
