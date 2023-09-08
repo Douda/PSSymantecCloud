@@ -1,10 +1,9 @@
-function Get-SepThreatIntelFileProtection {
+function Get-SepThreatIntelFileRelated {
     <#
     .SYNOPSIS
-        Provide information whether a given file has been blocked by any of Symantec technologies
+        Provide related file for a given file
     .DESCRIPTION
-        Provide information whether a given file has been blocked by any of Symantec technologies.
-        These technologies include Antivirus (AV), Intrusion Prevention System (IPS) and Behavioral Analysis & System Heuristics (BASH)
+        Provide related file for a given file
     .INPUTS
         sha256
     .OUTPUTS
@@ -12,11 +11,11 @@ function Get-SepThreatIntelFileProtection {
     .PARAMETER file_sha256
         Specify one or many sha256 hash
     .EXAMPLE
-        Get-SepThreatIntelFileProtection -file_sha256 eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d
-        Gathers information whether the file with sha256 has been blocked by any of Symantec technologies
-    .EXAMPLE
-        "eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d","eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8e" | Get-SepThreatIntelFileProtection
-        Gathers sha from pipeline by value whether the files with sha256 have been blocked by any of Symantec technologies
+        PS C:\PSSymantecCloud> "eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d" | Get-SepThreatIntelFileRelated
+
+        file                                                             related
+        ----                                                             -------
+        eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d {@{iocType=File; iocValues=System.Object[]; relation=byProcessChain}, @{iocType=File; iocValues=System.Object[]; relation=bySignature}}
     #>
 
     [CmdletBinding()]
@@ -47,7 +46,7 @@ function Get-SepThreatIntelFileProtection {
         $array_file_sha256 = @()
         foreach ($f in $file_sha256) {
             $params = @{
-                Uri             = 'https://' + $BaseURL + "/v1/threat-intel/protection/file/" + $f
+                Uri             = 'https://' + $BaseURL + "/v1/threat-intel/related/file/" + $f
                 Method          = 'GET'
                 Headers         = $Headers
                 UseBasicParsing = $true
