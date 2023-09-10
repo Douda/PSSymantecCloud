@@ -25,6 +25,6 @@ Describe "Get-ConfigurationPath" {
     }
     It "has a key 'SepCloudToken' with the correct value" {
         $result = Get-ConfigurationPath
-        $result.SepCloudToken | Should -Be "$env:TEMP\SepCloudToken.xml"
+        $result.CachedTokenPath | Should -Be "$env:TEMP\SepCloudCachedToken.xml"
     }
 }
