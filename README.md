@@ -16,7 +16,6 @@ This small project is an attempt to interact with the Symantec/Broadcom API to m
 
 To interact with your SEP Cloud platform you need to 
 - Create an [integration application](https://techdocs.broadcom.com/us/en/symantec-security-software/endpoint-security-and-management/endpoint-security/sescloud/Settings/creating-a-client-application-v132702110-d4152e4057.html) and get your ClientID & Secret from your [Symantec Cloud Platform](https://sep.securitycloud.symantec.com/v2/home/dashboard)
-- Create an [integration application](https://techdocs.broadcom.com/us/en/symantec-security-software/endpoint-security-and-management/endpoint-security/sescloud/Settings/creating-a-client-application-v132702110-d4152e4057.html) and get your ClientID & Secret from your [Symantec Cloud Platform](https://sep.securitycloud.symantec.com/v2/home/dashboard)
 - Generate your [authentication token](https://apidocs.securitycloud.symantec.com/#/doc?id=ses_auth) (Go to SES > Generating your token bearer)
 
 
@@ -25,9 +24,11 @@ This module follows the [Module Builder Project](https://github.com/PoshCode/Mod
 
 ## Usage
 2 ways to install this module :
-- Via [Powershell Gallery](https://www.powershellgallery.com/packages/PSSymantecCloud/) with `Install-Module PSSymantecCloud`
-- Build it from sources See [Building your module](##Building-your-module)
-- Build it from sources See [Building your module](##Building-your-module)
+- Via [Powershell Gallery](https://www.powershellgallery.com/packages/PSSymantecCloud/) 
+```PowerShell
+Install-Module PSSymantecCloud
+```
+- Build it from sources (See [Building your module](##Building-your-module))
 
 ## List of commands
 ```PowerShell
@@ -50,16 +51,11 @@ Get-SepCloudTargetRules
 Get-SepThreatIntelCveProtection
 Get-SepThreatIntelFileProtection
 Get-SepThreatIntelNetworkProtection
-Get-SepCloudTargetRules
-Get-SepThreatIntelCveProtection
-Get-SepThreatIntelFileProtection
-Get-SepThreatIntelNetworkProtection
 New-EDRFullDump
 Start-SepCloudDefinitionUpdate
 Start-SepCloudFullScan
 Start-SepCloudQuickScan
 Test-SepCloudConnectivity
-Update-SepCloudAllowlistPolicy
 Update-SepCloudAllowlistPolicy
 ```
 
@@ -98,7 +94,7 @@ domain                   : contoso.com
 created                  : 10/10/2022 11:47:44
 modified                 : 19/07/2023 21:57:27
 os                       : @{ver=10.0.19045; name=Windows 10 Enterprise Edition; type=WINDOWS_WORKSTATION; 64_bit=True; lang=fr; major_ver=10; minor_ver=0; sp=0; tz_offset=60; user=first.last; user_domain=CONTOSO.COM; vol_avail_mb=93037; vol_cap_mb=241126}
-hw                       : @{uuid=XXXXXXX-E406-5392-66BC-B3AEE4BC9185; bios_ver=ACER - 12F0 R1CET66W(1.35 ); cpu_mhz=2096; cpu_type=AMD64 Family 23 Model 96 Stepping 1; log_cpus=12; mem_mb=15592; model_vendor=ACER; serial=PC201T75}
+hw                       : @{uuid=XXXXXXX-E406-5392-66BC-B3AEE4BC9185; bios_ver=ACER - 12F0 R1CET66W(1.35 ); cpu_mhz=2096; cpu_type=AMD64 Family 23 Model 96 Stepping 1; log_cpus=12; mem_mb=15592...}
 adapters                 : {@{addr=74:4C:A1:B5:C9:0D; category=Public; ipv4Address=192.168.128.20; ipv4_gw=192.168.128.1; ipv4_prefix=24; mask=255.255.255.0}}
 is_virtual               : False
 dns_names                : {192.168.1.1…}
@@ -181,18 +177,6 @@ Easily export any allow list policy in an Excel format
 ```PowerShell
 Get-SepCloudPolicyDetails -Name "My Allow List Policy" | Export-SepCloudPolicyToExcel -Path "allow_list.xlsx"
 ```
-
-You can manually update your excel file (add or remove lines) and import it back to your SEP Cloud platform
-```PowerShell
-Update-SepCloudAllowlistPolicy -Name "My Allow List Policy" -Path "allow_list.xlsx"
-```
-
-
-You can manually update your excel file (add or remove lines) and import it back to your SEP Cloud platform
-```PowerShell
-Update-SepCloudAllowlistPolicy -Name "My Allow List Policy" -Path "allow_list.xlsx"
-```
-
 
 ## Building your module
 To build the module, you need to have [ModuleBuilder](https://www.powershellgallery.com/packages/ModuleBuilder/)
