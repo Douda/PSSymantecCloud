@@ -66,6 +66,11 @@ function Block-SepCloudFile {
             Write-Warning -Message "Error: $_"
         }
 
-        return $Resp
+        if ($resp.status -eq 200) {
+            return $Resp.results.data
+        } else {
+            Write-Warning -Message "Error: $Resp"
+            return $Resp
+        }
     }
 }
