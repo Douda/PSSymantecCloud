@@ -98,7 +98,7 @@ function Get-SepCloudDevices {
     begin {
         # Init
         $BaseURL = (Get-ConfigurationPath).BaseUrl
-        $URI_Tokens = 'https://' + $BaseURL + "/v1/devices"
+        $URI = 'https://' + $BaseURL + "/v1/devices"
         $Token = (Get-SEPCloudToken).Token_Bearer
     }
 
@@ -147,7 +147,16 @@ function Get-SepCloudDevices {
         }
 
         try {
-            $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
+            $params = @{
+                Uri             = $URI
+                Method          = 'GET'
+                Body            = $Body
+                Headers         = $Headers
+                UseBasicParsing = $true
+            }
+
+            # Run query, add it to the array, increment counter
+            $Response = Invoke-RestMethod @params
             $ArrayResponse += $Response.devices
             $Devices_count_gathered = (($ArrayResponse | Measure-Object).count)
             <# If pagination #>
@@ -158,7 +167,7 @@ function Get-SepCloudDevices {
                     $Body.Remove("offset")
                     $Body.Add("offset", $Devices_count_gathered)
                     # Run query, add it to the array, increment counter
-                    $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
+                    $Response = Invoke-RestMethod @params
                     $ArrayResponse += $Response.devices
                     $Devices_count_gathered = (($ArrayResponse | Measure-Object).count)
                 } until (
