@@ -6,7 +6,7 @@ function Get-EDRDumps {
     .DESCRIPTION
         Gets a list of the SEP Cloud Commands. All commands are returned by default.
     .EXAMPLE
-        Get-SepCloudCommands
+        Get-SEPCloudCommand
 
         Gets a list of the SEP Cloud Commands
     #>
@@ -18,7 +18,7 @@ function Get-EDRDumps {
     }
 
     process {
-        #TODO add command_id by using get-SepCloudCommands
+        #TODO add command_id by using Get-SEPCloudCommand
         $URI = 'https://' + $BaseURL + "/v1/commands/endpoint-search"
         $allResults = @()
         $body = @{

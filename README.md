@@ -37,7 +37,7 @@ Clear-SepCloudAuthentication
 Export-SepCloudAllowListPolicyToExcel
 Export-SepCloudDenyListPolicyToExcel
 Get-EDRDumps
-Get-SepCloudCommands
+Get-SEPCloudCommand
 Get-SepCloudDeviceDetails
 Get-SEPCloudDevice
 Get-SepCloudEvents

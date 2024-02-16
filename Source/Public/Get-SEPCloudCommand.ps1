@@ -1,4 +1,4 @@
-function Get-SepCloudCommands {
+function Get-SEPCloudCommand {
 
     <# TODO write help
     .SYNOPSIS
@@ -6,7 +6,7 @@ function Get-SepCloudCommands {
     .DESCRIPTION
         Gets a list of the SEP Cloud Commands. All commands are returned by default.
     .EXAMPLE
-        Get-SepCloudCommands
+        Get-SEPCloudCommand
 
         Gets a list of the SEP Cloud Commands
     #>
