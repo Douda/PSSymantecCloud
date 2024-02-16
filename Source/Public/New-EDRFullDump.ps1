@@ -38,7 +38,7 @@ function New-EDRFullDump {
 
     process {
         # Get Computer UID from ComputerName
-        $Device_ID = (Get-SepCloudDevices -Computername $Computername).id
+        $Device_ID = (Get-SEPCloudDevice -Computername $Computername).id
         $URI = 'https://' + $BaseURL + "/v1/commands/endpoint-search/fulldump"
 
         if ([string]::IsNullOrEmpty($Description)) {

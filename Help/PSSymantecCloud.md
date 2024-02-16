@@ -29,7 +29,7 @@ Locale: en-US
 ### [Get-SepCloudDeviceDetails](Get-SepCloudDeviceDetails.md)
 {{ Fill in the Description }}
 
-### [Get-SepCloudDevices](Get-SepCloudDevices.md)
+### [Get-SEPCloudDevice](Get-SEPCloudDevice.md)
 {{ Fill in the Description }}
 
 ### [Get-SepCloudEventSearch](Get-SepCloudEventSearch.md)

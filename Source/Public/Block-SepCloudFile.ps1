@@ -35,7 +35,7 @@ function Block-SepCloudFile {
         #Get list of devices ID from ComputerNames
         $Device_ID_list = New-Object System.Collections.Generic.List[string]
         foreach ($Computer in $ComputerName) {
-            $Device_ID = (Get-SepCloudDevices -Computername $Computer).id
+            $Device_ID = (Get-SEPCloudDevice -Computername $Computer).id
             $Device_ID_list += $Device_ID
         }
 

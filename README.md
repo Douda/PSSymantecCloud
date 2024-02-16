@@ -39,7 +39,7 @@ Export-SepCloudDenyListPolicyToExcel
 Get-EDRDumps
 Get-SepCloudCommands
 Get-SepCloudDeviceDetails
-Get-SepCloudDevices
+Get-SEPCloudDevice
 Get-SepCloudEvents
 Get-SepCloudFilesInfo
 Get-SepCloudIncidentDetails
@@ -75,17 +75,17 @@ True
 #### Devices
 list of all your devices
 ```PowerShell
-Get-SepCloudDevices
+Get-SEPCloudDevice
 ```
 
 list of all your devices that are considered "SECURE", "AT_RISK", or "COMPROMISED"
 ```PowerShell
-Get-SepCloudDevices -Device_Status "AT_RISK"
+Get-SEPCloudDevice -Device_Status "AT_RISK"
 ```
 
 Get details from a specific device
 ```PowerShell
-Get-SepCloudDevices -Computername MyComputer
+Get-SEPCloudDevice -Computername MyComputer
 
 id                       : abcdefghijkl
 name                     : MyComputer

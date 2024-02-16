@@ -51,7 +51,7 @@ function Get-SepCloudDeviceDetails {
         switch ($PSBoundParameters.Keys) {
             Computername {
                 # Get Device_ID if computername is provided
-                $Device_ID = (Get-SepCloudDevices -Computername $Computername).id
+                $Device_ID = (Get-SEPCloudDevice -Computername $Computername).id
             }
             Default {}
         }

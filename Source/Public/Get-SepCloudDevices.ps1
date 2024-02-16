@@ -1,4 +1,4 @@
-function Get-SepCloudDevices {
+function Get-SEPCloudDevice {
     <#
     .SYNOPSIS
     Gathers list of devices from the SEP Cloud console
@@ -14,28 +14,28 @@ function Get-SepCloudDevices {
     .PARAMETER Device_group
     Specify a device group ID to lookup. Accepts only device group ID, no group name
     .EXAMPLE
-    Get-SepCloudDevices
+    Get-SEPCloudDevice
     Get all devices (very slow)
     .EXAMPLE
-    Get-SepCloudDevices -Computername MyComputer
+    Get-SEPCloudDevice -Computername MyComputer
     Get detailed information about a computer
     .EXAMPLE
-    "MyComputer" | Get-SepCloudDevices
+    "MyComputer" | Get-SEPCloudDevice
     Get detailed information about a computer
     .EXAMPLE
-    Get-SepCloudDevices -Online -Device_status AT_RISK
+    Get-SEPCloudDevice -Online -Device_status AT_RISK
     Get all online devices with AT_RISK status
     .EXAMPLE
-    Get-SepCloudDevices -group "Aw7oerlBROSIl9O_IPFewx"
+    Get-SEPCloudDevice -group "Aw7oerlBROSIl9O_IPFewx"
     Get all devices in a device group
     .EXAMPLE
-    Get-SepCloudDevices -Client_version "14.3.9681.7000" -Device_type WORKSTATION
+    Get-SEPCloudDevice -Client_version "14.3.9681.7000" -Device_type WORKSTATION
     Get all workstations with client version 14.3.9681.7000
     .EXAMPLE
-    Get-SepCloudDevices -EdrEnabled -Device_type SERVER
+    Get-SEPCloudDevice -EdrEnabled -Device_type SERVER
     Get all servers with EDR enabled
     .EXAMPLE
-    Get-SepCloudDevices -IPv4 "192.168.1.1"
+    Get-SEPCloudDevice -IPv4 "192.168.1.1"
     Get all devices with IPv4 address
     #>
 
