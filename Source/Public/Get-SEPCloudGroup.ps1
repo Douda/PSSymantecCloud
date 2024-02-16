@@ -68,6 +68,11 @@ function Get-SEPCloudGroup {
             $_
         }
 
-        return $Response
+        # Add a PSTypeName to the object
+        $Response.device_groups | ForEach-Object {
+            $_.PSTypeNames.Insert(0, "SEPCloud.Device-Group")
+        }
+
+        return $Response.device_groups
     }
 }
