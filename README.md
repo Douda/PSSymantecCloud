@@ -45,7 +45,7 @@ Get-SepCloudFilesInfo
 Get-SepCloudIncidentDetails
 Get-SepCloudIncidentDetails
 Get-SepCloudIncidents
-Get-SepCloudPolices
+Get-SEPCloudPolicesSummary
 Get-SepCloudPolicyDetails
 Get-SepCloudTargetRules
 Get-SepThreatIntelCveProtection
@@ -158,7 +158,7 @@ state : {@{technology=Intrusion Prevention System; firstDefsetVersion=20230712.0
 #### Policies
 List of all policies
 ```PowerShell
-PS C:\> Get-SepCloudPolices
+PS C:\> Get-SEPCloudPolicesSummary
 
 total policies
 ----- --------

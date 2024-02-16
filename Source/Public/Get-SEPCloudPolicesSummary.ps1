@@ -1,4 +1,4 @@
-function Get-SepCloudPolices {
+function Get-SEPCloudPolicesSummary {
     <#
     .SYNOPSIS
         Provides a list of all policies in your SEP Cloud account
@@ -9,7 +9,7 @@ function Get-SepCloudPolices {
     .OUTPUTS
         PSObject
     .EXAMPLE
-        Get-SepCloudPolices
+        Get-SEPCloudPolicesSummary
         Gathers all possible policies in your SEP Cloud account
     #>
 

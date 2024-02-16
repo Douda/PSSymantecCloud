@@ -44,7 +44,7 @@ Locale: en-US
 ### [Get-SepCloudIncidents](Get-SepCloudIncidents.md)
 {{ Fill in the Description }}
 
-### [Get-SepCloudPolices](Get-SepCloudPolices.md)
+### [Get-SEPCloudPolicesSummary](Get-SEPCloudPolicesSummary.md)
 {{ Fill in the Description }}
 
 ### [Get-SepCloudPolicyDetails](Get-SepCloudPolicyDetails.md)
