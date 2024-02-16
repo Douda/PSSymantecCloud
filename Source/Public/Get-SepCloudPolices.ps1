@@ -37,6 +37,6 @@ function Get-SepCloudPolices {
             $StatusCode
         }
 
-        $Response
+        $Response.policies
     }
 }
