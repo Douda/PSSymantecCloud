@@ -52,9 +52,9 @@ function Get-SEPCloudToken {
     begin {
         try {
             # init
-            $BaseURL = (Get-ConfigurationPath).BaseUrl
-            $SepCloudCreds = (Get-ConfigurationPath).SepCloudCreds
-            $CachedTokenPath = (Get-ConfigurationPath).CachedTokenPath
+            $BaseURL = $($script:configuration.BaseURL)
+            $SepCloudCreds = $($script:configuration.SepCloudCreds)
+            $CachedTokenPath = $($script:configuration.CachedTokenPath)
             $URI_Tokens = 'https://' + $BaseURL + '/v1/oauth2/tokens'
 
             if (-not $BaseURL) { throw "Missing 'BaseUrl' configuration value" }
@@ -114,7 +114,7 @@ function Get-SEPCloudToken {
         # Encode ClientID and Secret to create Basic Auth string
         # Authentication requires the following "Basic + encoded CliendID:ClientSecret"
         if ($clientID -eq "" -or $Secret -eq "") {
-            Write-Host "No local credentials found"
+            Write-Warning "No local credentials found. Please provide ClientID and Secret to generate a token"
             $ClientID = Read-Host -Prompt "Enter ClientID"
             $Secret = Read-Host -Prompt "Enter Secret"
         }
@@ -128,7 +128,16 @@ function Get-SEPCloudToken {
             Accept        = "application/json"
             Authorization = $BasicAuth
         }
-        $Response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers -UseBasicParsing
+
+        $params = @{
+            Uri             = $URI_Tokens
+            Method          = 'POST'
+            Headers         = $Headers
+            useBasicParsing = $true
+        }
+
+        $Response = Invoke-RestMethod @params
+
         # Get the auth token from the response & store it locally
         Write-Verbose "Valid credentials - returning valid Bearer token"
         $CachedToken = [PSCustomObject]@{
