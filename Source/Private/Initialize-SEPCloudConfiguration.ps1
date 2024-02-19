@@ -24,7 +24,7 @@ Update-TypeData -PrependPath (Join-Path -Path $PSScriptRoot -ChildPath 'PSSymant
 $script:configuration = [PSCustomObject]@{
     BaseURL         = "api.sep.securitycloud.symantec.com"
     SepCloudCreds   = [System.IO.Path]::Combine(
-        [System.Environment]::GetFolderPath('ApplicationData'),
+        [System.Environment]::GetFolderPath('LocalApplicationData'),
         'PSSymantecCloud',
         'creds.xml')
     CachedTokenPath = [System.IO.Path]::Combine(
