@@ -46,7 +46,7 @@ function Get-SepCloudIncidents {
     )
     begin {
         # Init
-        $BaseURL = (Get-ConfigurationPath).BaseUrl
+        $BaseURL = $($script:configuration.BaseURL)
         $URI_Tokens = 'https://' + $BaseURL + "/v1/incidents"
         $ArrayResponse = @()
         $Token = (Get-SEPCloudToken).Token_Bearer

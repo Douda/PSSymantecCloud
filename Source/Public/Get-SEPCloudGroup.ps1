@@ -35,7 +35,7 @@ function Get-SEPCloudGroup {
 
     begin {
         # Init
-        $BaseURL = (Get-ConfigurationPath).BaseUrl
+        $BaseURL = $($script:configuration.BaseURL)
         $URI = 'https://' + $BaseURL + "/v1/device-groups"
         $Token = (Get-SEPCloudToken).Token_Bearer
     }
@@ -60,7 +60,6 @@ function Get-SEPCloudGroup {
                 Headers = $Headers
             }
 
-            # Run query, add it to the array, increment counter
             $Response = Invoke-RestMethod @params
 
         } catch {

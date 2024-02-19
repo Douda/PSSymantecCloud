@@ -13,7 +13,7 @@ function Get-EDRDumps {
 
     begin {
         # Init
-        $BaseURL = (Get-ConfigurationPath).BaseUrl
+        $BaseURL = $($script:configuration.BaseURL)
         $Token = (Get-SEPCloudToken).Token_Bearer
     }
 

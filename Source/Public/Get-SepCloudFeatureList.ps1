@@ -19,7 +19,7 @@ function Get-SepCloudFeatureList {
 
     begin {
         # Init
-        $BaseURL = (Get-ConfigurationPath).BaseUrl
+        $BaseURL = $($script:configuration.BaseURL)
         $URI_Tokens = 'https://' + $BaseURL + "/v1/devices/enums"
         $Token = (Get-SEPCloudToken).Token_Bearer
     }

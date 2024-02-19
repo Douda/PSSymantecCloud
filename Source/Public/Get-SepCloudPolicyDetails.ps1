@@ -52,7 +52,7 @@ function Get-SepCloudPolicyDetails {
 
     begin {
         # Init
-        $BaseURL = (Get-ConfigurationPath).BaseUrl
+        $BaseURL = $($script:configuration.BaseURL)
         $Token = (Get-SEPCloudToken).Token_Bearer
         $obj_policies = (Get-SEPCloudPolicesSummary).policies
         $Body = @{}

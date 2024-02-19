@@ -97,7 +97,7 @@ function Get-SEPCloudDevice {
 
     begin {
         # Init
-        $BaseURL = (Get-ConfigurationPath).BaseUrl
+        $BaseURL = $($script:configuration.BaseURL)
         $URI = 'https://' + $BaseURL + "/v1/devices"
         $Token = (Get-SEPCloudToken).Token_Bearer
     }
