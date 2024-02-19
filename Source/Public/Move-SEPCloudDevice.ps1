@@ -50,7 +50,7 @@ function Move-SEPCloudDevice {
 
     begin {
         # Init
-        $BaseURL = (Get-ConfigurationPath).BaseUrl
+        $BaseURL = $($script:configuration.BaseURL)
         $BaseURI = 'https://' + $BaseURL + "/v1/device-groups"
         $Token = (Get-SEPCloudToken).Token_Bearer
     }

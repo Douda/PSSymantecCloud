@@ -31,7 +31,7 @@ function Get-SepThreatIntelFileRelated {
 
     begin {
         # Init
-        $BaseURL = (Get-ConfigurationPath).BaseUrl
+        $BaseURL = $($script:configuration.BaseURL)
         $Token = (Get-SEPCloudToken).Token_Bearer
         $Body = @{}
         $Headers = @{
