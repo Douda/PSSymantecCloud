@@ -19,7 +19,7 @@ function Test-SepCloudConnectivity {
     if (Get-SEPCloudToken) {
         return Write-Host "Authentication OK"
         else {
-            Write-Host "Authentication failed - Use Clear-SepCloudAuthentication to clear your API token and try again"
+            Write-Warning "Authentication failed - Use Clear-SepCloudAuthentication to clear your API token and try again"
             return $false
         }
     }
