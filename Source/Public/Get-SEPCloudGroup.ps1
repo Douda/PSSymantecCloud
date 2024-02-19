@@ -60,7 +60,6 @@ function Get-SEPCloudGroup {
                 Headers = $Headers
             }
 
-            # Run query, add it to the array, increment counter
             $Response = Invoke-RestMethod @params
 
         } catch {
