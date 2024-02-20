@@ -195,10 +195,8 @@ cd PSSymantecCloud
 4. run `Build-Module .\Source -SemVer 1.0.0`
    
 **Note**: a build version will be required when building the module, eg. 1.0.0
-**Note**: a build version will be required when building the module, eg. 1.0.0
 compiled module appears in the `Output` folder
 
-5. import the newly built module `Import-Module .\Output\PSSymantecCloud\1.0.0\PSSymantecCloud.ps1m -Force`
 5. import the newly built module `Import-Module .\Output\PSSymantecCloud\1.0.0\PSSymantecCloud.ps1m -Force`
 
 
@@ -211,5 +209,4 @@ To manually create a new version run `Build-Module .\Source -SemVer 0.0.2`
 
 ## Additional Information
 
-ModuleBuilder - https://github.com/PoshCode/ModuleBuilder
 ModuleBuilder - https://github.com/PoshCode/ModuleBuilder
