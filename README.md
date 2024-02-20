@@ -20,7 +20,7 @@ To interact with your SEP Cloud platform you need to
 
 
 This module follows the [Module Builder Project](https://github.com/PoshCode/ModuleBuilder) folder structure for easy maintenance and versioning
-This module follows the [Module Builder Project](https://github.com/PoshCode/ModuleBuilder) folder structure for easy maintenance and versioning
+
 
 ## Usage
 2 ways to install this module :
@@ -32,6 +32,8 @@ Install-Module PSSymantecCloud
 
 ## List of commands
 ```PowerShell
+PS C:\PSSymantecCloud> Get-Command -Module PSSymantecCloud | Select-Object -Property Name
+
 Block-SepCloudFile
 Clear-SepCloudAuthentication
 Export-SepCloudAllowListPolicyToExcel
@@ -68,24 +70,24 @@ Generate your authentication token via your [SEP Cloud console integration menu]
 Test your authentication against the API
 Test your authentication against the API
 ```PowerShell
-Test-SepCloudConnectivity
+PS C:\PSSymantecCloud> Test-SepCloudConnectivity
 True
 ```
 
 #### Devices
-list of all your devices
 ```PowerShell
-Get-SEPCloudDevice
+# list of all your devices
+PS C:\PSSymantecCloud> Get-SEPCloudDevice
 ```
 
-list of all your devices that are considered "SECURE", "AT_RISK", or "COMPROMISED"
 ```PowerShell
-Get-SEPCloudDevice -Device_Status "AT_RISK"
+# list of all your devices that are considered "SECURE", "AT_RISK", or "COMPROMISED"
+PS C:\PSSymantecCloud> Get-SEPCloudDevice -Device_Status "AT_RISK"
 ```
 
-Get details from a specific device
 ```PowerShell
-Get-SEPCloudDevice -Computername MyComputer
+# Get details from a specific device
+PS C:\PSSymantecCloud> Get-SEPCloudDevice -Computername MyComputer
 
 id                       : abcdefghijkl
 name                     : MyComputer
@@ -103,28 +105,28 @@ parent_device_group_name : Workstations
 device_status            : SECURE
 connection_status        : ONLINE
 ```
-Get detailed info from an asset using device_ID
 ```PowerShell
+# Get detailed info from an asset using device_ID
 Get-SepCloudDeviceDetails -Device_ID abcdefghijkl
 ```
 #### Incidents
 
-list of all your opened incidents
 ```PowerShell
-Get-SepCloudIncidents -Open
+# list of all your opened incidents
+PS C:\PSSymantecCloud> Get-SepCloudIncidents -Open
 ```
 
-list of all your incidents, including all events
 ```PowerShell
-Get-SepCloudIncidents -Include_Events
+# list of all your incidents, including all events
+PS C:\PSSymantecCloud> Get-SepCloudIncidents -Include_Events
 ```
 **Note**: Broadcom stores all data for a maximum of 30 days
 
 Get a custom list of incidents based on a specific query, using supported [Lucene query language](https://techdocs.broadcom.com/us/en/symantec-security-software/endpoint-security-and-management/endpoint-detection-and-response/4-5/about-the-ways-to-search-for-indicators-of-comprom-v115770112-d38e14827/search-query-syntax-v124335086-d38e19040.html). 
 
-Example : different incident states : 0 Unknown | 1 New | 2 In Progress | 3 On Hold | 4 Resolved | 5 Closed
 ```PowerShell
-Get-SepCloudIncidents -Query "(state_id: 4 OR state_id: 5)"
+# Example : different incident states : 0 Unknown | 1 New | 2 In Progress | 3 On Hold | 4 Resolved | 5 Closed
+PS C:\PSSymantecCloud> Get-SepCloudIncidents -Query "(state_id: 4 OR state_id: 5)"
 ```
 
 #### Threat Intel
@@ -132,7 +134,7 @@ The Protection APIs provide information whether a given file, domain or CVE has 
 
 file coverage
 ```PowerShell
-Get-SepThreatIntelFileProtection -file_sha256 64c731adbe1b96cb5765203b1e215093dcf268d020b299445884a4ae62ed2d3a | fl
+PS C:\PSSymantecCloud> Get-SepThreatIntelFileProtection -file_sha256 64c731adbe1b96cb5765203b1e215093dcf268d020b299445884a4ae62ed2d3a | fl
 
 file  : 64c731adbe1b96cb5765203b1e215093dcf268d020b299445884a4ae62ed2d3a
 state : {@{technology=AntiVirus; firstDefsetVersion=20160428.021; threatName=Trojan.Gen.2}, @{technology=Intrusion Prevention System; firstDefsetVersion=20221025.061; threatName=System Infected: Trojan.Backdoor Activity 634},
@@ -140,7 +142,7 @@ state : {@{technology=AntiVirus; firstDefsetVersion=20160428.021; threatName=Tro
 ```
 domain coverage
 ```PowerShell
-Get-SepThreatIntelNetworkProtection -domain nicolascoolman.eu | fl
+PS C:\PSSymantecCloud> Get-SepThreatIntelNetworkProtection -domain nicolascoolman.eu | fl
 
 network : nicolascoolman.eu
 state   : {@{technology=AntiVirus; firstDefsetVersion=2023.03.14.024; threatName=WS.Reputation.1}, @{technology=Behavioural Analysis & System Heuristics; firstDefsetVersion=20230301.001; threatName=SONAR.Heur.Dropper}}
@@ -148,7 +150,7 @@ state   : {@{technology=AntiVirus; firstDefsetVersion=2023.03.14.024; threatName
 
 CVE coverage
 ```PowerShell
-Get-SepThreatIntelCveProtection -cve CVE-2023-35311 | fl
+PS C:\PSSymantecCloud> Get-SepThreatIntelCveProtection -cve CVE-2023-35311 | fl
 
 cve   : CVE-2023-35311
 state : {@{technology=Intrusion Prevention System; firstDefsetVersion=20230712.061; threatName=Web Attack: Microsoft Outlook CVE-2023-35311}}
@@ -156,26 +158,25 @@ state : {@{technology=Intrusion Prevention System; firstDefsetVersion=20230712.0
 
 
 #### Policies
-List of all policies
 ```PowerShell
-PS C:\> Get-SEPCloudPolicesSummary
+# List of all policies
+PS C:\PSSymantecCloud> Get-SEPCloudPolicesSummary
 
 total policies
 ----- --------
   111 {@{name=Block USB Device Control Policy; author=Aurelien Boumanne; policy_uid=xxxxxxx...
 ```
 
-Get policy details for a specific version
 ```PowerShell
-Get-SepCloudPolicyDetails -Name "My Policy" -Version 5
+# Get policy details for a specific version
+PS C:\PSSymantecCloud> Get-SepCloudPolicyDetails -Name "My Policy" -Version 5
 ```
 **Note**: By default, will output the latest version
 
 ##### Allow list policy
-Easily export any allow list policy in an Excel format
-Easily export any allow list policy in an Excel format
 ```PowerShell
-Get-SepCloudPolicyDetails -Name "My Allow List Policy" | Export-SepCloudPolicyToExcel -Path "allow_list.xlsx"
+# Easily export any allow list policy in an Excel format
+PS C:\PSSymantecCloud> Get-SepCloudPolicyDetails -Name "My Allow List Policy" | Export-SepCloudPolicyToExcel -Path "allow_list.xlsx"
 ```
 
 ## Building your module
