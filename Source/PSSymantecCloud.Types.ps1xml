@@ -13,6 +13,18 @@
         </Members>
     </Type>
     <Type>
+        <Name>SEPCloud.DeviceTransfer</Name>
+        <Members>
+            <ScriptProperty>
+                <Name>device_name</Name>
+                <GetScriptBlock>
+                    $device_name = Get-SEPCloudDeviceDetails -Device_ID $this.device_uid | Select-Object -ExpandProperty name
+                    return $device_name
+                </GetScriptBlock>
+            </ScriptProperty>
+        </Members>
+    </Type>
+    <Type>
         <Name>SEP.GUPList</Name>
         <Members>
             <ScriptProperty>
