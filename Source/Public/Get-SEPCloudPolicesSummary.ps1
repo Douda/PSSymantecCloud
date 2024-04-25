@@ -1,9 +1,9 @@
 function Get-SEPCloudPolicesSummary {
     <#
     .SYNOPSIS
-        Provides a list of all policies in your SEP Cloud account
+        Provides a list of all SEP Cloud policies
     .DESCRIPTION
-        Provides a list of all policies in your SEP Cloud account
+        Provides a list of all SEP Cloud policies
     .PARAMETER
         None
     .OUTPUTS
@@ -15,28 +15,31 @@ function Get-SEPCloudPolicesSummary {
 
     begin {
         # Init
-        $BaseURL = $($script:configuration.BaseURL)
-        $URI_Tokens = 'https://' + $BaseURL + "/v1/policies"
-        $Token = (Get-SEPCloudToken).Token_Bearer
-        $Body = @{}
-        $Headers = @{
-            Host          = $BaseURL
-            Accept        = "application/json"
-            Authorization = $Token
-            Body          = $Body
-        }
+        $baseUrl = $($script:configuration.baseUrl)
+        $uri = 'https://' + $baseUrl + "/v1/policies"
+        $token = (Get-SEPCloudToken).Token_Bearer
+
     }
 
     process {
+        $params = @{
+            Method  = 'GET'
+            Uri     = $uri
+            Headers = @{
+                Host          = $baseUrl
+                Accept        = "application/json"
+                Authorization = $token
+            }
+        }
+
         try {
-            $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
+            $response = Invoke-ABWebRequest @params
         }
 
         catch {
-            $StatusCode = $_
-            $StatusCode
+            "Error : " + $_
         }
 
-        $Response.policies
+        return $response
     }
 }
