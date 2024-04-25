@@ -41,37 +41,26 @@ function Get-SEPCloudGroup {
     }
 
     process {
-        # Setup Headers
-        $Headers = @{
-            Host          = $BaseURL
-            Accept        = "application/json"
-            Authorization = $Token
-        }
-
         if ($GroupID) {
             $URI = $URI + '/' + $GroupID
         }
 
-        try {
-            $params = @{
-                Uri     = $URI
-                Method  = 'GET'
-                Body    = $Body
-                Headers = $Headers
+        $params = @{
+            Method  = 'GET'
+            Uri     = $uri
+            Headers = @{
+                Host          = $baseUrl
+                Accept        = "application/json"
+                Authorization = $token
             }
+        }
 
-            $Response = Invoke-RestMethod @params
-
+        try {
+            $response = Invoke-ABWebRequest @params
         } catch {
-            # If error, return the status code
-            $_
+            "Error : " + $_
         }
 
-        # Add a PSTypeName to the object
-        $Response.device_groups | ForEach-Object {
-            $_.PSTypeNames.Insert(0, "SEPCloud.Device-Group")
-        }
-
-        return $Response.device_groups
+        return $response
     }
 }
