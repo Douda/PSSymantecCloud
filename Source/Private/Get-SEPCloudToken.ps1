@@ -119,14 +119,23 @@ function Get-SEPCloudToken {
             $Secret = Read-Host -Prompt "Enter Secret"
         }
         $Encoded_Creds = [convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(($ClientID + ':' + $Secret)))
+
+        # Verify if the directory exists
+        $directory = Split-Path -Path $CachedTokenPath -Parent
+        if (-not (Test-Path -Path $directory)) {
+            # If the directory does not exist, create it
+            New-Item -ItemType Directory -Path $directory | Out-Null
+            Remove-Variable -Name directory
+        }
+
+        # Cache the credentials
         $Encoded_Creds | Export-Clixml -Path $SepCloudCreds
 
-        # Create Basic Auth string
-        $BasicAuth = "Basic " + $Encoded_Creds
+        # Setup the headers for the request
         $Headers = @{
             Host          = $BaseURL
             Accept        = "application/json"
-            Authorization = $BasicAuth
+            Authorization = "Basic " + $Encoded_Creds
         }
 
         $params = @{
