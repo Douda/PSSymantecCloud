@@ -18,7 +18,6 @@ function Get-SEPCloudPolicesSummary {
         $baseUrl = $($script:configuration.baseUrl)
         $uri = 'https://' + $baseUrl + "/v1/policies"
         $token = (Get-SEPCloudToken).Token_Bearer
-
     }
 
     process {
@@ -34,9 +33,7 @@ function Get-SEPCloudPolicesSummary {
 
         try {
             $response = Invoke-ABWebRequest @params
-        }
-
-        catch {
+        } catch {
             "Error : " + $_
         }
 
