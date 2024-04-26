@@ -4,6 +4,7 @@ function Invoke-ABWebRequest {
         Gather WebRequest from a URL or redirect URL.
     .DESCRIPTION
         Gather WebRequest from a URL or redirect URL. Preserves the Authorization header upon redirect.
+        This function is a wrapper around the System.Net.WebRequest class.
     .PARAMETER Uri
         URL to gather WebRequest from.
     .PARAMETER Method
@@ -22,8 +23,35 @@ function Invoke-ABWebRequest {
                 Accept        = "application/json"
                 Authorization = "Bearer xxxxxxxx"
             }
+            queryParameters = @{
+                "ComputerName" = "MyComputer01"
+            }
         }
         Invoke-ABWebRequest @params
+
+        This example will :
+        - Send a GET request to https://example.com/v1/endpoint
+        - With the Authorization header set to "Bearer xxxxxxxx"
+        - With the query parameter ComputerName set to "MyComputer01" (https://example.com/v1/endpoint?ComputerName=MyComputer01)
+    .EXAMPLE
+        $params = @{
+            Method  = 'POST'
+            Uri     = "https://example.com/v1/endpoint"
+            Headers = @{
+                Host          = "https://example.com/v1/endpoint"
+                Accept        = "application/json"
+                Authorization = "Bearer xxxxxxxx"
+            }
+            body = @{
+                "ComputerName" = "MyComputer01"
+            }
+        }
+        Invoke-ABWebRequest @params
+
+        This example will :
+        - Send a POST request to https://example.com/v1/endpoint
+        - With the Authorization header set to "Bearer xxxxxxxx"
+        - With the body set to JSON format {"ComputerName":"MyComputer01"}
     #>
 
 
@@ -39,14 +67,37 @@ function Invoke-ABWebRequest {
 
         # List of headers
         [Parameter(Mandatory = $true)]
-        [hashtable]$headers
+        [hashtable]$headers,
+
+        # Query parameters
+        [hashtable]$queryStrings = @{},
+
+        # Body
+        [hashtable]$body = @{}
     )
 
     process {
+        # Add query parameters
+        if ($queryStrings.Count -gt 0) {
+            # Construct the URI
+            $uri = Build-QueryURI -BaseURI $uri -QueryStrings $queryStrings
+        }
+
         # Initial request
         $request = [System.Net.WebRequest]::CreateHttp($uri);
         $request.Method = $method
         $request.AllowAutoRedirect = $false
+
+        # Add body
+        if ($body.Count -gt 0) {
+            $request.ContentType = "application/json"
+            $json = $body | ConvertTo-Json -Depth 100
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $request.ContentLength = $bytes.Length
+            $requestStream = $request.GetRequestStream()
+            $requestStream.Write($bytes, 0, $bytes.Length)
+            $requestStream.Close()
+        }
 
         # Add headers
         foreach ($header in $Headers.GetEnumerator()) {
@@ -56,9 +107,6 @@ function Invoke-ABWebRequest {
 
         # IF HTTP status code is linked to redirected URL
         if ($inititalResponse.StatusCode.value__ -in (301, 302, 303, 307, 308)) {
-            # Update host header
-            $Headers.Host = $inititalResponse.GetResponseHeader("Location")
-
             # Create new request with the redirect URL
             $redirectUrl = $inititalResponse.GetResponseHeader("Location")
             $newRequest = [System.Net.WebRequest]::CreateHttp($redirectUrl);
