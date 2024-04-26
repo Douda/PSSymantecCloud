@@ -104,80 +104,72 @@ function Get-SEPCloudDevice {
 
     process {
         $ArrayResponse = @()
-        # HTTP body content containing all the queries
-        $Body = @{}
+        $queryStrings = @{}
 
-        # Iterating through all parameters and add them to the HTTP body
+        # Iterating through all parameters and add them to the queryParams hashtable
         switch ($PSBoundParameters.Keys) {
             Computername {
-                $Body.Add("name", "$Computername")
+                $queryStrings.Add("name", "$Computername")
             }
             is_online {
-                $Body.Add("is_online", "true")
+                $queryStrings.Add("is_online", "true")
             }
             include_details {
-                $Body.Add("include_details", "true")
+                $queryStrings.Add("include_details", "true")
             }
             edr_enabled {
-                $Body.Add("edr_enabled", "true")
+                $queryStrings.Add("edr_enabled", "true")
             }
             Device_status {
-                $Body.Add("device_status", "$Device_status")
+                $queryStrings.Add("device_status", "$Device_status")
             }
             Device_type {
-                $Body.Add("device_type", "$Device_type")
+                $queryStrings.Add("device_type", "$Device_type")
             }
             Client_version {
-                $Body.Add("client_version", "$Client_version")
+                $queryStrings.Add("client_version", "$Client_version")
             }
             Device_group {
-                $Body.Add("device_group", "$Device_group")
+                $queryStrings.Add("device_group", "$Device_group")
             }
             ipv4_address {
-                $Body.Add("ipv4_address", "$IP_v4")
+                $queryStrings.Add("ipv4_address", "$IP_v4")
             }
             Default {}
         }
 
-        # Setup Headers
-        $Headers = @{
-            Host          = $BaseURL
-            Accept        = "application/json"
-            Authorization = $Token
+        # try {
+        $params = @{
+            Method       = 'GET'
+            Uri          = $uri
+            Headers      = @{
+                Host           = $baseUrl
+                Accept         = "application/json"
+                Authorization  = $token
+                "Content-Type" = "application/json"
+            }
+            queryStrings = $queryStrings
         }
 
-        try {
-            $params = @{
-                Uri             = $URI
-                Method          = 'GET'
-                Body            = $Body
-                Headers         = $Headers
-                UseBasicParsing = $true
-            }
+        $response = Invoke-ABWebRequest @params
+        $ArrayResponse += $response.devices
+        $deviceCount = (($ArrayResponse | Measure-Object).count)
 
-            # Run query, add it to the array, increment counter
-            $Response = Invoke-RestMethod @params
-            $ArrayResponse += $Response.devices
-            $Devices_count_gathered = (($ArrayResponse | Measure-Object).count)
-            <# If pagination #>
-            if ($Response.total -gt $Devices_count_gathered) {
-                <# Loop through via Offset parameter as there is no "next" parameter for /devices/ API call #>
-                do {
-                    # change the "offset" parameter for next query
-                    $Body.Remove("offset")
-                    $Body.Add("offset", $Devices_count_gathered)
-                    # Run query, add it to the array, increment counter
-                    $Response = Invoke-RestMethod @params
-                    $ArrayResponse += $Response.devices
-                    $Devices_count_gathered = (($ArrayResponse | Measure-Object).count)
-                } until (
-                    $Devices_count_gathered -ge $Response.total
-                )
-            }
+        # If pagination
+        if ($response.total -gt $deviceCount) {
+            # Loop through via Offset parameter as there is no "next" parameter for /devices/ API call
+            do {
+                # change the "offset" parameter for next query
+                $queryStrings.Remove("offset")
+                $queryStrings.Add("offset", $deviceCount)
 
-        } catch {
-            $StatusCode = $_
-            $StatusCode
+                # Run query, add it to the array, increment counter
+                $response = Invoke-ABWebRequest @params
+                $ArrayResponse += $response.devices
+                $deviceCount = (($ArrayResponse | Measure-Object).count)
+            } until (
+                $deviceCount -ge $response.total
+            )
         }
 
         return $ArrayResponse
