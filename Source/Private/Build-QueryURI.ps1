@@ -38,7 +38,6 @@ function Build-QueryURI {
         $query[$param.Key] = $param.Value
     }
     $builder.Query = $query.ToString()
-    $BaseURI = $builder.ToString()
-
+    $BaseURI = $builder.Uri.AbsoluteUri
     return $BaseURI
 }
