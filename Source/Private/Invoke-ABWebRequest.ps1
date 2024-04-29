@@ -113,7 +113,24 @@ function Invoke-ABWebRequest {
             $newRequest.Method = $Method
             $newRequest.AllowAutoRedirect = $false
 
-            # Populate headers
+            # Add query parameters
+            if ($queryStrings.Count -gt 0) {
+                # Construct the URI
+                $uri = Build-QueryURI -BaseURI $uri -QueryStrings $queryStrings
+            }
+
+            # Add body
+            if ($body.Count -gt 0) {
+                $newRequest.ContentType = "application/json"
+                $json = $body | ConvertTo-Json -Depth 100
+                $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+                $newRequest.ContentLength = $bytes.Length
+                $newRequestStream = $newRequest.GetRequestStream()
+                $newRequestStream.Write($bytes, 0, $bytes.Length)
+                $newRequestStream.Close()
+            }
+
+            # Add headers
             # TODO verify why when adding all the headers and not just the Authorization header, the request fails wih 400
             # foreach ($header in $Headers.GetEnumerator()) {
             #     $request.Headers.Add($header.Key, $header.Value)
@@ -121,10 +138,10 @@ function Invoke-ABWebRequest {
             $newRequest.Headers.Add("Authorization", $Headers.Authorization)
 
             # Send the new request
-            $Response = $newRequest.GetResponse()
+            $newResponse = $newRequest.GetResponse()
 
             # Parse the response
-            $stream = $response.GetResponseStream()
+            $stream = $newResponse.GetResponseStream()
             $reader = New-Object System.IO.StreamReader($stream)
             $content = $reader.ReadToEnd()
         } else {
