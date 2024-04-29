@@ -60,15 +60,18 @@ function Get-SepCloudDeviceDetails {
         $URI = 'https://' + $BaseURL + "/v1/devices/$Device_ID"
 
         # Setup Headers
-        $Body = @{}
-        $Headers = @{
-            Host          = $BaseURL
-            Accept        = "application/json"
-            Authorization = $Token
-            Body          = $Body
+        $params = @{
+            Method  = 'GET'
+            Uri     = $uri
+            Headers = @{
+                Host           = $baseUrl
+                Accept         = "application/json"
+                Authorization  = $token
+                "Content-Type" = "application/json"
+            }
         }
-        $Response = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
-        return $Response
 
+        $Response = Invoke-ABWebRequest @params
+        return $Response
     }
 }
