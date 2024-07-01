@@ -5,11 +5,11 @@ function Get-SepCloudPolicyDetails {
         Gathers detailed information on SEP Cloud policy
     .DESCRIPTION
         Gathers detailed information on SEP Cloud policy
-    .PARAMETER Policy_UUID
+    .PARAMETER policyUUID
         Policy UUID
-    .PARAMETER Policy_Version
+    .PARAMETER policyVersion
         Policy version
-    .PARAMETER Policy_Name
+    .PARAMETER policyName
         Exact policy name
     .OUTPUTS
         PSObject
@@ -32,13 +32,13 @@ function Get-SepCloudPolicyDetails {
         )]
         [string]
         [Alias("policy_uid")]
-        $Policy_UUID,
+        $policyUUID,
 
         # Policy version
         [Parameter()]
         [string]
         [Alias("Version")]
-        $Policy_Version,
+        $policyVersion,
 
         # Exact policy name
         [Parameter(
@@ -47,14 +47,14 @@ function Get-SepCloudPolicyDetails {
         )]
         [string[]]
         [Alias("Name")]
-        $Policy_Name
+        $policyName
     )
 
     begin {
         # Init
         $BaseURL = $($script:configuration.BaseURL)
         $Token = (Get-SEPCloudToken).Token_Bearer
-        $obj_policies = (Get-SEPCloudPolicesSummary).policies
+        $objPolicies = (Get-SEPCloudPolicesSummary).policies
         $Body = @{}
         $Headers = @{
             Host          = $BaseURL
@@ -66,18 +66,32 @@ function Get-SepCloudPolicyDetails {
 
     process {
         # Get list of all SEP Cloud policies and get only the one with the correct name
-        $obj_policy = ($obj_policies | Where-Object { $_.name -eq "$Policy_Name" })
+        $objPolicy = ($objPolicies | Where-Object { $_.name -eq "$policyName" })
 
-        if ($null -eq $Policy_version ) {
-            $obj_policy = ($obj_policy | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
+        if ($null -eq $policyVersion ) {
+            $objPolicy = ($objPolicy | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
         }
 
-        $Policy_Version = ($obj_policy).policy_version
-        $Policy_UUID = ($obj_policy).policy_uid
-        $URI = 'https://' + $BaseURL + "/v1/policies/$Policy_UUID/versions/$Policy_Version"
+        $policyVersion = ($objPolicy).policy_version
+        $policyUUID = ($objPolicy).policy_uid
+        $URI = 'https://' + $BaseURL + "/v1/policies/$policyUUID/versions/$policyVersion"
 
-        $Resp = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
+        $params = @{
+            Method  = 'GET'
+            Uri     = $uri
+            Headers = @{
+                # Host          = $baseUrl
+                Accept        = "application/json"
+                Authorization = $token
+            }
+        }
 
-        return $Resp
+        try {
+            $response = Invoke-ABWebRequest @params
+        } catch {
+            "Error : " + $_
+        }
+
+        return $response
     }
 }

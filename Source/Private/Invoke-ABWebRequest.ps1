@@ -84,26 +84,28 @@ function Invoke-ABWebRequest {
         }
 
         # Initial request
-        $request = [System.Net.WebRequest]::CreateHttp($uri);
-        $request.Method = $method
-        $request.AllowAutoRedirect = $false
+        $initialRequest = [System.Net.WebRequest]::CreateHttp($uri);
+        $initialRequest.Method = $method
+        $initialRequest.AllowAutoRedirect = $false
 
         # Add body
         if ($body.Count -gt 0) {
-            $request.ContentType = "application/json"
+            $initialRequest.ContentType = "application/json"
             $json = $body | ConvertTo-Json -Depth 100
             $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
-            $request.ContentLength = $bytes.Length
-            $requestStream = $request.GetRequestStream()
-            $requestStream.Write($bytes, 0, $bytes.Length)
-            $requestStream.Close()
+            $initialRequest.ContentLength = $bytes.Length
+            $initialRequestStream = $initialRequest.GetRequestStream()
+            $initialRequestStream.Write($bytes, 0, $bytes.Length)
+            $initialRequestStream.Close()
         }
 
         # Add headers
         foreach ($header in $Headers.GetEnumerator()) {
-            $request.Headers.Add($header.Key, $header.Value)
+            $initialRequest.Headers.Add($header.Key, $header.Value)
         }
-        $inititalResponse = $request.GetResponse();
+
+        # Send the initial request
+        $inititalResponse = $initialRequest.GetResponse();
 
         # IF HTTP status code is linked to redirected URL
         if ($inititalResponse.StatusCode.value__ -in (301, 302, 303, 307, 308)) {
@@ -132,10 +134,13 @@ function Invoke-ABWebRequest {
 
             # Add headers
             # TODO verify why when adding all the headers and not just the Authorization header, the request fails wih 400
-            # foreach ($header in $Headers.GetEnumerator()) {
-            #     $request.Headers.Add($header.Key, $header.Value)
-            # }
-            $newRequest.Headers.Add("Authorization", $Headers.Authorization)
+            # Reuse all headers from the initial request (including Authorization header)
+            foreach ($header in $Headers.GetEnumerator()) {
+                $newRequest.Headers.Add($header.Key, $header.Value)
+            }
+            # $newRequest.Headers.Add("Authorization", $Headers.Authorization)
+            # $newRequest.Headers.Add("Accept", $Headers.Accept)
+            # $newRequest.Headers.Add("Host", $Headers.Host)
 
             # Send the new request
             $newResponse = $newRequest.GetResponse()

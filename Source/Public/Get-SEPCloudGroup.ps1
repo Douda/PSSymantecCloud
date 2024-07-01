@@ -49,7 +49,7 @@ function Get-SEPCloudGroup {
             Method  = 'GET'
             Uri     = $uri
             Headers = @{
-                Host          = $baseUrl
+                # Host          = $baseUrl
                 Accept        = "application/json"
                 Authorization = $token
             }

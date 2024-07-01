@@ -25,7 +25,7 @@ function Get-SEPCloudPolicesSummary {
             Method  = 'GET'
             Uri     = $uri
             Headers = @{
-                Host          = $baseUrl
+                # Host          = $baseUrl
                 Accept        = "application/json"
                 Authorization = $token
             }
