@@ -16,20 +16,22 @@ function Get-SepCloudTargetRules {
     begin {
         # Init
         $BaseURL = $($script:configuration.BaseURL)
-        $URI_Tokens = 'https://' + $BaseURL + "/v1/policies/target-rules"
+        $uri = 'https://' + $BaseURL + "/v1/policies/target-rules"
         $Token = (Get-SEPCloudToken).Token_Bearer
-        $Body = @{}
-        $Headers = @{
-            Host          = $BaseURL
-            Accept        = "application/json"
-            Authorization = $Token
-            Body          = $Body
-        }
     }
 
     process {
+        $params = @{
+            Method  = 'GET'
+            Uri     = $uri
+            Headers = @{
+                Host          = $BaseURL
+                Accept        = "application/json"
+                Authorization = $Token
+            }
+        }
         try {
-            $Response = Invoke-RestMethod -Method GET -Uri $URI_Tokens -Headers $Headers -Body $Body -UseBasicParsing
+            $Response = Invoke-ABWebRequest @params
         }
 
         catch {
@@ -37,6 +39,6 @@ function Get-SepCloudTargetRules {
             $StatusCode
         }
 
-        $Response
+        return $Response.target_rules
     }
 }
