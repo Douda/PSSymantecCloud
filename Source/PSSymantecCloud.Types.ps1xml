@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Types>
-    <Type>
+  <!-- <Type>
         <Name>SEPCloud.Device-Group</Name>
         <Members>
             <ScriptProperty>
@@ -11,7 +11,7 @@
                 </GetScriptBlock>
             </ScriptProperty>
         </Members>
-    </Type>
+    </Type> -->
     <Type>
         <Name>SEPCloud.DeviceTransfer</Name>
         <Members>
