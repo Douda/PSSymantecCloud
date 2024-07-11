@@ -55,13 +55,6 @@ function Get-SepCloudPolicyDetails {
         $BaseURL = $($script:configuration.BaseURL)
         $Token = (Get-SEPCloudToken).Token_Bearer
         $objPolicies = (Get-SEPCloudPolicesSummary).policies
-        $Body = @{}
-        $Headers = @{
-            Host          = $BaseURL
-            Accept        = "application/json"
-            Authorization = $Token
-            Body          = $Body
-        }
     }
 
     process {
