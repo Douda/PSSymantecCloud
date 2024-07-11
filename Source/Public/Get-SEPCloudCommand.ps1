@@ -20,30 +20,29 @@ function Get-SEPCloudCommand {
     process {
         $URI = 'https://' + $BaseURL + "/v1/commands/endpoint-search"
         $allResults = @()
-        $body = @{
-            query = ""
-            next  = 0
-        }
-        $Headers = @{
-            Host           = $BaseURL
-            Accept         = "application/json"
-            "Content-Type" = "application/json"
-            Authorization  = $Token
-        }
 
         do {
             try {
                 $params = @{
-                    Uri             = $URI
-                    Method          = 'POST'
-                    Body            = $Body | ConvertTo-Json
-                    Headers         = $Headers
-                    UseBasicParsing = $true
+                    Uri     = $URI
+                    Method  = 'POST'
+                    Body    = @{
+                        query = ""
+                        # next  = 0
+                    }
+                    Headers = @{
+                        Host           = $BaseURL
+                        Accept         = "application/json"
+                        "Content-Type" = "application/json"
+                        Authorization  = $Token
+                    }
                 }
 
-                $Resp = Invoke-RestMethod @params
+                # $Resp = Invoke-RestMethod @params
+                $Resp = Invoke-ABWebRequest @params
                 $allResults += $Resp.commands
                 $body.next = $Resp.next
+                # TODO verify the loop works
             } catch {
                 Write-Warning -Message "Error: $_"
             }
