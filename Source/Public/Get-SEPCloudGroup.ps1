@@ -36,7 +36,7 @@ function Get-SEPCloudGroup {
 
     process {
         if ($GroupID) {
-            $URI = $URI + '/' + $GroupID
+            $URI = $URI + "/$GroupID"
         }
 
         $params = @{
@@ -55,6 +55,22 @@ function Get-SEPCloudGroup {
             "Error : " + $_
         }
 
+        if ($GroupID) {
+            return $response
+        }
+
+        # Add a new property to each group with the full chain of names
+        $response.device_groups | ForEach-Object {
+            $FullNameChain = Get-NameChain -CurrentGroup $_ -AllGroups $groups.device_groups -Chain ""
+            $_ | Add-Member -NotePropertyName "fullPathName" -NotePropertyValue $FullNameChain.TrimEnd(" > ")
+        }
+
+        # Add PSTypeName to the response
+        $response.device_groups | ForEach-Object {
+            $_.PSTypeNames.Insert(0, "SEPCloud.Device-Group")
+        }
+
+        # Return the response
         return $response
     }
 }
