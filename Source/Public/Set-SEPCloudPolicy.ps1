@@ -11,6 +11,7 @@ function Set-SEPCloudPolicy {
         Version of the policy to apply.
         If not provided, the latest version will be used
     .PARAMETER targetRules
+        Alias: location
         Location (policy target rule) to apply the policy to
         If not provided, the default location will be used
     .PARAMETER deviceGroupID
