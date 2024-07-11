@@ -9,12 +9,13 @@ function Get-SEPCloudGroup {
     .EXAMPLE
         Get-SEPCloudGroup -GroupID "BorQeoSfR5OMJ9R8SumJNw"
 
-        id          : BorQeoSfR5OMJ9R8SumJNw
-        name        : Workstations
-        description :
-        created     : 16/02/2024 09:04:33
-        modified    : 16/02/2024 09:04:33
-        parent_id   : tqrSman3RyqFFd1EqLlZZA
+        id           : BorQeoSfR5OMJ9R8SumJNw
+        name         : Workstations
+        description  : Description of this group
+        created      : 16/02/2024 09:04:33
+        modified     : 16/02/2024 09:04:33
+        parent_id    : tqrSman3RyqFFd1EqLlZZA
+        fullPathName : Default\Test policies tests\subgroup 1
     #>
 
     [CmdletBinding()]
@@ -56,18 +57,28 @@ function Get-SEPCloudGroup {
         }
 
         if ($GroupID) {
-            return $response
-        }
+            # If we get a single group
 
-        # Add a new property to each group with the full chain of names
-        $response.device_groups | ForEach-Object {
-            $FullNameChain = Get-NameChain -CurrentGroup $_ -AllGroups $groups.device_groups -Chain ""
-            $_ | Add-Member -NotePropertyName "fullPathName" -NotePropertyValue $FullNameChain.TrimEnd(" > ")
-        }
+            # Add a new property with the full chain of names
+            $groups = (Get-SEPCloudGroup).device_groups
+            $FullNameChain = Get-NameChain -CurrentGroup $response -AllGroups $groups -Chain ""
+            $response | Add-Member -NotePropertyName "fullPathName" -NotePropertyValue $FullNameChain.TrimEnd(" > ")
 
-        # Add PSTypeName to the response
-        $response.device_groups | ForEach-Object {
-            $_.PSTypeNames.Insert(0, "SEPCloud.Device-Group")
+            # Add PSTypeName to the response
+            $response.PSTypeNames.Insert(0, "SEPCloud.Device-Group")
+        } else {
+            # Else we get a list of groups
+
+            # Add a new property to each group with the full chain of names
+            $response.device_groups | ForEach-Object {
+                $FullNameChain = Get-NameChain -CurrentGroup $_ -AllGroups $groups.device_groups -Chain ""
+                $_ | Add-Member -NotePropertyName "fullPathName" -NotePropertyValue $FullNameChain.TrimEnd(" > ")
+            }
+
+            # Add PSTypeName to the response
+            $response.device_groups | ForEach-Object {
+                $_.PSTypeNames.Insert(0, "SEPCloud.Device-Group")
+            }
         }
 
         # Return the response
