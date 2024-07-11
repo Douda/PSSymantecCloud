@@ -105,7 +105,11 @@ function Invoke-ABWebRequest {
         }
 
         # Send the initial request
-        $inititalResponse = $initialRequest.GetResponse();
+        try {
+            $inititalResponse = $initialRequest.GetResponse();
+        } catch {
+            throw $_
+        }
 
         # IF HTTP status code is linked to redirected URL
         if ($inititalResponse.StatusCode.value__ -in (301, 302, 303, 307, 308)) {
@@ -143,7 +147,11 @@ function Invoke-ABWebRequest {
             # $newRequest.Headers.Add("Host", $Headers.Host)
 
             # Send the new request
-            $newResponse = $newRequest.GetResponse()
+            try {
+                $newResponse = $newRequest.GetResponse()
+            } catch {
+                Write-Error "Error in Invoke-ABWebRequest: $($_.Exception.InnerException.Message)"
+            }
 
             # Parse the response
             $stream = $newResponse.GetResponseStream()
