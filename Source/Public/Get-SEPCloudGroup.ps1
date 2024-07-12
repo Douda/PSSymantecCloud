@@ -6,6 +6,8 @@ function Get-SEPCloudGroup {
         Gathers list of device groups from SEP Cloud
     .PARAMETER GroupID
         ID of the group to get details for
+    .PARAMETER listDevices
+        Switch to get the list of devices in the group
     .EXAMPLE
         Get-SEPCloudGroup -GroupID "BorQeoSfR5OMJ9R8SumJNw"
 
@@ -16,16 +18,30 @@ function Get-SEPCloudGroup {
         modified     : 16/02/2024 09:04:33
         parent_id    : tqrSman3RyqFFd1EqLlZZA
         fullPathName : Default\Test policies tests\subgroup 1
+    .EXAMPLE
+        Get-SEPCloudGroup -GroupID "BorQeoSfR5OMJ9R8SumJNw" -listDevices
+
+        total devices
+        ----- -------
+        2341 {@{id=-143bW_uRyyToCarc-AN0x; name=DESKTOP-ABCD}, @{id=-1djir6BSfib3sFDD1NVFw; name=DESKTOP-EFGH}...
     #>
 
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'DefaultSet')]
     param (
         # Group ID
         [Parameter(
-            ValueFromPipelineByPropertyName = $true
+            ValueFromPipelineByPropertyName = $true,
+            ParameterSetName = 'DeviceListSet'
         )]
         [String]
-        $GroupID
+        $GroupID,
+
+        # List devices switch
+        [Parameter(
+            ParameterSetName = 'DeviceListSet'
+        )]
+        [switch]
+        $listDevices
     )
 
     begin {
@@ -36,10 +52,16 @@ function Get-SEPCloudGroup {
     }
 
     process {
+        # Setting up the URI
         if ($GroupID) {
             $URI = $URI + "/$GroupID"
+
+            if ($listDevices) {
+                $URI = $URI + "/devices"
+            }
         }
 
+        # Setting up the parameters
         $params = @{
             Method  = 'GET'
             Uri     = $uri
@@ -50,15 +72,38 @@ function Get-SEPCloudGroup {
             }
         }
 
+        # Invoke the request
         try {
             $response = Invoke-ABWebRequest @params
+
+            # if $response is null, return an empty object to avoid further errors
+            if ($null -eq $response) {
+                return [PSCustomObject]@{}
+            }
         } catch {
             "Error : " + $_
         }
 
-        if ($GroupID) {
-            # If we get a single group
+        ########################
+        # Parsing the response #
+        ########################
 
+        # if ListDevices is set, we get a list of devices
+        if ($listDevices) {
+            # If we get a list of devices
+            # Add Device-List PSTypeName to the response
+            $response | ForEach-Object {
+                $_.PSTypeNames.Insert(0, "SEPCloud.Device-List")
+            }
+
+            # Add Device PSTypeName to the devices
+            $response.devices | ForEach-Object {
+                $_.PSTypeNames.Insert(0, "SEPCloud.Device")
+            }
+        }
+
+        # If groupID is set, we get a single group
+        elseif ($GroupID) {
             # Add a new property with the full chain of names
             $groups = (Get-SEPCloudGroup).device_groups
             $FullNameChain = Get-NameChain -CurrentGroup $response -AllGroups $groups -Chain ""
@@ -66,10 +111,10 @@ function Get-SEPCloudGroup {
 
             # Add PSTypeName to the response
             $response.PSTypeNames.Insert(0, "SEPCloud.Device-Group")
-        } else {
-            # Else we get a list of groups
 
-            # Add a new property to each group with the full chain of names
+            # If nothing is set, we get a list of groups
+        } else {
+            # Add a new property to each group with the full path name (group)
             $response.device_groups | ForEach-Object {
                 $FullNameChain = Get-NameChain -CurrentGroup $_ -AllGroups $groups.device_groups -Chain ""
                 $_ | Add-Member -NotePropertyName "fullPathName" -NotePropertyValue $FullNameChain.TrimEnd(" > ")
@@ -83,5 +128,6 @@ function Get-SEPCloudGroup {
 
         # Return the response
         return $response
+
     }
 }
