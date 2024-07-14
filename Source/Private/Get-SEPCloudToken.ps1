@@ -55,7 +55,7 @@ function Get-SEPCloudToken {
             $BaseURL = $($script:configuration.BaseURL)
             $SepCloudCreds = $($script:configuration.SepCloudCreds)
             $CachedTokenPath = $($script:configuration.CachedTokenPath)
-            $URI_Tokens = 'https://' + $BaseURL + '/v1/oauth2/tokens'
+            $uriTokens = 'https://' + $BaseURL + '/v1/oauth2/tokens'
 
             if (-not $BaseURL) { throw "Missing 'BaseUrl' configuration value" }
             if (-not $SepCloudCreds) { throw "Missing 'SepCloudCreds' configuration value" }
@@ -90,7 +90,13 @@ function Get-SEPCloudToken {
             }
 
             try {
-                $response = Invoke-RestMethod -Method POST -Uri $URI_Tokens -Headers $Headers
+                $params = @{
+                    Uri     = $uriTokens
+                    Method  = 'POST'
+                    Headers = $Headers
+                }
+                $response = Invoke-RestMethod @params
+
                 # Get the auth token from the response & store it locally
                 Write-Verbose "Valid credentials - returning valid token"
                 $CachedToken = [PSCustomObject]@{
@@ -104,7 +110,10 @@ function Get-SEPCloudToken {
 
             } catch {
                 $StatusCode = $_.Exception.Response.StatusCode
-                Write-Verbose "Authentication error - From locally stored credentials - Expected HTTP 200, got $([int]$StatusCode) - Continue..."
+                $message = "Authentication error - Failed to gather token from locally stored credentials"
+                $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)"
+                $message = $message + "delete cached credentials"
+                Write-Warning $message
                 # Invalid Credentials, deleting local credentials file
                 Remove-Item $SepCloudCreds
             }
@@ -125,7 +134,6 @@ function Get-SEPCloudToken {
         if (-not (Test-Path -Path $directory)) {
             # If the directory does not exist, create it
             New-Item -ItemType Directory -Path $directory | Out-Null
-            Remove-Variable -Name directory
         }
 
         # Cache the credentials
@@ -139,7 +147,7 @@ function Get-SEPCloudToken {
         }
 
         $params = @{
-            Uri             = $URI_Tokens
+            Uri             = $uriTokens
             Method          = 'POST'
             Headers         = $Headers
             useBasicParsing = $true
