@@ -151,7 +151,7 @@ function Get-SEPCloudDevice {
             queryStrings = $queryStrings
         }
 
-        $response = Invoke-ABWebRequest @params
+        $response = Invoke-SEPCloudWebRequest @params #TODO query fails, to be investigated
         $ArrayResponse += $response.devices
         $deviceCount = (($ArrayResponse | Measure-Object).count)
 
@@ -164,7 +164,7 @@ function Get-SEPCloudDevice {
                 $queryStrings.Add("offset", $deviceCount)
 
                 # Run query, add it to the array, increment counter
-                $response = Invoke-ABWebRequest @params
+                $response = Invoke-SEPCloudWebRequest @params
                 $ArrayResponse += $response.devices
                 $deviceCount = (($ArrayResponse | Measure-Object).count)
             } until (

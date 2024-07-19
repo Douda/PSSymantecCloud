@@ -1,4 +1,4 @@
-function Invoke-ABWebRequest {
+function Invoke-SEPCloudWebRequest {
     <#
     .SYNOPSIS
         Gather WebRequest from a URL or redirect URL.
@@ -27,7 +27,7 @@ function Invoke-ABWebRequest {
                 "ComputerName" = "MyComputer01"
             }
         }
-        Invoke-ABWebRequest @params
+        Invoke-SEPCloudWebRequest @params
 
         This example will :
         - Send a GET request to https://example.com/v1/endpoint
@@ -46,7 +46,7 @@ function Invoke-ABWebRequest {
                 "ComputerName" = "MyComputer01"
             }
         }
-        Invoke-ABWebRequest @params
+        Invoke-SEPCloudWebRequest @params
 
         This example will :
         - Send a POST request to https://example.com/v1/endpoint
@@ -150,7 +150,7 @@ function Invoke-ABWebRequest {
             try {
                 $newResponse = $newRequest.GetResponse()
             } catch {
-                Write-Error "Error in Invoke-ABWebRequest: $($_.Exception.InnerException.Message)"
+                Write-Error "Error in Invoke-SEPCloudWebRequest: $($_.Exception.InnerException.Message)"
             }
 
             # Parse the response

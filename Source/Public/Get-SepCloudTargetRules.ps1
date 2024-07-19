@@ -31,7 +31,7 @@ function Get-SepCloudTargetRules {
             }
         }
         try {
-            $Response = Invoke-ABWebRequest @params
+            $Response = Invoke-SEPCloudWebRequest @params
         }
 
         catch {

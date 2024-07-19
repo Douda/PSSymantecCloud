@@ -39,7 +39,7 @@ function Get-SEPCloudCommand {
                 }
 
                 # $Resp = Invoke-RestMethod @params
-                $Resp = Invoke-ABWebRequest @params
+                $Resp = Invoke-SEPCloudWebRequest @params
                 $allResults += $Resp.commands
                 $body.next = $Resp.next
                 # TODO verify the loop works

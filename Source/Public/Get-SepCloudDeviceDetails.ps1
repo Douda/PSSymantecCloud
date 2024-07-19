@@ -71,7 +71,7 @@ function Get-SepCloudDeviceDetails {
             }
         }
 
-        $Response = Invoke-ABWebRequest @params
+        $Response = Invoke-SEPCloudWebRequest @params
         return $Response
     }
 }

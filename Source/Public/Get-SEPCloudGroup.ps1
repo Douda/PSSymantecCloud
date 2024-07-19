@@ -74,7 +74,7 @@ function Get-SEPCloudGroup {
 
         # Invoke the request
         try {
-            $response = Invoke-ABWebRequest @params
+            $response = Invoke-SEPCloudWebRequest @params
 
             # if $response is null, return an empty object to avoid further errors
             if ($null -eq $response) {
@@ -128,6 +128,5 @@ function Get-SEPCloudGroup {
 
         # Return the response
         return $response
-
     }
 }

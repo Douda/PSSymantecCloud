@@ -69,7 +69,7 @@ function Get-SEPCloudComponent {
             }
 
             try {
-                $response = Invoke-ABWebRequest @params
+                $response = Invoke-SEPCloudWebRequest @params
             } catch {
                 "Error : " + $_
             }

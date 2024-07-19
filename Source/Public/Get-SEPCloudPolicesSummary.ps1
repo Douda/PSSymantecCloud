@@ -32,7 +32,7 @@ function Get-SEPCloudPolicesSummary {
         }
 
         try {
-            $response = Invoke-ABWebRequest @params
+            $response = Invoke-SEPCloudWebRequest @params
         } catch {
             "Error : " + $_
         }
