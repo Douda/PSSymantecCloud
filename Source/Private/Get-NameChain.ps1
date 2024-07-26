@@ -1,11 +1,11 @@
-function Get-NameChain {
+function Get-SEPCloudGroupFullPath {
     <#
     .SYNOPSIS
         Recursively builds a chain of group names from a group to the root.
     .DESCRIPTION
         Recursively builds a chain of group names from a group to the root.
     .EXAMPLE
-        Get-NameChain -CurrentGroup $Group -AllGroups $Groups
+        Get-SEPCloudGroupFullPath -CurrentGroup $Group -AllGroups $Groups
     #>
 
 
@@ -27,7 +27,7 @@ function Get-NameChain {
         if ($ParentGroup) {
             # If there's a parent, prepend the parent's name to the chain and recurse.
             $NewChain = if ($Chain -eq "") { $CurrentGroup.name } else { $CurrentGroup.name + "\" + $Chain }
-            return Get-NameChain -CurrentGroup $ParentGroup -AllGroups $AllGroups -Chain $NewChain
+            return Get-SEPCloudGroupFullPath -CurrentGroup $ParentGroup -AllGroups $AllGroups -Chain $NewChain
         } else {
             # If no parent found (which shouldn't happen), return the current chain.
             return $Chain
