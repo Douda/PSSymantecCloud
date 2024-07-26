@@ -6,8 +6,6 @@ function Get-SEPCloudGroup {
         Gathers list of device groups from SEP Cloud
     .PARAMETER GroupID
         ID of the group to get details for
-    .PARAMETER listDevices
-        Switch to get the list of devices in the group
     .EXAMPLE
         Get-SEPCloudGroup -GroupID "BorQeoSfR5OMJ9R8SumJNw"
 
@@ -19,19 +17,18 @@ function Get-SEPCloudGroup {
         parent_id    : tqrSman3RyqFFd1EqLlZZA
         fullPathName : Default\Test policies tests\subgroup 1
     .EXAMPLE
-        Get-SEPCloudGroup -GroupID "BorQeoSfR5OMJ9R8SumJNw" -listDevices
+        Get-SEPCloudGroup -GroupID "BorQeoSfR5OMJ9R8SumJNw"
 
         total devices
         ----- -------
         2341 {@{id=-143bW_uRyyToCarc-AN0x; name=DESKTOP-ABCD}, @{id=-1djir6BSfib3sFDD1NVFw; name=DESKTOP-EFGH}...
     #>
 
-    [CmdletBinding(DefaultParameterSetName = 'DefaultSet')]
+    [CmdletBinding()]
     param (
         # Group ID
         [Parameter(
-            ValueFromPipelineByPropertyName = $true,
-            ParameterSetName = 'DeviceListSet'
+            ValueFromPipelineByPropertyName = $true
         )]
         [String]
         $GroupID
@@ -68,7 +65,7 @@ function Get-SEPCloudGroup {
                 $response = Invoke-ABWebRequest @params
 
                 # Process the response
-                # If first pass, return the whole response, otherwise append to it
+                # Setting up pagination
                 if ($queryStrings) {
                     # Other pass
                     $allResponse.device_groups += $response.device_groups
@@ -81,7 +78,7 @@ function Get-SEPCloudGroup {
                 if (!$GroupID) {
                     # QueryString parameters for pagination
                     $queryStrings = @{
-                        offset = $response.device_groups.count
+                        offset = $allResponse.device_groups.count
                     }
                     # Increment the offset if necessary
                     $uri = Build-QueryURI -BaseURI $uri -QueryStrings $queryStrings
