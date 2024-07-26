@@ -6,16 +6,46 @@ function Get-SEPCLoudAPIData {
 
     process {
         $api = @{
+            Example                 = @{
+                '1.0' = @{
+                    Description = 'Details about the API endpoint'
+                    URI         = 'The URI expressed as /api/v#/endpoint'
+                    Method      = 'Method to use against the endpoint'
+                    Body        = 'Parameters to use in the body'
+                    Query       = 'Parameters to use in the URI query'
+                    Result      = 'If the result content is stored in a higher level key, express it here to be unwrapped in the return'
+                    Filter      = 'If the result content needs to be filtered based on key names, express them here'
+                    Success     = 'The expected HTTP status code for a successful call'
+                }
+            }
+            'Connect-SEPCloud'      = @{
+                '1.0' = @{
+                    Description = 'Generate new bearer token from the from the oAuth credential'
+                    URI         = '/v1/oauth2/tokens'
+                    Method      = 'Post'
+                    Body        = ''
+                    Query       = ''
+                    Result      = ''
+                    Filter      = ''
+                    Success     = '200'
+                }
+            }
             'Get-SEPCloudGroupTest' = @{
                 '1.0' = @{
                     Description = 'Details about the API endpoint'
                     URI         = '/v1/device-groups'
                     Method      = 'Get'
-                    Body        = ''
-                    Query       = @{
-                        'groupId'      = 'groupId'
-                        'SearchString' = 'query_string'
-                    }
+                    # Body        = @{
+                    #     bodyvar1 = 'bodyvar1'
+                    #     bodyvar2 = 'bodyvar2'
+                    #     bodyvar3 = 'bodyvar3'
+                    # }
+                    body        = ''
+                    # Query       = @{
+                    #     'groupId'      = 'groupId'
+                    #     'SearchString' = 'query_string'
+                    # }
+                    Query       = ''
                     Result      = ''
                     Filter      = ''
                     Success     = '200'
