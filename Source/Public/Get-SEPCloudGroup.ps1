@@ -103,7 +103,7 @@ function Get-SEPCloudGroup {
         # If groupID is set, we get a single group
         if ($GroupID) {
             # Add a new property with the full chain of names
-            $FullNameChain = Get-SEPCloudGroupFullPath -CurrentGroup $response -AllGroups (Get-SEPCloudGroup).device_groups -Chain ""
+            $FullNameChain = Get-SEPCloudGroupFullPath -CurrentGroup $response -Chain ""
             $allResponse | Add-Member -NotePropertyName "fullPathName" -NotePropertyValue $FullNameChain.TrimEnd(" > ")
 
             # Add PSTypeName to the response
