@@ -62,8 +62,9 @@ function Initialize-SEPCloudConfiguration {
     # Load credential from disk if it exists
     if (Test-Path -Path $($script:configuration.SEPCloudCredsPath)) {
         try {
+            Write-Verbose -Message "Loading credential from $($script:configuration.SEPCloudCredsPath)"
             $script:Credential = Import-Clixml -Path $($script:configuration.SEPCloudCredsPath)
-            $script:SEPCloudConnection.Credential = $script:Credential
+            $script:SEPCloudConnection.Credential = Import-Clixml -Path $($script:configuration.SEPCloudCredsPath)
         } catch {
             Write-Verbose "No credentials found from $($script:configuration.SEPCloudCredsPath)"
         }
@@ -72,10 +73,22 @@ function Initialize-SEPCloudConfiguration {
     # Load access token from disk
     if (Test-Path -Path $($script:configuration.CachedTokenPath)) {
         try {
+            Write-Verbose -Message "Loading access token from $($script:configuration.CachedTokenPath)"
             $script:accessToken = Import-Clixml -Path $($script:configuration.CachedTokenPath)
-            $script:SEPCloudConnection.AccessToken = $script:accessToken
+            $script:SEPCloudConnection.AccessToken = Import-Clixml -Path $($script:configuration.CachedTokenPath)
         } catch {
-            Write-Verbose "Failed to import access token from $($script:configuration.CachedTokenPath): $_" -Verbose
+            Write-Verbose -Message "Failed to import access token from $($script:configuration.CachedTokenPath): $_" -Verbose
+        }
+    }
+
+    # Test for existing access token and refresh token
+    if (Test-SEPCloudToken) {
+        # Load headers if access token exists
+        $UserAgentString = New-UserAgentString
+        Write-Verbose -Message "Using User Agent $($UserAgentString)"
+        $script:SEPCloudConnection.Header = @{
+            'Authorization' = $script:SEPCloudConnection.AccessToken.Token_Bearer
+            'User-Agent'    = $UserAgentString
         }
     }
 }
