@@ -15,19 +15,28 @@ Update-TypeData -PrependPath (Join-Path -Path $PSScriptRoot -ChildPath 'PSSymant
 [PSCustomObject] $script:accessToken = $null
 
 # The session-cached copy of the module's configuration properties
+# Configuration contains user-defined properties
+# SEPCloudConnection contains the connection information to the SES Cloud API
 [PSCustomObject] $script:configuration = $null
+[PSCustomObject] $script:SEPCloudConnection = [PSCustomObject]@{
+    BaseURL     = "api.sep.securitycloud.symantec.com"
+    Credential  = $null
+    AccessToken = $null
+    time        = (Get-Date)
+    header      = $null
+}
 
 # Module name
 [string] $script:ModuleName = "PSSymantecCloud"
 
 # Load the configuration file
 $script:configuration = [PSCustomObject]@{
-    BaseURL         = "api.sep.securitycloud.symantec.com"
+    BaseURL           = "api.sep.securitycloud.symantec.com"
     SEPCloudCredsPath = [System.IO.Path]::Combine(
         [System.Environment]::GetFolderPath('LocalApplicationData'),
         'PSSymantecCloud',
         'creds.xml')
-    CachedTokenPath = [System.IO.Path]::Combine(
+    CachedTokenPath   = [System.IO.Path]::Combine(
         [System.Environment]::GetFolderPath('LocalApplicationData'),
         'PSSymantecCloud',
         'accessToken.xml')
@@ -54,6 +63,7 @@ function Initialize-SEPCloudConfiguration {
     if (Test-Path -Path $($script:configuration.SEPCloudCredsPath)) {
         try {
             $script:Credential = Import-Clixml -Path $($script:configuration.SEPCloudCredsPath)
+            $script:SEPCloudConnection.Credential = $script:Credential
         } catch {
             Write-Verbose "No credentials found from $($script:configuration.SEPCloudCredsPath)"
         }
@@ -63,6 +73,7 @@ function Initialize-SEPCloudConfiguration {
     if (Test-Path -Path $($script:configuration.CachedTokenPath)) {
         try {
             $script:accessToken = Import-Clixml -Path $($script:configuration.CachedTokenPath)
+            $script:SEPCloudConnection.AccessToken = $script:accessToken
         } catch {
             Write-Verbose "Failed to import access token from $($script:configuration.CachedTokenPath): $_" -Verbose
         }
