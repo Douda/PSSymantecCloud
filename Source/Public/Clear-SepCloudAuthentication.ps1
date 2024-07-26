@@ -14,12 +14,12 @@ function Clear-SepCloudAuthentication {
     param ()
 
     Remove-Item -Path $($script:configuration.CachedTokenPath) -Force -ErrorAction SilentlyContinue -ErrorVariable ev
-    Remove-Item -Path $($script:configuration.SepCloudCreds) -Force -ErrorAction SilentlyContinue -ErrorVariable ev
+    Remove-Item -Path $($script:configuration.SEPCloudCredsPath) -Force -ErrorAction SilentlyContinue -ErrorVariable ev
 
     if (($null -ne $ev) -and
             ($ev.Count -gt 0) -and
             ($ev[0].FullyQualifiedErrorId -notlike 'PathNotFound*')) {
-        $message = "Experienced a problem trying to remove the file that persists the Access Token " + $($script:configuration.SepCloudCreds)
+        $message = "Experienced a problem trying to remove the file that persists the Access Token " + $($script:configuration.SEPCloudCredsPath)
         $message += "Experienced a problem trying to remove the file that persists the Access Credentials " + $($script:configuration.CachedTokenPath)
         Write-Warning -Message $message
     }

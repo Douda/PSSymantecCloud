@@ -34,7 +34,7 @@ Describe "Get-SEPCloudToken" {
 
 #         # Test that the function correctly retrieves the token
 #         It 'Retrieves the token from the local cred file' {
-#             $result = Get-SEPCloudToken -SepCloudCreds 'C:\temp\mock-cred.xml'
+#             $result = Get-SEPCloudToken -SEPCloudCredsPath 'C:\temp\mock-cred.xml'
 #             $result | Should Be 'mock-token'
 #         }
 #     }

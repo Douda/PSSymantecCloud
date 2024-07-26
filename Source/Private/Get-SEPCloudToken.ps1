@@ -80,9 +80,8 @@ function Get-SEPCloudToken {
         }
 
         # Test if OAuth cred present on the disk
-        if (Test-Path -Path "$SepCloudCreds") {
-            <# If true, Attempt to get a token #>
-            $OAuth = "Basic " + (Import-Clixml -Path $SepCloudCreds)
+    elseif (Test-Path -Path "$script:configuration.SEPCloudCredsPath") {
+        $OAuth = "Basic " + (Import-Clixml -Path $script:configuration.SEPCloudCredsPath)
             $Headers = @{
                 Host          = $BaseURL
                 Accept        = "application/json"
@@ -137,13 +136,13 @@ function Get-SEPCloudToken {
         }
 
         # Cache the credentials
-        $Encoded_Creds | Export-Clixml -Path $SepCloudCreds
+    $encodedCreds | Export-Clixml -Path $script:configuration.SEPCloudCredsPath
 
         # Setup the headers for the request
         $Headers = @{
             Host          = $BaseURL
             Accept        = "application/json"
-            Authorization = "Basic " + $Encoded_Creds
+        Authorization = "Basic " + $encodedCreds
         }
 
         $params = @{

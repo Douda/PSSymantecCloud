@@ -23,7 +23,7 @@ Update-TypeData -PrependPath (Join-Path -Path $PSScriptRoot -ChildPath 'PSSymant
 # Load the configuration file
 $script:configuration = [PSCustomObject]@{
     BaseURL         = "api.sep.securitycloud.symantec.com"
-    SepCloudCreds   = [System.IO.Path]::Combine(
+    SEPCloudCredsPath = [System.IO.Path]::Combine(
         [System.Environment]::GetFolderPath('LocalApplicationData'),
         'PSSymantecCloud',
         'creds.xml')
@@ -51,11 +51,11 @@ function Initialize-SEPCloudConfiguration {
     param()
 
     # Load credential from disk if it exists
-    if (Test-Path -Path $($script:configuration.SepCloudCreds)) {
+    if (Test-Path -Path $($script:configuration.SEPCloudCredsPath)) {
         try {
-            $script:Credential = Import-Clixml -Path $($script:configuration.SepCloudCreds)
+            $script:Credential = Import-Clixml -Path $($script:configuration.SEPCloudCredsPath)
         } catch {
-            Write-Verbose "No credentials found from $($script:configuration.SepCloudCreds)"
+            Write-Verbose "No credentials found from $($script:configuration.SEPCloudCredsPath)"
         }
     }
 
