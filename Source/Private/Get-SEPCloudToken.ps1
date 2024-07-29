@@ -103,6 +103,19 @@ function Get-SEPCloudToken {
         }
     }
 
+    # Test if token already in memory
+    if ($script:SEPCloudConnection.AccessToken) {
+        # Check if still valid
+        if ((Get-Date) -lt $script:SEPCloudConnection.AccessToken.Expiration) {
+            Write-Verbose -Message "in memory token valid - returning"
+            return $script:SEPCloudConnection.AccessToken
+        } else {
+            Write-Verbose -Message "in memory token expired - deleting"
+            $script:configuration.AccessToken = $null
+            Remove-Item $script:configuration.CachedTokenPath -Force
+        }
+    }
+
     # If no token nor OAuth creds available locally
     # Encode ClientID and Secret to create Basic Auth string
     # Authentication requires the following "Basic + encoded CliendID:ClientSecret"
