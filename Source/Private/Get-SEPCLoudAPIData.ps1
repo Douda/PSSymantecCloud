@@ -50,6 +50,7 @@ function Get-SEPCLoudAPIData {
                     Filter      = ''
                     Success     = '200'
                     Function    = 'Get-SEPCloudGroupTest'
+                    ObjectTName = 'SEPCloud.Device-Group'
                 }
             }
         }
