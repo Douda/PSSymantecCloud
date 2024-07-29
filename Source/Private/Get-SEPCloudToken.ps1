@@ -93,10 +93,10 @@ function Get-SEPCloudToken {
             return $CachedToken
 
         } catch {
-            $StatusCode = $_.Exception.Response.StatusCode
             $message = "Authentication error - Failed to gather token from locally stored credentials"
             $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)"
             $message = $message + "delete cached credentials"
+            $message = $message  +  "`n"  +  "Error : $($_.Exception.Response.StatusCode) : $($_.Exception.Response.StatusDescription)"
             Write-Warning $message
             # Invalid Credentials, deleting local credentials file
             Remove-Item $script:configuration.SEPCloudCredsPath
