@@ -9,10 +9,6 @@ function Get-SEPCloudGroupTest {
     # - API endpoint customization will be set in the Get-SEPCloudAPIData function
     # - Every function interacting with the API endpoints will g
 
-
-
-
-
     # PSBoundParameters
     ###################
     # Alias is included in $PSBoundParameters
@@ -42,7 +38,7 @@ function Get-SEPCloudGroupTest {
         # Init
         $function = $MyInvocation.MyCommand.Name
         $resources = Get-SEPCLoudAPIData -endpoint $function
-        # $id = "123" # test to remove
+        # $id = "123" # test to remove #TODO to remove
     }
 
     process {
@@ -50,15 +46,15 @@ function Get-SEPCloudGroupTest {
         $uri = New-URIQuery -querykeys ($resources.Query.Keys) -parameters $PSBoundParameters -uri $uri
 
         # Body tests
-        $body = @{
-            bodyvar1 = $bodyvar1
-            bodyvar2 = $bodyvar2
-            bodyvar3 = $bodyvar3
-        }
+        # $body = @{
+        #     bodyvar1 = $bodyvar1
+        #     bodyvar2 = $bodyvar2
+        #     bodyvar3 = $bodyvar3
+        # }
 
         Write-Verbose -Message "Body is $body"
 
-        $Request = Submit-Request -uri $uri -header $Header -method $($resources.Method) -body $body
+        $Request = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
 
 
         return $Request
