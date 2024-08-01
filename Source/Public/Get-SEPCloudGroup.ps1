@@ -44,15 +44,8 @@ function Get-SEPCloudGroup {
         $listDevices
     )
 
-    begin {
-        # Init
-        $BaseURL = $($script:configuration.BaseURL)
-        $URI = 'https://' + $BaseURL + "/v1/device-groups"
-        $Token = (Get-SEPCloudToken).Token_Bearer
-    }
-
-    process {
         # Setting up the URI
+        $URI = 'https://' + $script:SEPCloudConnection.BaseURL + "/v1/device-groups"
         if ($GroupID) {
             $URI = $URI + "/$GroupID"
 
@@ -68,7 +61,7 @@ function Get-SEPCloudGroup {
             Headers = @{
                 # Host          = $baseUrl
                 Accept        = "application/json"
-                Authorization = $token
+                Authorization = $script:SEPCloudConnection.accessToken.Token_Bearer
             }
         }
 
@@ -129,4 +122,3 @@ function Get-SEPCloudGroup {
         # Return the response
         return $response
     }
-}
