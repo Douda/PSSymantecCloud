@@ -106,8 +106,7 @@ function Get-SEPCloudToken {
     # Test if token already in memory
     if ($script:SEPCloudConnection.AccessToken) {
         # Check if still valid
-        if ((Get-Date) -lt $script:SEPCloudConnection.AccessToken.Expiration) {
-            Write-Verbose -Message "in memory token valid - returning"
+        if (Test-SEPCloudToken) {
             return $script:SEPCloudConnection.AccessToken
         } else {
             Write-Verbose -Message "in memory token expired - deleting"
@@ -135,6 +134,7 @@ function Get-SEPCloudToken {
 
     # Cache the credentials
     $encodedCreds | Export-Clixml -Path $script:configuration.SEPCloudCredsPath
+    $script:SEPCloudConnection.Credential = $encodedCreds
 
     # Setup the headers for the request
     $Headers = @{
@@ -160,6 +160,7 @@ function Get-SEPCloudToken {
         Token_Bearer = $response.token_type + " " + $response.access_token
         Expiration   = (Get-Date).AddSeconds($response.expires_in) # token expiration is 3600s
     }
+    $script:SEPCloudConnection.AccessToken = $CachedToken
     $CachedToken | Export-Clixml -Path $script:configuration.CachedTokenPath
     return $CachedToken
 
