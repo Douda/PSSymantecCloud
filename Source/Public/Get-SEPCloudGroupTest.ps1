@@ -33,12 +33,12 @@ function Get-SEPCloudGroupTest {
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
 
         # Test if pagination required
-        if ($resources.Definitions.$definition.count -or $resources.Definitions.$definition.total) {
+        if ($result.count -gt $result.device_groups.count) {
             Write-Verbose -Message "Result limits hit. Retrieving remaining data based on pagination"
             $allResults += $result
 
             do {
-                # Update the offset as query parameter (add it if empty, replace it if existing)
+                # Update the offset query parameter (add it if empty, replace it if existing)
                 $query = $resources.query
                 if ($query -ne "" -and $query.ContainsKey('offset')) {
                     $query.offset = $allResults.device_groups.count
