@@ -17,13 +17,6 @@ function Submit-Request {
 
     $WebResult = Invoke-SEPCloudWebRequest -Uri $uri -Headers $header -Method $method -Body $body
 
-    # $result = if (($WebResult = Invoke-SEPCloudWebRequest -Uri $uri -Headers $header -Method $method -Body $body)) {
-    #     if ($WebResult.Content) {
-    #         ConvertFrom-Json -InputObject $WebResult.Content
-    #     }
-    # }
-
-
     return $WebResult
 
 }
