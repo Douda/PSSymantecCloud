@@ -5,7 +5,7 @@ function Submit-Request {
         # The endpoint's URI
         $uri,
         # The header containing authentication details
-        $header,
+        $header = $script:SEPCloudConnection.header,
         # The action (method) to perform on the endpoint
         $method = $($resources.Method),
         # Any optional body data being submitted to the endpoint
