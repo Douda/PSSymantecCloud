@@ -11,8 +11,7 @@
 Update-TypeData -PrependPath (Join-Path -Path $PSScriptRoot -ChildPath 'PSSymantecCloud.Types.ps1xml')
 
 # The credentials used to authenticate to the SES Cloud API
-[string]         $script:Credential = $null # string type used as credentials is OAuth2 token
-[PSCustomObject] $script:accessToken = $null
+[string] $script:Credential = $null # string type used as credentials is OAuth2 token
 
 # The session-cached copy of the module's configuration properties
 # Configuration contains user-defined properties
@@ -74,7 +73,6 @@ function Initialize-SEPCloudConfiguration {
     if (Test-Path -Path $($script:configuration.CachedTokenPath)) {
         try {
             Write-Verbose -Message "Loading access token from $($script:configuration.CachedTokenPath)"
-            $script:accessToken = Import-Clixml -Path $($script:configuration.CachedTokenPath)
             $script:SEPCloudConnection.AccessToken = Import-Clixml -Path $($script:configuration.CachedTokenPath)
         } catch {
             Write-Verbose -Message "Failed to import access token from $($script:configuration.CachedTokenPath): $_" -Verbose
