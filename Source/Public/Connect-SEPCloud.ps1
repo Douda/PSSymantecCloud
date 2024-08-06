@@ -16,16 +16,7 @@ function Connect-SEPCloud {
         $token = Get-SEPCloudToken
         $head = @{'Authorization' = "$($Token.Token_Bearer)"; 'User-Agent' = $UserAgentString }
 
-        # Needs to keep handling token in Get-SEPCloudToken for the moment
-        # TODO: Update Get-SEPCloudToken to get inline with the new design from Get-SEPCloudAPIData instead of a standalone custom function
-
-        Write-Verbose -Message 'Storing all connection details into $script:SEPCloudConnection'
-        [PSCustomObject] $script:SEPCloudConnection = [PSCustomObject]@{
-            BaseURL     = "api.sep.securitycloud.symantec.com"
-            Credential  = $null
-            AccessToken = $token
-            time        = (Get-Date)
-            header      = $head
-        }
+        Write-Verbose -Message 'Storing header connection details into $script:SEPCloudConnection'
+        $script:SEPCloudConnection | Add-Member -Type NoteProperty -Name 'header' -Value $head -Force
     }
 }
