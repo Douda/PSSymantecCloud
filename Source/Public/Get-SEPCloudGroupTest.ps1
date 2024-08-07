@@ -18,15 +18,6 @@ function Get-SEPCloudGroupTest {
 
     [CmdletBinding()]
     param (
-        # Tests Body
-        $bodyvar1,
-        $bodyvar2,
-        $bodyvar3,
-
-        # Test Query
-        $groupId,
-        $SearchString,
-
         # Query
         [Alias('api_page')]
         $offset
