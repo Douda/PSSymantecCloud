@@ -28,7 +28,7 @@ function Get-SEPCloudGroupTest {
         $SearchString,
 
         # Query
-        [Aliass('api_page')]
+        [Alias('api_page')]
         $offset
     )
 
@@ -52,21 +52,18 @@ function Get-SEPCloudGroupTest {
         # Test if pagination required
         if ($result.total -gt $result.device_groups.count) {
             Write-Verbose -Message "Result limits hit. Retrieving remaining data based on pagination"
-            $allResults += $result
-
             do {
-                $offset = $allResults.device_groups.count
-                # Use the updated query to retrieve the next page of results ($resources.query)
+                # Update offset query param for pagination
+                $offset = $result.device_groups.count
                 $uri = Test-QueryParam -querykeys $resources.query -parameters ((Get-Command $function).Parameters.Values) -uri $uri
                 $nextResult = Submit-Request  -uri $uri  -header $script:SEPCloudConnection.header  -method $($resources.Method) -body $body
-                $allResults.device_groups += $nextResult.device_groups
-            } until ($allResults.device_groups.count -ge $allResults.total)
+                $result.device_groups += $nextResult.device_groups
+            } until ($result.device_groups.count -ge $result.total)
         }
 
-        if ($allResults) {
-            return $allResults
-        } else {
-            return $result
-        }
+        $result = Test-ReturnFormat -result $result -location $resources.Result
+        $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
+
+        return $result
     }
 }
