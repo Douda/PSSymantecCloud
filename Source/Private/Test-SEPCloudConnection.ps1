@@ -9,6 +9,6 @@ function Test-SEPCloudConnection {
     } else {
         Write-Verbose -Message "token expired or invalid - requesting a new one"
         Get-SEPCloudToken
-        Write-Verbose -Message "New token will expire at" + ((Get-Date) -lt $script:SEPCloudConnection.AccessToken.Expiration)
+        Write-Verbose -Message "New token will expire at" + $((Get-Date) -lt $script:SEPCloudConnection.AccessToken.Expiration)
     }
 }
