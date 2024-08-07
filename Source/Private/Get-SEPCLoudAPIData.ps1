@@ -32,20 +32,13 @@ function Get-SEPCLoudAPIData {
             }
             'Get-SEPCloudGroupTest' = @{
                 '1.0' = @{
-                    Description = 'Details about the API endpoint'
+                    Description = 'retrieve a list of your device groups'
                     URI         = '/v1/device-groups'
                     Method      = 'Get'
-                    # Body        = @{
-                    #     bodyvar1 = 'bodyvar1'
-                    #     bodyvar2 = 'bodyvar2'
-                    #     bodyvar3 = 'bodyvar3'
-                    # }
                     body        = ''
-                    # Query       = @{
-                    #     'groupId'      = 'groupId'
-                    #     'SearchString' = 'query_string'
-                    # }
-                    Query       = ''
+                    Query       = @{
+                        offset = 'offset'
+                    }
                     Result      = ''
                     Filter      = ''
                     Success     = '200'
