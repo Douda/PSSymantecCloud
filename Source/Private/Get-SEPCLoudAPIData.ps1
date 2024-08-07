@@ -39,11 +39,11 @@ function Get-SEPCLoudAPIData {
                     Query       = @{
                         offset = 'offset'
                     }
-                    Result      = ''
+                    Result      = 'device_groups'
                     Filter      = ''
                     Success     = '200'
                     Function    = 'Get-SEPCloudGroupTest'
-                    ObjectTName = 'SEPCloud.Device-Group-List'
+                    ObjectTName = 'SEPCloud.Device-Group'
                     Definitions = @{
                         'Device-Group-List' = @{
                             count         = 'count'
