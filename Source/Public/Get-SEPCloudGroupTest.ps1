@@ -17,9 +17,25 @@ function Get-SEPCloudGroupTest {
 
 
     [CmdletBinding()]
-    param ()
+    param (
+        # Tests Body
+        $bodyvar1,
+        $bodyvar2,
+        $bodyvar3,
+
+        # Test Query
+        $groupId,
+        $SearchString,
+
+        # Query
+        [Aliass('api_page')]
+        $offset
+    )
 
     begin {
+        # Check to ensure that a session to the SaaS exists and load the needed header data for authentication
+        Test-SEPCloudConnection | Out-Null
+
         # Init
         $function = $MyInvocation.MyCommand.Name
         $resources = Get-SEPCLoudAPIData -endpoint $function
@@ -27,34 +43,30 @@ function Get-SEPCloudGroupTest {
 
     process {
         $uri = New-URIString -endpoint ($resources.URI) -id $id
-        $uri = New-URIQuery -querykeys ($resources.Query.Keys) -parameters $PSBoundParameters -uri $uri
+        $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
+        $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
 
-        Write-Verbose -Message "Body is $body"
+        Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
 
         # Test if pagination required
-        if ($result.count -gt $result.device_groups.count) {
+        if ($result.total -gt $result.device_groups.count) {
             Write-Verbose -Message "Result limits hit. Retrieving remaining data based on pagination"
             $allResults += $result
 
             do {
-                # Update the offset query parameter (add it if empty, replace it if existing)
-                $query = $resources.query
-                if ($query -ne "" -and $query.ContainsKey('offset')) {
-                    $query.offset = $allResults.device_groups.count
-                } elseif ($query -eq "") {
-                    $query = [hashtable]@{ offset = $allResults.device_groups.count }
-                } else {
-                    $query.add('offset', $allResults.device_groups.count)
-                }
-                $resources.query = $query
-
-                $uri = New-URIQuery -querykeys ($resources.Query.Keys) -parameters $PSBoundParameters -uri $uri
+                $offset = $allResults.device_groups.count
+                # Use the updated query to retrieve the next page of results ($resources.query)
+                $uri = Test-QueryParam -querykeys $resources.query -parameters ((Get-Command $function).Parameters.Values) -uri $uri
                 $nextResult = Submit-Request  -uri $uri  -header $script:SEPCloudConnection.header  -method $($resources.Method) -body $body
                 $allResults.device_groups += $nextResult.device_groups
             } until ($allResults.device_groups.count -ge $allResults.total)
         }
 
-        return $allResults
+        if ($allResults) {
+            return $allResults
+        } else {
+            return $result
+        }
     }
 }
