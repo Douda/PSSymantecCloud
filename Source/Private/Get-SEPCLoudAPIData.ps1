@@ -40,25 +40,9 @@ function Get-SEPCLoudAPIData {
                         offset = 'offset'
                     }
                     Result      = 'device_groups'
-                    Filter      = ''
                     Success     = '200'
                     Function    = 'Get-SEPCloudGroupTest'
                     ObjectTName = 'SEPCloud.Device-Group'
-                    Definitions = @{
-                        'Device-Group-List' = @{
-                            count         = 'count'
-                            device_groups = @{
-                                'Device-Group' = @{
-                                    id          = 'id'
-                                    name        = 'name'
-                                    description = 'description'
-                                    created     = 'created'
-                                    modified    = 'modified'
-                                    parent_id   = 'parent_id'
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }
