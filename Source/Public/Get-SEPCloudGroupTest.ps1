@@ -55,6 +55,12 @@ function Get-SEPCloudGroupTest {
         $result = Test-ReturnFormat -result $result -location $resources.Result
         $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
 
+        # Add custom property fullPathName
+        $result | ForEach-Object {
+            $fullPathName = Get-SEPCloudGroupFullPath -CurrentGroup $_ -AllGroups $result -Chain ""
+            $_ | Add-Member -NotePropertyName "fullPathName" -NotePropertyValue $fullPathName.TrimEnd(" > ")
+        }
+
         return $result
     }
 }
