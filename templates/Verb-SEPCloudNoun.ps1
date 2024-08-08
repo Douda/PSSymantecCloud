@@ -3,25 +3,20 @@ function Verb-SEPCloudNoun {
     <#
         .SYNOPSIS
         {required: high level overview}
-
         .DESCRIPTION
         {required: more detailed description of the function's purpose}
-
         .LINK
         https://github.com/Douda/PSSymantecCloud
-
         .PARAMETER Param1
         {required: description of Param1}
-
         .PARAMETER Param2
         {required: description of Param2}
-
         .PARAMETER Param3
         {required: description of Param3}
-
         .EXAMPLE
         {required: show one or more examples using the function}
     #>
+
     [CmdletBinding()]
     Param(
         # {param details}
