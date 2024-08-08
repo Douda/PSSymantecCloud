@@ -59,6 +59,7 @@ function Get-SEPCloudGroup {
         $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
 
         # Add custom property fullPathName
+        Write-Verbose -Message "Adding new property fullPathName for each group"
         $result | ForEach-Object {
             $fullPathName = Get-SEPCloudGroupFullPath -CurrentGroup $_ -AllGroups $result -Chain ""
             $_ | Add-Member -NotePropertyName "fullPathName" -NotePropertyValue $fullPathName.TrimEnd(" > ")
