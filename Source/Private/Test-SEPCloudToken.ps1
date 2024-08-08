@@ -12,7 +12,9 @@ function Test-SEPCloudToken {
             Write-Verbose -Message "token expired - deleting local copy at $($script:configuration.CachedTokenPath)"
             $script:SEPCloudConnection.AccessToken = $null
             $script:configuration.AccessToken = $null
-            Remove-Item $script:configuration.CachedTokenPath -Force
+            if ($script:configuration.CachedTokenPath) {
+                Remove-Item $script:configuration.CachedTokenPath -Force
+            }
             return $false
         }
     } else {
