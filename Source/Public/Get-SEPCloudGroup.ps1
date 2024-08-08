@@ -1,124 +1,69 @@
 function Get-SEPCloudGroup {
+
     <#
     .SYNOPSIS
         Gathers list of device groups from SEP Cloud
     .DESCRIPTION
-        Gathers list of device groups from SEP Cloud
-    .PARAMETER GroupID
-        ID of the group to get details for
-    .PARAMETER listDevices
-        Switch to get the list of devices in the group
+        Gathers list of device groups from SEP Cloud. Does not contains device information
+    .PARAMETER offset
+        Page number to query. Defaults to 0. If pagination is required, this parameter is used to specify the page number
     .EXAMPLE
-        Get-SEPCloudGroup -GroupID "BorQeoSfR5OMJ9R8SumJNw"
+        Get-SEPCloudGroup
 
-        id           : BorQeoSfR5OMJ9R8SumJNw
-        name         : Workstations
-        description  : Description of this group
-        created      : 16/02/2024 09:04:33
-        modified     : 16/02/2024 09:04:33
-        parent_id    : tqrSman3RyqFFd1EqLlZZA
-        fullPathName : Default\Test policies tests\subgroup 1
-    .EXAMPLE
-        Get-SEPCloudGroup -GroupID "BorQeoSfR5OMJ9R8SumJNw" -listDevices
-
-        total devices
-        ----- -------
-        2341 {@{id=-143bW_uRyyToCarc-AN0x; name=DESKTOP-ABCD}, @{id=-1djir6BSfib3sFDD1NVFw; name=DESKTOP-EFGH}...
+        Gets the full list of groups
     #>
 
-    [CmdletBinding(DefaultParameterSetName = 'DefaultSet')]
+    [CmdletBinding()]
     param (
-        # Group ID
-        [Parameter(
-            ValueFromPipelineByPropertyName = $true,
-            ParameterSetName = 'DeviceListSet'
-        )]
-        [String]
-        $GroupID,
-
-        # List devices switch
-        [Parameter(
-            ParameterSetName = 'DeviceListSet'
-        )]
-        [switch]
-        $listDevices
+        # Query
+        [Alias('api_page')]
+        $offset
     )
 
-        # Setting up the URI
-        $URI = 'https://' + $script:SEPCloudConnection.BaseURL + "/v1/device-groups"
-        if ($GroupID) {
-            $URI = $URI + "/$GroupID"
+    begin {
+        # Check to ensure that a session to the SaaS exists and load the needed header data for authentication
+        Test-SEPCloudConnection | Out-Null
 
-            if ($listDevices) {
-                $URI = $URI + "/devices"
-            }
-        }
+        # API data references the name of the function
+        # For convenience, that name is saved here to $function
+        $function = $MyInvocation.MyCommand.Name
 
-        # Setting up the parameters
-        $params = @{
-            Method  = 'GET'
-            Uri     = $uri
-            Headers = @{
-                # Host          = $baseUrl
-                Accept        = "application/json"
-                Authorization = $script:SEPCloudConnection.accessToken.Token_Bearer
-            }
-        }
-
-        # Invoke the request
-        try {
-            $response = Invoke-SEPCloudWebRequest @params
-
-            # if $response is null, return an empty object to avoid further errors
-            if ($null -eq $response) {
-                return [PSCustomObject]@{}
-            }
-        } catch {
-            "Error : " + $_
-        }
-
-        ########################
-        # Parsing the response #
-        ########################
-
-        # if ListDevices is set, we get a list of devices
-        if ($listDevices) {
-            # If we get a list of devices
-            # Add Device-List PSTypeName to the response
-            $response | ForEach-Object {
-                $_.PSTypeNames.Insert(0, "SEPCloud.Device-List")
-            }
-
-            # Add Device PSTypeName to the devices
-            $response.devices | ForEach-Object {
-                $_.PSTypeNames.Insert(0, "SEPCloud.Device")
-            }
-        }
-
-        # If groupID is set, we get a single group
-        elseif ($GroupID) {
-            # Add a new property with the full chain of names
-            $groups = (Get-SEPCloudGroup).device_groups
-            $FullNameChain = Get-NameChain -CurrentGroup $response -AllGroups $groups -Chain ""
-            $response | Add-Member -NotePropertyName "fullPathName" -NotePropertyValue $FullNameChain.TrimEnd(" > ")
-
-            # Add PSTypeName to the response
-            $response.PSTypeNames.Insert(0, "SEPCloud.Device-Group")
-
-            # If nothing is set, we get a list of groups
-        } else {
-            # Add a new property to each group with the full path name (group)
-            $response.device_groups | ForEach-Object {
-                $FullNameChain = Get-NameChain -CurrentGroup $_ -AllGroups $groups.device_groups -Chain ""
-                $_ | Add-Member -NotePropertyName "fullPathName" -NotePropertyValue $FullNameChain.TrimEnd(" > ")
-            }
-
-            # Add PSTypeName to the response
-            $response.device_groups | ForEach-Object {
-                $_.PSTypeNames.Insert(0, "SEPCloud.Device-Group")
-            }
-        }
-
-        # Return the response
-        return $response
+        # Retrieve all of the URI, method, body, query, result, and success details for the API endpoint
+        Write-Verbose -Message "Gather API Data for $function"
+        $resources = Get-SEPCLoudAPIData -endpoint $function
+        Write-Verbose -Message "Load API data for $($resources.Function)"
+        Write-Verbose -Message "Description: $($resources.Description)"
     }
+
+    process {
+        $uri = New-URIString -endpoint ($resources.URI) -id $id
+        $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
+        $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
+
+        Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
+        $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
+
+        # Test if pagination required
+        if ($result.total -gt $result.device_groups.count) {
+            Write-Verbose -Message "Result limits hit. Retrieving remaining data based on pagination"
+            do {
+                # Update offset query param for pagination
+                $offset = $result.device_groups.count
+                $uri = Test-QueryParam -querykeys $resources.query -parameters ((Get-Command $function).Parameters.Values) -uri $uri
+                $nextResult = Submit-Request  -uri $uri  -header $script:SEPCloudConnection.header  -method $($resources.Method) -body $body
+                $result.device_groups += $nextResult.device_groups
+            } until ($result.device_groups.count -ge $result.total)
+        }
+
+        $result = Test-ReturnFormat -result $result -location $resources.Result
+        $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
+
+        # Add custom property fullPathName
+        $result | ForEach-Object {
+            $fullPathName = Get-SEPCloudGroupFullPath -CurrentGroup $_ -AllGroups $result -Chain ""
+            $_ | Add-Member -NotePropertyName "fullPathName" -NotePropertyValue $fullPathName.TrimEnd(" > ")
+        }
+
+        return $result
+    }
+}
