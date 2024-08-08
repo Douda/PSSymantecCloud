@@ -6,7 +6,7 @@ function Get-SEPCLoudAPIData {
 
     process {
         $api = @{
-            Example                 = @{
+            Example             = @{
                 '1.0' = @{
                     Description = 'Details about the API endpoint'
                     URI         = 'The URI expressed as /api/v#/endpoint'
@@ -18,7 +18,7 @@ function Get-SEPCLoudAPIData {
                     Success     = 'The expected HTTP status code for a successful call'
                 }
             }
-            'Connect-SEPCloud'      = @{
+            'Connect-SEPCloud'  = @{
                 '1.0' = @{
                     Description = 'Generate new bearer token from the from the oAuth credential'
                     URI         = '/v1/oauth2/tokens'
@@ -30,9 +30,9 @@ function Get-SEPCLoudAPIData {
                     Success     = '200'
                 }
             }
-            'Get-SEPCloudGroupTest' = @{
+            'Get-SEPCloudGroup' = @{
                 '1.0' = @{
-                    Description = 'retrieve a list of your device groups'
+                    Description = 'retrieve a list of device groups'
                     URI         = '/v1/device-groups'
                     Method      = 'Get'
                     body        = ''
@@ -42,7 +42,7 @@ function Get-SEPCLoudAPIData {
                     Result      = 'device_groups'
                     Success     = '200'
                     Function    = 'Get-SEPCloudGroupTest'
-                    ObjectTName = 'SEPCloud.Device-Group'
+                    ObjectTName = 'SEPCloud.Device-Group' # root object is 'SEPCloud.Device-Group-List' but children objects only are exposed as 'SEPCloud.Device-Group'
                 }
             }
         }
