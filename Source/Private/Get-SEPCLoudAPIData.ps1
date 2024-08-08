@@ -14,8 +14,9 @@ function Get-SEPCLoudAPIData {
                     Body        = 'Parameters to use in the body'
                     Query       = 'Parameters to use in the URI query'
                     Result      = 'If the result content is stored in a higher level key, express it here to be unwrapped in the return'
-                    Filter      = 'If the result content needs to be filtered based on key names, express them here'
                     Success     = 'The expected HTTP status code for a successful call'
+                    Function    = 'The PowerShell function to call to process the result'
+                    ObjectTName = 'The name of the PSType object to return'
                 }
             }
             'Connect-SEPCloud'  = @{
