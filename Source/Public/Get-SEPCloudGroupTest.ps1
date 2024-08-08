@@ -24,8 +24,12 @@ function Get-SEPCloudGroupTest {
         # API data references the name of the function
         # For convenience, that name is saved here to $function
         $function = $MyInvocation.MyCommand.Name
+
         # Retrieve all of the URI, method, body, query, result, and success details for the API endpoint
+        Write-Verbose -Message "Gather API Data for $function"
         $resources = Get-SEPCLoudAPIData -endpoint $function
+        Write-Verbose -Message "Load API data for $($resources.Function)"
+        Write-Verbose -Message "Description: $($resources.Description)"
     }
 
     process {
