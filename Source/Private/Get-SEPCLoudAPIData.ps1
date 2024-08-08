@@ -6,7 +6,7 @@ function Get-SEPCLoudAPIData {
 
     process {
         $api = @{
-            Example             = @{
+            Example                     = @{
                 '1.0' = @{
                     Description = 'Details about the API endpoint'
                     URI         = 'The URI expressed as /api/v#/endpoint'
@@ -19,7 +19,7 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'The name of the PSType object to return'
                 }
             }
-            'Connect-SEPCloud'  = @{
+            'Connect-SEPCloud'          = @{
                 '1.0' = @{
                     Description = 'Generate new bearer token from the from the oAuth credential'
                     URI         = '/v1/oauth2/tokens'
@@ -31,7 +31,7 @@ function Get-SEPCLoudAPIData {
                     Success     = '200'
                 }
             }
-            'Get-SEPCloudGroup' = @{
+            'Get-SEPCloudGroup'         = @{
                 '1.0' = @{
                     Description = 'retrieve a list of device groups'
                     URI         = '/v1/device-groups'
@@ -44,6 +44,21 @@ function Get-SEPCLoudAPIData {
                     Success     = '200'
                     Function    = 'Get-SEPCloudGroupTest'
                     ObjectTName = 'SEPCloud.Device-Group' # root object is 'SEPCloud.Device-Group-List' but children objects only are exposed as 'SEPCloud.Device-Group'
+                }
+            }
+            'Get-SEPCloudGroupPolicies' = @{
+                '1.0' = @{
+                    Description = 'retrieve a list of policies that are targeted on a device group.'
+                    URI         = '/v1/device-groups/{id}/policies'
+                    Method      = 'Get'
+                    body        = ''
+                    Query       = @{
+                        group_id = 'group_id'
+                    }
+                    Result      = 'policies'
+                    Success     = '200'
+                    Function    = 'Get-SEPCloudGroupPolicies'
+                    ObjectTName = 'targeted-policy'
                 }
             }
         }
