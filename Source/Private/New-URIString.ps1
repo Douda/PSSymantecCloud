@@ -28,7 +28,7 @@ function New-URIString {
     param (
         [Parameter()]
         [string]
-        $baseURL = $script:configuration.BaseURL,
+        $baseURL = $script:SEPCloudConnection.BaseURL,
 
         [Parameter()]
         [ValidateCount(0, 2)]
