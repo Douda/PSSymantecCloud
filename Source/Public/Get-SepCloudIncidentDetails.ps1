@@ -2,15 +2,17 @@ function Get-SepCloudIncidentDetails {
 
     <#
         .SYNOPSIS
-        {required: high level overview}
+        Gathers details about an open incident
         .DESCRIPTION
-        {required: more detailed description of the function's purpose}
+        Gathers details about an open incident
         .LINK
         https://github.com/Douda/PSSymantecCloud
         .PARAMETER incidentId
             ID of incident
         .EXAMPLE
-        {required: show one or more examples using the function}
+        Get-SepCloudIncidentDetails -incident_ID "21b23af2-ea44-479c-a235-9540082da98f"
+
+
     #>
 
     [CmdletBinding()]
@@ -42,7 +44,6 @@ function Get-SepCloudIncidentDetails {
 
         Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
-
         $result = Test-ReturnFormat -result $result -location $resources.Result
         $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
 
