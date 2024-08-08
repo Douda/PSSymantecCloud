@@ -7,13 +7,7 @@ function Get-SEPCloudGroupTest {
     # General design
     #################
     # - API endpoint customization will be set in the Get-SEPCloudAPIData function
-    # - Every function interacting with the API endpoints will g
-
-    # PSBoundParameters
-    ###################
-    # Alias is included in $PSBoundParameters
-    # $PSBountParameters does not take default inputs as a parameter
-    # See https://github.com/PowerShell/PowerShell/issues/3285
+    # - Every function interacting with the API endpoints will get its source from Get-SEPCloudAPIData function
 
 
     [CmdletBinding()]
@@ -27,8 +21,10 @@ function Get-SEPCloudGroupTest {
         # Check to ensure that a session to the SaaS exists and load the needed header data for authentication
         Test-SEPCloudConnection | Out-Null
 
-        # Init
+        # API data references the name of the function
+        # For convenience, that name is saved here to $function
         $function = $MyInvocation.MyCommand.Name
+        # Retrieve all of the URI, method, body, query, result, and success details for the API endpoint
         $resources = Get-SEPCLoudAPIData -endpoint $function
     }
 
