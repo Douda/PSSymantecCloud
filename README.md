@@ -22,7 +22,7 @@ To interact with your SEP Cloud platform you need to
 This module follows the [Module Builder Project](https://github.com/PoshCode/ModuleBuilder) folder structure for easy maintenance and versioning
 
 
-## Usage
+## Installation
 2 ways to install this module :
 - Via [Powershell Gallery](https://www.powershellgallery.com/packages/PSSymantecCloud/) 
 ```PowerShell
@@ -180,32 +180,24 @@ PS C:\PSSymantecCloud> Get-SepCloudPolicyDetails -Name "My Allow List Policy" | 
 ```
 
 ## Building your module
-To build the module, you need to have [ModuleBuilder](https://www.powershellgallery.com/packages/ModuleBuilder/)
+```PowerShell
+# Install required module ModuleBuilder
+Install-Module -Name ModuleBuilder
 
-1. Install ModuleBuilder `Install-Module -Name ModuleBuilder`
-
-2. Clone the PSSymantecCloud repository
- ```powershell
- git clone https://github.com/Douda/PSSymantecCloud
+# Clone the PSSymantecCloud repository
+git clone https://github.com/Douda/PSSymantecCloud
 cd PSSymantecCloud
+
+# Verify prerequisites module
+Install-RequiredModule
+
+# Build PSSymantecCloud module
+Build-Module .\Source -SemVer 1.0.0
+
+# Load the module
+Import-Module .\Output\PSSymantecCloud\1.0.0\PSSymantecCloud.ps1m -Force
+
 ```
-
-3. run `Install-RequiredModule`
-
-4. run `Build-Module .\Source -SemVer 1.0.0`
-   
-**Note**: a build version will be required when building the module, eg. 1.0.0
-compiled module appears in the `Output` folder
-
-5. import the newly built module `Import-Module .\Output\PSSymantecCloud\1.0.0\PSSymantecCloud.ps1m -Force`
-
-
-## Versioning
-
-ModuleBuilder will automatically apply the next semver version
-if you have installed [gitversion](https://gitversion.readthedocs.io/en/latest/).
-
-To manually create a new version run `Build-Module .\Source -SemVer 0.0.2`
 
 ## Additional Information
 
