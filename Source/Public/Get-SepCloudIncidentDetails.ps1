@@ -1,59 +1,51 @@
 function Get-SepCloudIncidentDetails {
 
     <#
-    TODO finish up the API query from incident_number and not UID for ease of use. So far, not implemented in the API to query a closed INC by incident number
-.SYNOPSIS
-    Gathers details about an open incident
-.DESCRIPTION
-    Gathers details about an open incident. Currently only supports gathering details from an incident UID
-.PARAMETER incident_uid
-    Incident GUID
-.PARAMETER incident_number
-    Incident number -- NOT IMPLEMENTED YET --
-.INPUTS
-    None
-.OUTPUTS
-    PSObject
-.EXAMPLE
-    Get-SepCloudIncidentDetails -incident_uid "ed5924c6-b36d-4449-88c1-4a1f974a01bb"
-#>
-    [CmdletBinding()]
-    param (
-        # Incident GUID
-        [Parameter(
-            ValueFromPipelineByPropertyName = $true
-        )]
-        [string]
-        [Alias("incident_uid")]
-        $Incident_ID
+        .SYNOPSIS
+        {required: high level overview}
+        .DESCRIPTION
+        {required: more detailed description of the function's purpose}
+        .LINK
+        https://github.com/Douda/PSSymantecCloud
+        .PARAMETER incidentId
+            ID of incident
+        .EXAMPLE
+        {required: show one or more examples using the function}
+    #>
 
-        # # Incident number
-        # [Parameter(
-        #     ValueFromPipeline
-        # )]
-        # [string[]]
-        # [Alias("Name")]
-        # $Incident_number
+    [CmdletBinding()]
+    Param(
+        # Query
+        [Alias('incident_id')]
+        [String]$incidentId
     )
 
     begin {
-        # Init
-        $BaseURL = $($script:configuration.BaseURL)
-        $Token = (Get-SEPCloudToken).Token_Bearer
+        # Check to ensure that a session to the SaaS exists and load the needed header data for authentication
+        Test-SEPCloudConnection | Out-Null
+
+        # API data references the name of the function
+        # For convenience, that name is saved here to $function
+        $function = $MyInvocation.MyCommand.Name
+
+        # Retrieve all of the URI, method, body, query, result, and success details for the API endpoint
+        Write-Verbose -Message "Gather API Data for $function"
+        $resources = Get-SEPCLoudAPIData -endpoint $function
+        Write-Verbose -Message "Load API data for $($resources.Function)"
+        Write-Verbose -Message "Description: $($resources.Description)"
     }
 
     process {
-        $URI = 'https://' + $BaseURL + "/v1/incidents/$Incident_ID"
+        $uri = New-URIString -endpoint ($resources.URI) -id $incidentId
+        $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
+        $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
 
-        $Body = @{}
-        $Headers = @{
-            Host          = $BaseURL
-            Accept        = "application/json"
-            Authorization = $Token
-            Body          = $Body
-        }
-        $Resp = Invoke-RestMethod -Method GET -Uri $URI -Headers $Headers -Body $Body -UseBasicParsing
+        Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
+        $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
 
-        $Resp
+        $result = Test-ReturnFormat -result $result -location $resources.Result
+        $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
+
+        return $result
     }
 }
