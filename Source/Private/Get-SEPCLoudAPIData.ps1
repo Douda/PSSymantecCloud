@@ -58,7 +58,7 @@ function Get-SEPCLoudAPIData {
                     Result      = 'devices'
                     Success     = ''
                     Function    = 'Get-SEPCloudDevice'
-                    ObjectTName = 'SEPCloud.Get-SEPCloudDevice'
+                    ObjectTName = 'SEPCloud.Device'
                 }
             }
             'Get-SEPCloudGroup'           = @{
