@@ -31,6 +31,36 @@ function Get-SEPCLoudAPIData {
                     Success     = '200'
                 }
             }
+            'Get-SEPCloudDevice'          = @{
+                '1.0' = @{
+                    Description = 'retrieve the list of devices'
+                    URI         = '/v1/devices'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = @{
+                        offset               = 'offset'
+                        client_version       = 'client_version'
+                        device_group         = 'device_group' # ID of the parent device group
+                        device_status        = 'device_status'
+                        device_status_reason = 'device_status_reason'
+                        device_type          = 'device_type'
+                        edr_enabled          = 'edr_enabled'
+                        ipv4_address         = 'ipv4_address'
+                        include_details      = 'include_details' # flag to include product and feature details in response. Possible values: true/false
+                        is_cloud             = 'is_cloud'
+                        is_online            = 'is_online'
+                        is_virtual           = 'is_virtual'
+                        mac_address          = 'mac_address'
+                        name                 = 'name'
+                        os                   = 'os' # Possible values: windows, Linux, iOS, Mac, Android
+                        os_version           = 'os_version'
+                    }
+                    Result      = 'devices'
+                    Success     = ''
+                    Function    = 'Get-SEPCloudDevice'
+                    ObjectTName = 'SEPCloud.Get-SEPCloudDevice'
+                }
+            }
             'Get-SEPCloudGroup'           = @{
                 '1.0' = @{
                     Description = 'retrieve a list of device groups'
