@@ -1,4 +1,4 @@
-function New-EDRFullDump {
+function New-SEPCloudEDRFullDump {
 
     <# TODO write help
     .SYNOPSIS
