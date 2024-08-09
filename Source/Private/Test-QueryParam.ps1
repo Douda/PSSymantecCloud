@@ -26,14 +26,14 @@
         # It is suggested to make the parameter name "human friendly" and set an alias corresponding to the query option name
         foreach ($param in $parameters) {
             # If the parameter name matches the query option name, build a query string
-            if ($param.Name -eq $query.Keys) {
+            if (($param.Name -eq $query.Keys) -or ($param.Name -eq $query)) {
                 if ((Get-Variable -Name $param.Name).Value) {
                     Write-Verbose ('Building Query with "{0}: {1}"' -f $resources.Query[$param.Name], (Get-Variable -Name $param.Name).Value)
                 }
                 $querystring += Test-QueryObject -object (Get-Variable -Name $param.Name).Value -location $resources.Query[$param.Name] -params $querystring
             }
             # If the parameter alias matches the query option name, build a query string
-            elseif ($param.Aliases -eq $query.Keys) {
+            elseif (($param.Aliases -eq $query.Keys) -or ($param.Aliases -eq $query)) {
                 if ((Get-Variable -Name $param.Name).Value) {
                     Write-Verbose ('Building Query with "{0}: {1}"' -f (-join $resources.Query[$param.Aliases]), (Get-Variable -Name $param.Name).Value)
                 }
