@@ -49,6 +49,7 @@ function Get-SEPCloudGroup {
             do {
                 # Update offset query param for pagination
                 $offset = $result.device_groups.count
+                $uri = New-URIString -endpoint ($resources.URI) -id $id
                 $uri = Test-QueryParam -querykeys $resources.query -parameters ((Get-Command $function).Parameters.Values) -uri $uri
                 $nextResult = Submit-Request  -uri $uri  -header $script:SEPCloudConnection.header  -method $($resources.Method) -body $body
                 $result.device_groups += $nextResult.device_groups
