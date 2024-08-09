@@ -7,12 +7,19 @@ function Clear-SepCloudAuthentication {
     .EXAMPLE
         Clear-SepCloudAuthentication
 
-        Clears out any GitHub API token from memory, as well as from local file storage.
+        Clears out any API token from memory, as well as from local file storage.
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
     param ()
 
+    # Remove the cached authentication data from memory
+    $script:configuration.CachedToken = $null
+    $script:Credential = $null
+    $script:SEPCloudConnection.AccessToken = $null
+    $script:SEPCloudConnection.Credential = $null
+
+    # remove the cached authentication data from disk
     Remove-Item -Path $($script:configuration.CachedTokenPath) -Force -ErrorAction SilentlyContinue -ErrorVariable ev
     Remove-Item -Path $($script:configuration.SEPCloudCredsPath) -Force -ErrorAction SilentlyContinue -ErrorVariable ev
 
