@@ -6,7 +6,7 @@ function Get-SEPCLoudAPIData {
 
     process {
         $api = @{
-            Example                       = @{
+            'Example'                     = @{
                 '1.0' = @{
                     Description = 'Details about the API endpoint'
                     URI         = 'The URI expressed as /api/v#/endpoint'
@@ -76,7 +76,22 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.incident-details'
                 }
             }
-
+            'Get-SepCloudTargetRules'     = @{
+                '1.0' = @{
+                    Description = 'retrieve a list of target rules'
+                    URI         = '/v1/policies/target-rules'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = @{
+                        limit  = 'limit'
+                        offset = 'offset'
+                    }
+                    Result      = 'target_rules'
+                    Success     = ''
+                    Function    = 'Get-SepCloudTargetRules'
+                    ObjectTName = 'SEPCloud.target-rule'
+                }
+            }
         }
 
         # Use the latest version of the API endpoint
