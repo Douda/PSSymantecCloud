@@ -13,7 +13,13 @@ function Connect-SEPCloud {
 
         Write-Verbose -Message "Using User Agent $($UserAgentString)"
 
-        $token = Get-SEPCloudToken
+        # If called from Initialize-SEPCloudConfiguration
+        # get token from cache only to avoid prompting for creds while loading the module
+        if ($MyInvocation.MyCommand.Name -eq 'Initialize-SEPCloudConfiguration') {
+            $token = Get-SEPCloudToken -cacheOnly
+        } else {
+            $token = Get-SEPCloudToken
+        }
         if ($null -ne $token) {
             $head = @{'Authorization' = "$($Token.Token_Bearer)"; 'User-Agent' = $UserAgentString }
             Write-Verbose -Message 'Storing header connection details into $script:SEPCloudConnection'

@@ -89,6 +89,10 @@ function Initialize-SEPCloudConfiguration {
             'User-Agent'    = $UserAgentString
         }
     }
+
+    # Attempt to connect to the SaaS with cached token or credentials
+    # Will only attempt to connect via cached method (token or credentials) and not prompt for credentials
+    Connect-SEPCloud
 }
 
 # Invoke the initialization method to populate the configuration
