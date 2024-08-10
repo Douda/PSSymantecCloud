@@ -65,13 +65,15 @@
             foreach ($param in $parameters) {
                 # If the parameter name or alias matches the body option name, build a body string
                 if (($param.Name -eq $body -or $param.Aliases -eq $body)) {
-                    # Switch variable types
-                    if ((Get-Variable -Name $param.Name).Value.GetType().Name -eq 'SwitchParameter') {
-                        $bodystring.Add($body, (Get-Variable -Name $param.Name).Value.IsPresent)
-                    }
-                    # All other variable types
-                    elseif ($null -ne (Get-Variable -Name $param.Name).Value -and (Get-Variable -Name $param.Name).Value.Length -gt 0) {
-                        $bodystring.Add($body, (Get-Variable -Name $param.Name).Value)
+                    if ((Get-Variable -Name $param.Name).Value) {
+                        # Switch variable types
+                        if ((Get-Variable -Name $param.Name).Value.GetType().Name -eq 'SwitchParameter') {
+                            $bodystring.Add($body, (Get-Variable -Name $param.Name).Value.IsPresent)
+                        }
+                        # All other variable types
+                        elseif ($null -ne (Get-Variable -Name $param.Name).Value -and (Get-Variable -Name $param.Name).Value.Length -gt 0) {
+                            $bodystring.Add($body, (Get-Variable -Name $param.Name).Value)
+                        }
                     }
                 }
             }
