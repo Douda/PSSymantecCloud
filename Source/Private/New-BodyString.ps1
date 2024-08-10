@@ -23,8 +23,6 @@
     # This is how we know which params were actually set by the call, versus defaulting to some zero, null, or false value
 
     # Now that custom params are added, let's inventory all invoked params
-    $setParameters = $pscmdlet.MyInvocation.BoundParameters
-    Write-Verbose -Message "List of set parameters: $($setParameters.GetEnumerator())"
 
     Write-Verbose -Message 'Build the body parameters'
     $bodystring = @{ }
@@ -32,6 +30,7 @@
     # Note: Keys are used to search in case the value changes in the future across different API versions
     foreach ($body in $bodykeys) {
         Write-Verbose "Adding $body..."
+
         # Array Object
         if ($resources.Body.$body.GetType().BaseType.Name -eq 'Array') {
             $bodyarray = $resources.Body.$body.Keys
@@ -65,24 +64,14 @@
             # It is suggested to make the parameter name "human friendly" and set an alias corresponding to the body option name
             foreach ($param in $parameters) {
                 # If the parameter name or alias matches the body option name, build a body string
-                if (($param.Name -eq $body -or $param.Aliases -eq $body) -and $setParameters.ContainsKey($param.Name)) {
+                if (($param.Name -eq $body -or $param.Aliases -eq $body)) {
                     # Switch variable types
                     if ((Get-Variable -Name $param.Name).Value.GetType().Name -eq 'SwitchParameter') {
                         $bodystring.Add($body, (Get-Variable -Name $param.Name).Value.IsPresent)
                     }
                     # All other variable types
                     elseif ($null -ne (Get-Variable -Name $param.Name).Value -and (Get-Variable -Name $param.Name).Value.Length -gt 0) {
-                        # These variables will be cast to upper or lower, depending on what the API endpoint expects
-                        $ToUpperVariable = @('Protocol')
-                        $ToLowerVariable = @('')
-
-                        if ($body -in $ToUpperVariable) {
-                            $bodystring.Add($body, (Get-Variable -Name $param.Name).Value.ToUpper())
-                        } elseif ($body -in $ToLowerVariable) {
-                            $bodystring.Add($body, (Get-Variable -Name $param.Name).Value.ToLower())
-                        } else {
-                            $bodystring.Add($body, (Get-Variable -Name $param.Name).Value)
-                        }
+                        $bodystring.Add($body, (Get-Variable -Name $param.Name).Value)
                     }
                 }
             }
