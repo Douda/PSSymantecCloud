@@ -127,6 +127,24 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.incident-details'
                 }
             }
+            'Get-SEPCloudPolicesSummary'  = @{
+                '1.0' = @{
+                    Description = 'retrieve a list of your policies (without details)'
+                    URI         = '/v1/policies'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = @{
+                        limit  = 'limit'
+                        offset = 'offset'
+                        name   = 'name'
+                        type   = 'type'
+                    }
+                    Result      = 'policies'
+                    Success     = ''
+                    Function    = 'Get-SEPCloudPolicesSummary'
+                    ObjectTName = 'SEPCloud.policy'
+                }
+            }
             'Get-SepCloudTargetRules'     = @{
                 '1.0' = @{
                     Description = 'retrieve a list of target rules'
