@@ -12,6 +12,12 @@ function Get-SEPCloudToken {
 
     .PARAMETER Secret
     Secret parameter required in combinaison to ClientID to generate a token
+
+    .PARAMETER cacheOnly
+    if set to $true, will only lookup for in-memory or local cache of token/credentials.
+    Will not prompt for credentials or generate a new token.
+    Usefful for automation.
+
     .INPUTS
     [string] ClientID
     [string] Secret
@@ -53,7 +59,7 @@ function Get-SEPCloudToken {
 
         # Unattended
         [switch]
-        $Unattended
+        $cacheOnly
     )
 
     # Test if token already in memory
@@ -158,8 +164,8 @@ function Get-SEPCloudToken {
     # Encode ClientID and Secret to create Basic Auth string
     # Authentication requires the following "Basic + encoded CliendID:ClientSecret"
     if ($clientID -eq "" -or $Secret -eq "") {
-        # If -unattended switch but no credential provided, we do not try to prompt for credentials and return null
-        if ($Unattended) {
+        # If -cacheOnly switch but no credential provided, we do not try to prompt for credentials and return null
+        if ($cacheOnly) {
             return $null
         }
         Write-Warning "No local credentials found. Please provide ClientID and Secret to generate a token"
