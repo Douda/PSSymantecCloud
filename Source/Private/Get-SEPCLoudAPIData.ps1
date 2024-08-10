@@ -61,6 +61,27 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.Device'
                 }
             }
+            'Get-SEPCloudEvents'          = @{
+                '1.0' = @{
+                    Description = 'retrieve up to ten thousand events'
+                    URI         = '/v1/event-search'
+                    Method      = 'Post'
+                    Body        = @{
+                        feature_name = 'feature_name'
+                        product      = 'product'
+                        query        = 'query'
+                        start_date   = 'start_date'
+                        end_date     = 'end_date'
+                        next         = 'next'
+                        limit        = 'limit'
+                    }
+                    Query       = ''
+                    Result      = 'events'
+                    Success     = ''
+                    Function    = 'Get-SEPCloudEvents'
+                    ObjectTName = 'SEPCloud.Event'
+                }
+            }
             'Get-SEPCloudGroup'           = @{
                 '1.0' = @{
                     Description = 'retrieve a list of device groups'
