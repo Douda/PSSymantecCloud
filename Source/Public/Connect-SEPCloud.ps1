@@ -14,9 +14,10 @@ function Connect-SEPCloud {
         Write-Verbose -Message "Using User Agent $($UserAgentString)"
 
         $token = Get-SEPCloudToken
-        $head = @{'Authorization' = "$($Token.Token_Bearer)"; 'User-Agent' = $UserAgentString }
-
-        Write-Verbose -Message 'Storing header connection details into $script:SEPCloudConnection'
-        $script:SEPCloudConnection | Add-Member -Type NoteProperty -Name 'header' -Value $head -Force
+        if ($null -ne $token) {
+            $head = @{'Authorization' = "$($Token.Token_Bearer)"; 'User-Agent' = $UserAgentString }
+            Write-Verbose -Message 'Storing header connection details into $script:SEPCloudConnection'
+            $script:SEPCloudConnection | Add-Member -Type NoteProperty -Name 'header' -Value $head -Force
+        }
     }
 }
