@@ -7,29 +7,29 @@ function Get-SEPCloudEvents {
     .LINK
         https://github.com/Douda/PSSymantecCloud
     .PARAMETER feature_name
-    Filters events based on a product feature.
-    [NOTE] ==== You can add a comma separated list of feature_name values
-    (i.e. Agent Framework, Deception, Firewall) to define a unique set of events to search. ====
+        Filters events based on a product feature.
+        [NOTE] ==== You can add a comma separated list of feature_name values
+        (i.e. Agent Framework, Deception, Firewall) to define a unique set of events to search. ====
     .PARAMETER product
-    The value is SAEP. This represents Symantec Endpoint Security events.
-    [NOTE] ==== SAEP is the only available product value. ====
+        The value is SAEP. This represents Symantec Endpoint Security events.
+        [NOTE] ==== SAEP is the only available product value. ====
     .PARAMETER query
-    A custom Lucene query to filter the results
-    e.g. type_id:8001
+        A custom Lucene query to filter the results
+        e.g. type_id:8001
     .PARAMETER start_date
-    This value identifies the beginning date to filter events.
+        This value identifies the beginning date to filter events.
     .PARAMETER end_date
-    This value identifies the ending date to filter events.
+        This value identifies the ending date to filter events.
     .PARAMETER next
-    represents the starting index of the record in a given set.This is used for pagination.
+        represents the starting index of the record in a given set.This is used for pagination.
     .PARAMETER limit
-    This value identifies batch size.This is also used for pagination.
+        This value identifies batch size.This is also used for pagination.
     .EXAMPLE
-    Get-SepCloudEvents
-    Gather all possible events. ** very slow approach & limited to 10k events **
+        Get-SepCloudEvents
+        Gather all possible events. ** very slow approach & limited to 10k events **
     .EXAMPLE
-    Get-SepCloudEvents -Query "type_id:8031 OR type_id:8032 OR type_id:8033"
-    Runs a custom Lucene query
+        Get-SepCloudEvents -Query "type_id:8031 OR type_id:8032 OR type_id:8033"
+        Runs a custom Lucene query
     #>
     [CmdletBinding(DefaultParameterSetName = 'Query')]
     param (
