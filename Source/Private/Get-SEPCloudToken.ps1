@@ -49,7 +49,11 @@ function Get-SEPCloudToken {
             ValueFromPipelineByPropertyName = $true
         )]
         [string]
-        $Secret
+        $Secret,
+
+        # Unattended
+        [switch]
+        $Unattended
     )
 
     # Test if token already in memory
@@ -150,15 +154,17 @@ function Get-SEPCloudToken {
         }
     }
 
-
-
     # If no token nor OAuth creds available locally
     # Encode ClientID and Secret to create Basic Auth string
     # Authentication requires the following "Basic + encoded CliendID:ClientSecret"
     if ($clientID -eq "" -or $Secret -eq "") {
+        # If -unattended switch but no credential provided, we do not try to prompt for credentials and return null
+        if ($Unattended) {
+            return $null
+        }
         Write-Warning "No local credentials found. Please provide ClientID and Secret to generate a token"
         $ClientID = Read-Host -Prompt "Enter ClientID"
-        $Secret = Read-Host -Prompt "Enter Secret"
+        $Secret = Read-Host -Prompt "Enter Secret" -MaskInput
     }
     $encodedCreds = [convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(($ClientID + ':' + $Secret)))
 
