@@ -14,6 +14,8 @@ function Submit-Request {
 
 
     Write-Verbose -Message 'Submitting the request'
+    Write-Verbose -Message "method : $method"
+    Write-Verbose -Message "body : $body"
 
     $WebResult = Invoke-SEPCloudWebRequest -Uri $uri -Headers $header -Method $method -Body $body
 
