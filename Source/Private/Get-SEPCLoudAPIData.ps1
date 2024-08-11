@@ -31,6 +31,26 @@ function Get-SEPCLoudAPIData {
                     Success     = '200'
                 }
             }
+            'Get-SEPCloudComponentType'   = @{
+                '1.0' = @{
+                    Description = 'lets you retrieve policy component host-groups, network-adapters(adapter), network-services(Connection), network IPS details'
+                    URI         = '/v1/policies/components'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = @{
+                        'offset' = 'offset'
+                        'limit'  = 'limit'
+                    }
+                    Result      = 'data'
+                    Success     = ''
+                    Function    = 'Get-SEPCloudComponentType'
+                    ObjectTName = 'SEPCloud.policyComponentType' # generic PSObject but there could be up to 4 different subtypes
+                    # host-group-response
+                    # network-services
+                    # network-adapter
+                    # network_ips_response
+                }
+            }
             'Get-SEPCloudDevice'          = @{
                 '1.0' = @{
                     Description = 'retrieve the list of devices'
