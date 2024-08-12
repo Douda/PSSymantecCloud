@@ -6,7 +6,7 @@ function Get-SEPCLoudAPIData {
 
     process {
         $api = @{
-            'Example'                     = @{
+            'Example'                               = @{
                 '1.0' = @{
                     Description = 'Details about the API endpoint'
                     URI         = 'The URI expressed as /api/v#/endpoint'
@@ -19,7 +19,7 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'The name of the PSType object to return'
                 }
             }
-            'Connect-SEPCloud'            = @{
+            'Connect-SEPCloud'                      = @{
                 '1.0' = @{
                     Description = 'Generate new bearer token from the from the oAuth credential'
                     URI         = '/v1/oauth2/tokens'
@@ -31,7 +31,7 @@ function Get-SEPCLoudAPIData {
                     Success     = '200'
                 }
             }
-            'Get-SEPCloudComponentType'   = @{
+            'Get-SEPCloudComponentType'             = @{
                 '1.0' = @{
                     Description = 'lets you retrieve policy component host-groups, network-adapters(adapter), network-services(Connection), network IPS details'
                     URI         = '/v1/policies/components'
@@ -51,7 +51,7 @@ function Get-SEPCLoudAPIData {
                     # network_ips_response
                 }
             }
-            'Get-SEPCloudDevice'          = @{
+            'Get-SEPCloudDevice'                    = @{
                 '1.0' = @{
                     Description = 'retrieve the list of devices'
                     URI         = '/v1/devices'
@@ -81,7 +81,7 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.Device'
                 }
             }
-            'Get-SEPCloudEvents'          = @{
+            'Get-SEPCloudEvents'                    = @{
                 '1.0' = @{
                     Description = 'retrieve up to ten thousand events'
                     URI         = '/v1/event-search'
@@ -102,7 +102,7 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.Event'
                 }
             }
-            'Get-SEPCloudGroup'           = @{
+            'Get-SEPCloudGroup'                     = @{
                 '1.0' = @{
                     Description = 'retrieve a list of device groups'
                     URI         = '/v1/device-groups'
@@ -117,7 +117,7 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.Device-Group' # root object is 'SEPCloud.Device-Group-List' but children objects only are exposed as 'SEPCloud.Device-Group'
                 }
             }
-            'Get-SEPCloudGroupPolicies'   = @{
+            'Get-SEPCloudGroupPolicies'             = @{
                 '1.0' = @{
                     Description = 'retrieve a list of policies that are targeted on a device group'
                     URI         = '/v1/device-groups/{id}/policies'
@@ -132,7 +132,7 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.targeted-policy'
                 }
             }
-            'Get-SepCloudIncidentDetails' = @{
+            'Get-SepCloudIncidentDetails'           = @{
                 '1.0' = @{
                     Description = 'retrieve details for a specific incident'
                     URI         = '/v1/incidents'
@@ -147,7 +147,7 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.incident-details'
                 }
             }
-            'Get-SEPCloudPolicesSummary'  = @{
+            'Get-SEPCloudPolicesSummary'            = @{
                 '1.0' = @{
                     Description = 'retrieve a list of your policies (without details)'
                     URI         = '/v1/policies'
@@ -165,7 +165,7 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.policy'
                 }
             }
-            'Get-SepCloudTargetRules'     = @{
+            'Get-SepCloudTargetRules'               = @{
                 '1.0' = @{
                     Description = 'retrieve a list of target rules'
                     URI         = '/v1/policies/target-rules'
@@ -179,6 +179,19 @@ function Get-SEPCLoudAPIData {
                     Success     = ''
                     Function    = 'Get-SepCloudTargetRules'
                     ObjectTName = 'SEPCloud.target-rule'
+                }
+            }
+            'Get-SEPCloudThreatIntelFileProtection' = @{
+                '1.0' = @{
+                    Description = 'returns information whether a given file has been blocked by any Symantec technologies'
+                    URI         = '/v1/threat-intel/protection/file'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Get-SEPCloudThreatIntelFileProtection'
+                    ObjectTName = 'SEPCloud.file-protection'
                 }
             }
         }
