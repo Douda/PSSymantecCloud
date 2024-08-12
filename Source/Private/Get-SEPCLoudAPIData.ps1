@@ -259,6 +259,19 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.network-protection'
                 }
             }
+            'Get-SEPCloudThreatIntelFileProcessChain'  = @{
+                '1.0' = @{
+                    Description = 'returns topK process lineage enrichment for the provided file sha256'
+                    URI         = '/v1/threat-intel/processchain/file'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Get-SEPCloudThreatIntelFileProcessChain'
+                    ObjectTName = 'SEPCloud.file-processchain'
+                }
+            }
         }
 
         # Use the latest version of the API endpoint
