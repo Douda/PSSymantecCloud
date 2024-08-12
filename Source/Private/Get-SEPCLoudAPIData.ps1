@@ -181,6 +181,19 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.target-rule'
                 }
             }
+            'Get-SEPCloudThreatIntelCveProtection'  = @{
+                '1.0' = @{
+                    Description = 'returns information whether a given CVE has been blocked by any Symantec technologies'
+                    URI         = '/v1/threat-intel/protection/cve'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Get-SEPCloudThreatIntelCveProtection'
+                    ObjectTName = 'SEPCloud.cve-protection'
+                }
+            }
             'Get-SEPCloudThreatIntelFileProtection' = @{
                 '1.0' = @{
                     Description = 'returns information whether a given file has been blocked by any Symantec technologies'
