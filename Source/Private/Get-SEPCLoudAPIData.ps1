@@ -272,6 +272,24 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.file-processchain'
                 }
             }
+            'Move-SEPCloudDevice'                      = @{
+                '1.0' = @{
+                    Description = 'lets you transfer multiple devices from one device group to another device group'
+                    URI         = '/v1/device-groups/{id}/devices'
+                    Method      = 'Put'
+                    Body        = @(
+                        @{
+                            device_uids = 'device_uids'
+                        }
+
+                    )
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Move-SEPCloudDevice'
+                    ObjectTName = 'SEPCloud.Bulk-Device-List'
+                }
+            }
         }
 
         # Use the latest version of the API endpoint
