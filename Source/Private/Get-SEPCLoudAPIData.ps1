@@ -207,6 +207,19 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.file-insight'
                 }
             }
+            'Get-SEPCloudThreatIntelNetworkInsight'    = @{
+                '1.0' = @{
+                    Description = 'returns network enrichments for given URL, domain or IP'
+                    URI         = '/v1/threat-intel/insight/network'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Get-SEPCloudThreatIntelNetworkInsight'
+                    ObjectTName = 'SEPCloud.network-insight'
+                }
+            }
             'Get-SEPCloudThreatIntelFileProtection'    = @{
                 '1.0' = @{
                     Description = 'returns information whether a given file has been blocked by any Symantec technologies'
