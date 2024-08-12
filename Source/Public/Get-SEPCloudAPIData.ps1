@@ -1,4 +1,4 @@
-function Get-SEPCLoudAPIData {
+function Get-SEPCloudAPIData {
     [CmdletBinding()]
     param (
         $endpoint
@@ -79,6 +79,38 @@ function Get-SEPCLoudAPIData {
                     Success     = ''
                     Function    = 'Get-SEPCloudDevice'
                     ObjectTName = 'SEPCloud.Device'
+                }
+            }
+            'Get-SEPCloudDeviceDetails'                = @{
+                '1.0' = @{
+                    Description = 'Details about the SEP client'
+                    URI         = '/v1/devices'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = @{
+                        device_id = 'device_id'
+                    }
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Get-SEPCloudDeviceDetails'
+                    ObjectTName = 'SEPCloud.device-details '
+                }
+            }
+            'Get-SEPCloudEDRDumps'                     = @{
+                '1.0' = @{
+                    Description = 'get the list of endpoint search commands'
+                    URI         = '/v1/commands/endpoint-search'
+                    Method      = 'Post'
+                    Body        = @{
+                        query = 'query'
+                        next  = 'next'
+                        limit = 'limit'
+                    }
+                    Query       = ''
+                    Result      = 'commands'
+                    Success     = ''
+                    Function    = 'Get-SEPCloudEDRDumps'
+                    ObjectTName = 'SEPCloud.commandsResponse'
                 }
             }
             'Get-SEPCloudEvents'                       = @{
@@ -288,6 +320,24 @@ function Get-SEPCLoudAPIData {
                     Success     = ''
                     Function    = 'Move-SEPCloudDevice'
                     ObjectTName = 'SEPCloud.Bulk-Device-List'
+                }
+            }
+            'New-SEPCloudEDRFullDump'                  = @{
+                '1.0' = @{
+                    Description = 'Send the full dump command on the device'
+                    URI         = '/v1/commands/endpoint-search/fulldump'
+                    Method      = 'Post'
+                    Body        = @{
+                        device_id   = 'device_id'
+                        description = 'description'
+                        from_date   = 'from_date'
+                        to_date     = 'to_date'
+                    }
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'New-SEPCloudEDRFullDump'
+                    ObjectTName = 'SEPCloud.DumpCommandResponse'
                 }
             }
         }
