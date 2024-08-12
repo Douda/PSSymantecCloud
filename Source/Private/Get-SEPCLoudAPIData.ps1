@@ -233,6 +233,19 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.file-protection'
                 }
             }
+            'Get-SEPCloudThreatIntelFileRelated'       = @{
+                '1.0' = @{
+                    Description = 'returns information whether a given file has been blocked by any Symantec technologies'
+                    URI         = '/v1/threat-intel/related/file/'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Get-SEPCloudThreatIntelFileRelated'
+                    ObjectTName = 'SEPCloud.file-related'
+                }
+            }
             'Get-SEPCloudThreatIntelNetworkProtection' = @{
                 '1.0' = @{
                     Description = 'returns information whether a given file has been blocked by any Symantec technologies'
