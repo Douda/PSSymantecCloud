@@ -197,7 +197,7 @@ function Get-SEPCLoudAPIData {
             'Get-SEPCloudThreatIntelFileInsight'       = @{
                 '1.0' = @{
                     Description = 'returns file insight enrichments for given file sha256'
-                    URI         = '/v1/threat-intel/insight/file/'
+                    URI         = '/v1/threat-intel/insight/file'
                     Method      = 'Get'
                     Body        = ''
                     Query       = ''
