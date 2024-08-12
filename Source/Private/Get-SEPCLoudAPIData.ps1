@@ -194,6 +194,19 @@ function Get-SEPCLoudAPIData {
                     ObjectTName = 'SEPCloud.cve-protection'
                 }
             }
+            'Get-SEPCloudThreatIntelFileInsight'       = @{
+                '1.0' = @{
+                    Description = 'returns file insight enrichments for given file sha256'
+                    URI         = '/v1/threat-intel/insight/file/'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Get-SEPCloudThreatIntelFileInsight'
+                    ObjectTName = 'SEPCloud.file-insight'
+                }
+            }
             'Get-SEPCloudThreatIntelFileProtection'    = @{
                 '1.0' = @{
                     Description = 'returns information whether a given file has been blocked by any Symantec technologies'
