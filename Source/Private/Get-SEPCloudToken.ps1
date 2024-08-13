@@ -78,9 +78,10 @@ function Get-SEPCloudToken {
             Write-Verbose "locally stored token valid - returning"
             return $cachedToken
         } else {
-            Write-Verbose "locally stored token expired - deleting"
+            Write-Verbose -Message "locally stored token expired - deleting"
             Remove-Item $script:configuration.cachedTokenPath
             $script:SEPCloudConnection.AccessToken = $null
+            Write-Verbose -Message "continue..."
         }
     }
 
@@ -117,6 +118,7 @@ function Get-SEPCloudToken {
             $message = $message + "`n" + "Error : $($_.Exception.Response.StatusCode) : $($_.Exception.Response.StatusDescription)"
             Write-Warning -Message $message
             $script:SEPCloudConnection.Credential = $null
+            Write-Verbose -Message "continue..."
         }
     }
 
@@ -142,7 +144,7 @@ function Get-SEPCloudToken {
                 Token_Bearer = $response.token_type + " " + $response.access_token
                 Expiration   = (Get-Date).AddSeconds($response.expires_in) # token expiration is 3600s
             }
-            Write-Verbose -Message "$cachedToken"
+            Write-Verbose -Message "locally stored credentials - generated new token"
             $cachedToken | Export-Clixml -Path $script:configuration.cachedTokenPath
             $script:SEPCloudConnection.AccessToken = $cachedToken
             return $cachedToken
