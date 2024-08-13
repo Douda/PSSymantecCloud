@@ -21,6 +21,8 @@ function Connect-SEPCloud {
         } else {
             $token = Get-SEPCloudToken
         }
+
+        # if we have a token, add it to the header
         if ($null -ne $token) {
             $head = @{'Authorization' = "$($Token.Token_Bearer)"; 'User-Agent' = $UserAgentString }
             Write-Verbose -Message 'Storing header connection details into $script:SEPCloudConnection'
