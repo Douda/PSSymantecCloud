@@ -1,4 +1,4 @@
-function Clear-SepCloudAuthentication {
+function Clear-SEPCloudAuthentication {
     <#
     .SYNOPSIS
         Clears out any API token from memory, as well as from local file storage.
