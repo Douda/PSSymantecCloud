@@ -2,7 +2,8 @@ function Connect-SEPCloud {
     [CmdletBinding()]
     param (
         # Additional information to be added, takes hashtable as input
-        [hashtable] $UserAgent
+        [hashtable] $UserAgent,
+        [switch] $cacheOnly
     )
 
     process {
@@ -15,7 +16,7 @@ function Connect-SEPCloud {
 
         # If called from Initialize-SEPCloudConfiguration
         # get token from cache only to avoid prompting for creds while loading the module
-        if ($MyInvocation.MyCommand.Name -eq 'Initialize-SEPCloudConfiguration') {
+        if ($cacheOnly) {
             $token = Get-SEPCloudToken -cacheOnly
         } else {
             $token = Get-SEPCloudToken
