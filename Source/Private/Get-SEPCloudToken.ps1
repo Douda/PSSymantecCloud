@@ -172,6 +172,8 @@ function Get-SEPCloudToken {
         # If no token nor OAuth creds available locally
         # Encode clientId and secret to create Basic Auth string
         # Authentication requires the following "Basic + encoded CliendID:Clientsecret"
+
+        Write-Verbose -Message "testing authentication with client/secret provided"
         if ($clientID -eq "" -or $secret -eq "") {
 
             Write-Warning "No local credentials found. Please provide clientId and secret to generate a token"
@@ -180,45 +182,53 @@ function Get-SEPCloudToken {
         }
         $encodedCreds = [convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(($clientId + ':' + $secret)))
 
-        # Verify if the directory exists
-        $directory = Split-Path -Path $script:configuration.cachedTokenPath -Parent
-        if (-not (Test-Path -Path $directory)) {
-            # If the directory does not exist, create it
-            New-Item -ItemType Directory -Path $directory | Out-Null
-        }
-
-        # Cache the credentials
-        $encodedCreds | Export-Clixml -Path $script:configuration.SEPCloudCredsPath
-        $script:SEPCloudConnection.Credential = $encodedCreds
-        Write-Verbose -Message "stored credentials : $($script:configuration.SEPCloudCredsPath)"
-
-        $params = @{
-            Uri             = 'https://' + $script:SEPCloudConnection.baseURL + '/v1/oauth2/tokens'
-            Method          = 'POST'
-            Headers         = @{
-                Host          = $script:SEPCloudConnection.baseURL
-                Accept        = "application/json"
-                Authorization = "Basic " + $encodedCreds
+        try {
+            $params = @{
+                Uri             = 'https://' + $script:SEPCloudConnection.baseURL + '/v1/oauth2/tokens'
+                Method          = 'POST'
+                Headers         = @{
+                    Host          = $script:SEPCloudConnection.baseURL
+                    Accept        = "application/json"
+                    Authorization = "Basic " + $encodedCreds
+                }
+                useBasicParsing = $true
             }
-            useBasicParsing = $true
-        }
+            $Response = Invoke-RestMethod @params
 
-        $Response = Invoke-RestMethod @params
+            if ($null -ne $response) {
+                # Cache the credentials
+                Write-Verbose -Message "credentials valid. caching credentials : $($script:configuration.SEPCloudCredsPath)"
+                $credentialsDirectory = Split-Path -Path $script:configuration.SEPCloudCredsPath -Parent
+                if (-not (Test-Path -Path $credentialsDirectory)) {
+                    New-Item -ItemType Directory -Path $credentialsDirectory | Out-Null
+                }
+                $encodedCreds | Export-Clixml -Path $script:configuration.SEPCloudCredsPath
+                $script:SEPCloudConnection.Credential = $encodedCreds
 
-        if ($null -ne $response) {
-            # Get the auth token from the response & store it locally
-            Write-Verbose "Valid credentials - returning valid Bearer token"
-            $cachedToken = [PSCustomObject]@{
-                Token        = $response.access_token
-                Token_Type   = $response.token_type
-                Token_Bearer = $response.token_type.ToString() + " " + $response.access_token
-                Expiration   = (Get-Date).AddSeconds($response.expires_in) # token expiration is 3600s
+                # Cache the token
+                Write-Verbose "Valid credentials - returning valid Bearer token"
+                $cachedToken = [PSCustomObject]@{
+                    Token        = $response.access_token
+                    Token_Type   = $response.token_type
+                    Token_Bearer = $response.token_type.ToString() + " " + $response.access_token
+                    Expiration   = (Get-Date).AddSeconds($response.expires_in) # token expiration is 3600s
+                }
+                $script:SEPCloudConnection.AccessToken = $cachedToken
+                $tokenDirectory = Split-Path -Path $script:configuration.cachedTokenPath -Parent
+                if (-not (Test-Path -Path $tokenDirectory)) {
+                    New-Item -ItemType Directory -Path $tokenDirectory | Out-Null
+                }
+                $cachedToken | Export-Clixml -Path $script:configuration.cachedTokenPath
+
+                Write-Verbose -Message "stored valid token : $($script:configuration.cachedTokenPath)"
+                return $cachedToken
             }
-            $script:SEPCloudConnection.AccessToken = $cachedToken
-            $cachedToken | Export-Clixml -Path $script:configuration.cachedTokenPath
-            Write-Verbose -Message "stored valid token : $($script:configuration.cachedTokenPath)"
-            return $cachedToken
+        } catch {
+            $message = "Authentication error - Failed to gather token from locally stored credentials"
+            $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)"
+            $message = $message + "delete cached credentials"
+            $message = $message + "`n" + "Error : $($_.Exception.Response.StatusCode) : $($_.Exception.Response.StatusDescription)"
+            Write-Warning -Message $message
         }
-
     }
 }
