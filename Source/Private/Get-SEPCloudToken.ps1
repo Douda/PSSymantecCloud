@@ -143,7 +143,7 @@ function Get-SEPCloudToken {
 
             if ($null -ne $response) {
                 # Get the auth token from the response. Store it locally & in memory
-                Write-Verbose "Valid credentials - returning valid token"
+                Write-Verbose "credentials valid - returning valid token"
                 $cachedToken = [PSCustomObject]@{
                     Token        = $response.access_token
                     Token_Type   = $response.token_type
@@ -206,7 +206,7 @@ function Get-SEPCloudToken {
                 $script:SEPCloudConnection.Credential = $encodedCreds
 
                 # Cache the token
-                Write-Verbose "Valid credentials - returning valid Bearer token"
+                Write-Verbose "credentials valid - returning valid Bearer token"
                 $cachedToken = [PSCustomObject]@{
                     Token        = $response.access_token
                     Token_Type   = $response.token_type
