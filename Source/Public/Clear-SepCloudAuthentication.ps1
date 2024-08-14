@@ -14,10 +14,19 @@ function Clear-SEPCloudAuthentication {
     param ()
 
     # Remove the cached authentication data from memory
-    $script:configuration.CachedToken = $null
-    $script:Credential = $null
-    $script:SEPCloudConnection.AccessToken = $null
-    $script:SEPCloudConnection.Credential = $null
+    # Using if statements to avoid errors when the variable does not exist or not initialized
+    if ($script:configuration.CachedToken) {
+        $script:configuration.CachedToken = $null
+    }
+    if ($script:Credential) {
+        $script:Credential = $null
+    }
+    if ($script:SEPCloudConnection.AccessToken) {
+        $script:SEPCloudConnection.AccessToken = $null
+    }
+    if ($script:SEPCloudConnection.Credential) {
+        $script:SEPCloudConnection.Credential = $null
+    }
 
     # remove the cached authentication data from disk
     Remove-Item -Path $($script:configuration.CachedTokenPath) -Force -ErrorAction SilentlyContinue -ErrorVariable ev
