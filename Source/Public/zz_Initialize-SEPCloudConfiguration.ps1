@@ -73,7 +73,7 @@ function Initialize-SEPCloudConfiguration {
     if (Test-Path -Path $($script:configuration.CachedTokenPath)) {
         try {
             Write-Verbose -Message "Loading access token from $($script:configuration.CachedTokenPath)"
-            $script:SEPCloudConnection.AccessToken = Import-Clixml -Path $($script:configuration.CachedTokenPath)
+            Add-Member -Type NoteProperty -Name AccessToken -Value (Import-Clixml -Path $($script:configuration.CachedTokenPath)) -InputObject $SEPCloudConnection -Force
         } catch {
             Write-Verbose -Message "Failed to import access token from $($script:configuration.CachedTokenPath): $_" -Verbose
         }
