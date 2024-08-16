@@ -134,6 +134,19 @@ function Get-SEPCloudAPIData {
                     ObjectTName = 'SEPCloud.Event'
                 }
             }
+            'Get-SEPCloudFileHashDetails'              = @{
+                '1.0' = @{
+                    Description = 'retrieve all details of a file based off its hash'
+                    URI         = '/v1/files'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Get-SEPCloudFileHashDetails'
+                    ObjectTName = 'SEPCloud.files-hash'
+                }
+            }
             'Get-SEPCloudGroup'                        = @{
                 '1.0' = @{
                     Description = 'retrieve a list of device groups'
