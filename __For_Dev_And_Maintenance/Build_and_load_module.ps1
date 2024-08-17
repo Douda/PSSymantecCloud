@@ -8,4 +8,4 @@ $ImportModulePath = $ModuleDevPath + "\Output\PSSymantecCloud\PSSymantecCloud.ps
 
 # Build Module
 Build-Module -SourcePath $BuildModuleSourcePath -SemVer $FullSemVer
-Import-Module -Name "$ImportModulePath" -Force -Verbose
+Import-Module -Name "$ImportModulePath" -Force
