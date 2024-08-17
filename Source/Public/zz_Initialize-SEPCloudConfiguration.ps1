@@ -83,7 +83,6 @@ function Initialize-SEPCloudConfiguration {
     if (Test-SEPCloudToken) {
         # Load headers if access token exists
         $UserAgentString = New-UserAgentString
-        Write-Verbose -Message "Using User Agent $($UserAgentString)"
         $script:SEPCloudConnection.Header = @{
             'Authorization' = $script:SEPCloudConnection.AccessToken.Token_Bearer
             'User-Agent'    = $UserAgentString
@@ -96,4 +95,4 @@ function Initialize-SEPCloudConfiguration {
 }
 
 # Invoke the initialization method to populate the configuration
-Initialize-SEPCloudConfiguration
+Initialize-SEPCloudConfiguration -Verbose
