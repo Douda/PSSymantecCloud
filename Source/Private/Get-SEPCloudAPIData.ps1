@@ -353,6 +353,23 @@ function Get-SEPCloudAPIData {
                     ObjectTName = 'SEPCloud.DumpCommandResponse'
                 }
             }
+            'Set-SEPCloudPolicy'                       = @{
+                '1.0' = @{
+                    Description = 'apply a policy to device groups'
+                    URI         = '/v1/policies/{id}/versions/{id}/device-groups'
+                    Method      = 'Post'
+                    Body        = @{
+                        target_rules     = [System.Collections.ArrayList]@()
+                        device_group_ids = [System.Collections.ArrayList]@()
+                        override         = 'override'
+                    }
+                    Query       = ''
+                    Result      = ''
+                    Success     = '200'
+                    Function    = 'Set-SEPCloudPolicy'
+                    ObjectTName = 'SEPCloud.apply-policy'
+                }
+            }
         }
 
         # Use the latest version of the API endpoint
