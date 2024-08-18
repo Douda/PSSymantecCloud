@@ -107,14 +107,15 @@ function Invoke-SEPCloudWebRequest {
         # Send the initial request
         try {
             $inititalResponse = $initialRequest.GetResponse();
-            Write-Verbose -Message "Status code : $($inititalResponse.StatusCode)"
             Write-Verbose -Message "URI : $($inititalResponse.GetResponseHeader("Location"))"
+            Write-Verbose -Message "Status code : $($inititalResponse.StatusCode)"
         } catch {
             throw $_
         }
 
         # IF HTTP status code is linked to redirected URL
         if ($inititalResponse.StatusCode.value__ -in (301, 302, 303, 307, 308)) {
+            Write-Verbose -Message "URI to redirect : $($inititalResponse.GetResponseHeader("Location"))"
             # Create new request with the redirect URL
             $redirectUrl = $inititalResponse.GetResponseHeader("Location")
             $newRequest = [System.Net.WebRequest]::CreateHttp($redirectUrl);
@@ -151,6 +152,7 @@ function Invoke-SEPCloudWebRequest {
             # Send the new request
             try {
                 $newResponse = $newRequest.GetResponse()
+                Write-Verbose -Message "Status Code : $($newResponse.StatusCode.value__)"
             } catch {
                 Write-Error "Error in Invoke-SEPCloudWebRequest: $($_.Exception.InnerException.Message)"
             }
