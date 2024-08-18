@@ -386,7 +386,7 @@ function Get-SEPCloudAPIData {
                     ObjectTName = 'SEPCloud.apply-policy'
                 }
             }
-            'Start-SepCloudDefinitionUpdate'           = @{
+            'Start-SEPCloudDefinitionUpdate'           = @{
                 '1.0' = @{
                     Description = 'Update security definitions of devices'
                     URI         = '/v1/commands/update_content'
@@ -399,7 +399,7 @@ function Get-SEPCloudAPIData {
                     Query       = ''
                     Result      = ''
                     Success     = ''
-                    Function    = 'Start-SepCloudDefinitionUpdate'
+                    Function    = 'Start-SEPCloudDefinitionUpdate'
                     ObjectTName = 'SEPCloud.DeviceCommandResponse'
                 }
             }
