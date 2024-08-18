@@ -353,6 +353,22 @@ function Get-SEPCloudAPIData {
                     ObjectTName = 'SEPCloud.DumpCommandResponse'
                 }
             }
+            'Remove-SEPCloudPolicy'                    = @{
+                '1.0' = @{
+                    Description = 'Removes a SEP Cloud policy from a device group'
+                    URI         = '/v1/policies/{id}/versions/{id}/device-groups'
+                    Method      = 'Delete'
+                    Body        = @{
+                        target_rules     = [System.Collections.ArrayList]@()
+                        device_group_ids = [System.Collections.ArrayList]@()
+                    }
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Remove-SEPCloudPolicy'
+                    ObjectTName = 'SEPCloud.remove-policy'
+                }
+            }
             'Set-SEPCloudPolicy'                       = @{
                 '1.0' = @{
                     Description = 'apply a policy to device groups'
@@ -365,7 +381,7 @@ function Get-SEPCloudAPIData {
                     }
                     Query       = ''
                     Result      = ''
-                    Success     = '200'
+                    Success     = '204'
                     Function    = 'Set-SEPCloudPolicy'
                     ObjectTName = 'SEPCloud.apply-policy'
                 }
