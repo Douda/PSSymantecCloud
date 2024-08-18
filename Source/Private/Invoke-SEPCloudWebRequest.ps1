@@ -107,7 +107,7 @@ function Invoke-SEPCloudWebRequest {
         # Send the initial request
         try {
             $inititalResponse = $initialRequest.GetResponse();
-            Write-Verbose -Message "URI : $($inititalResponse.GetResponseHeader("Location"))"
+            Write-Verbose -Message "URI = $($inititalResponse.GetResponseHeader("Location"))"
             Write-Verbose -Message "Status code : $($inititalResponse.StatusCode)"
         } catch {
             throw $_
