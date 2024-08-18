@@ -95,4 +95,4 @@ function Initialize-SEPCloudConfiguration {
 }
 
 # Invoke the initialization method to populate the configuration
-Initialize-SEPCloudConfiguration -Verbose
+Initialize-SEPCloudConfiguration -Verbose #TODO remove verbose when done testing
