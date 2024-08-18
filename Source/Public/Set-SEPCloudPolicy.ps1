@@ -45,7 +45,9 @@ function Set-SEPCloudPolicy {
 
         [Alias("deviceGroupId")]
         [string[]]
-        $device_group_ids
+        $device_group_ids,
+
+        $override = $true
     )
 
     begin {
@@ -76,7 +78,7 @@ function Set-SEPCloudPolicy {
         }
 
         # Mandatory field for the API call
-        $override = $true
+        # $override = $true
 
         $id = @($policyId, $policyVersion)
         $uri = New-URIString -endpoint ($resources.URI) -id $id
