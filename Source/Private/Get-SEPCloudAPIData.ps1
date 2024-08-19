@@ -96,7 +96,7 @@ function Get-SEPCloudAPIData {
                     ObjectTName = 'SEPCloud.device-details '
                 }
             }
-            'Get-SEPCloudEDRDumps'                     = @{
+            'Get-SEPCloudEDRDumpsList'                 = @{
                 '1.0' = @{
                     Description = 'get the list of endpoint search commands'
                     URI         = '/v1/commands/endpoint-search'
@@ -109,7 +109,7 @@ function Get-SEPCloudAPIData {
                     Query       = ''
                     Result      = 'commands'
                     Success     = ''
-                    Function    = 'Get-SEPCloudEDRDumps'
+                    Function    = 'Get-SEPCloudEDRDumpsList'
                     ObjectTName = 'SEPCloud.commandsResponse'
                 }
             }
