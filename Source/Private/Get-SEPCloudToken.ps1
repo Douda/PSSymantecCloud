@@ -66,6 +66,7 @@ function Get-SEPCloudToken {
 
     # Test if clientId and secret are provided to generate a token without testing for locally stored encrypted token/credentials
     if ($clientId -and $secret) {
+        Write-Verbose -Message "clientId & secret provided - testing to generate a token"
         $encodedCreds = [convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(($clientId + ':' + $secret)))
 
         try {
