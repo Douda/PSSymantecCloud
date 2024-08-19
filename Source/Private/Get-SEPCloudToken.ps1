@@ -84,7 +84,7 @@ function Get-SEPCloudToken {
 
             if ($null -ne $response) {
                 # Cache the credentials
-                Write-Verbose -Message "credentials valid. caching credentials : $($script:configuration.SEPCloudCredsPath)"
+                Write-Verbose -Message "credentials valid - caching credentials : $($script:configuration.SEPCloudCredsPath)"
                 $credentialsDirectory = Split-Path -Path $script:configuration.SEPCloudCredsPath -Parent
                 if (-not (Test-Path -Path $credentialsDirectory)) {
                     New-Item -ItemType Directory -Path $credentialsDirectory | Out-Null
