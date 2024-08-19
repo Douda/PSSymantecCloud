@@ -322,12 +322,9 @@ function Get-SEPCloudAPIData {
                     Description = 'lets you transfer multiple devices from one device group to another device group'
                     URI         = '/v1/device-groups/{id}/devices'
                     Method      = 'Put'
-                    Body        = @(
-                        @{
-                            device_uids = 'device_uids'
-                        }
-
-                    )
+                    Body        = @{
+                        device_uids = 'device_uids'
+                    }
                     Query       = ''
                     Result      = ''
                     Success     = ''
