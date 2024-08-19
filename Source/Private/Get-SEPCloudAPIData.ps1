@@ -359,8 +359,8 @@ function Get-SEPCloudAPIData {
                     URI         = '/v1/policies/{id}/versions/{id}/device-groups'
                     Method      = 'Delete'
                     Body        = @{
-                        target_rules     = [System.Collections.ArrayList]@()
-                        device_group_ids = [System.Collections.ArrayList]@()
+                        target_rules     = 'target_rules'
+                        device_group_ids = 'device_group_ids'
                     }
                     Query       = ''
                     Result      = ''
