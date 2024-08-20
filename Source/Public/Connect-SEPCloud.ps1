@@ -30,7 +30,11 @@ function Connect-SEPCloud {
 
         # if we have a token, add it to the header
         if ($null -ne $token) {
-            $head = @{'Authorization' = "$($Token.Token_Bearer)"; 'User-Agent' = $UserAgentString }
+            $head = @{
+                'Authorization' = "$($Token.Token_Bearer)";
+                'User-Agent'    = $UserAgentString#;
+                # 'Host'          = $($script:SEPCloudConnection.BaseURL)
+            }
             $script:SEPCloudConnection | Add-Member -Type NoteProperty -Name 'header' -Value $head -Force
         }
     }
