@@ -19,6 +19,22 @@ function Get-SEPCloudAPIData {
                     ObjectTName = 'The name of the PSType object to return'
                 }
             }
+            'Block-SEPCloudFile'                       = @{
+                '1.0' = @{
+                    Description = 'Quarantine files on the device(s)'
+                    URI         = '/v1/commands/files/contain'
+                    Method      = 'Post'
+                    Body        = @{
+                        device_ids = 'device_ids'
+                        hash       = 'hash'
+                    }
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Block-SEPCloudFile'
+                    ObjectTName = 'SEPCloud.block-file'
+                }
+            }
             'Connect-SEPCloud'                         = @{
                 '1.0' = @{
                     Description = 'Generate new bearer token from the from the oAuth credential'
