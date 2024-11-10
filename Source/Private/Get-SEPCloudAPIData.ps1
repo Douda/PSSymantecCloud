@@ -416,6 +416,23 @@ function Get-SEPCloudAPIData {
                     ObjectTName = 'SEPCloud.DeviceCommandResponse'
                 }
             }
+            'Start-SEPCloudFullScan'                   = @{
+                '1.0' = @{
+                    Description = 'initiate a full scan on devices managed'
+                    URI         = '/v1/commands/scans/full'
+                    Method      = 'Post'
+                    Body        = @{
+                        device_ids   = 'device_ids'
+                        org_unit_ids = 'org_unit_ids'
+                        is_recursive = 'is_recursive'
+                    }
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Start-SEPCloudFullScan'
+                    ObjectTName = 'SEPCloud.DeviceCommandResponse'
+                }
+            }
         }
 
         # Use the latest version of the API endpoint
