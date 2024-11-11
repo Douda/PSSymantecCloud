@@ -36,6 +36,13 @@ function Connect-SEPCloud {
                 # 'Host'          = $($script:SEPCloudConnection.BaseURL)
             }
             $script:SEPCloudConnection | Add-Member -Type NoteProperty -Name 'header' -Value $head -Force
+        } else {
+            # If no token, just add User-Agent
+            $head = @{
+                'User-Agent' = $UserAgentString#;
+                # 'Host'          = $($script:SEPCloudConnection.BaseURL)
+            }
+            $script:SEPCloudConnection | Add-Member -Type NoteProperty -Name 'header' -Value $head -Force
         }
     }
 }
