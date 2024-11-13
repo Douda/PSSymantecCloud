@@ -1,6 +1,7 @@
 function Test-SEPCloudToken {
 
-    Write-Verbose -Message "Test in-memory token"
+    $message = "Testing in-memory token"
+    Write-Verbose -Message $message
 
     if ($script:SEPCloudConnection.AccessToken) {
         # Check if still valid
