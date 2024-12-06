@@ -112,7 +112,7 @@ function Get-SEPCloudToken {
             }
         } catch {
             $message = "Authentication error - Failed to gather token from locally stored credentials"
-            $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)"
+            $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)" + "`n"
             $message = $message + "delete cached credentials"
             $message = $message + "`n" + "Error : $($_.Exception.Response.StatusCode) : $($_.Exception.Response.StatusDescription)"
             Write-Warning -Message $message
@@ -120,11 +120,14 @@ function Get-SEPCloudToken {
     }
 
     # Test if token already in memory
-    if ($script:SEPCloudConnection.AccessToken) {
+    if ($null -ne $script:SEPCloudConnection.AccessToken.access_token) {
         # Check if still valid
         if (Test-SEPCloudToken) {
             Write-Verbose -Message "Token in-memory is still valid"
             return $script:SEPCloudConnection.AccessToken
+        } else {
+            try { Remove-Item -Path $script:configuration.cachedTokenPath } catch {}
+            $script:SEPCloudConnection.AccessToken = $null
         }
     }
 
@@ -132,14 +135,13 @@ function Get-SEPCloudToken {
     if (Test-Path -Path "$script:configuration.cachedTokenPath") {
         $cachedToken = Import-Clixml -Path $script:configuration.cachedTokenPath
         # Check if still valid
-        if ((Get-Date) -lt $cachedToken.Expiration) {
-            Write-Verbose "Token on disk is still valid"
+        if (Test-SEPCloudToken -token $cachedToken) {
+            Write-Verbose "Token from disk is still valid"
             return $cachedToken
         } else {
-            Write-Verbose -Message "Token on disk expired - deleting"
-            Remove-Item $script:configuration.cachedTokenPath
+            Write-Verbose -Message "Token from disk expired - deleting"
+            try { Remove-Item -Path $script:configuration.cachedTokenPath -ErrorAction SilentlyContinue } catch {}
             $script:SEPCloudConnection.AccessToken = $null
-            Write-Verbose -Message "continue..."
         }
     }
 
@@ -174,7 +176,7 @@ function Get-SEPCloudToken {
             }
         } catch {
             $message = "Authentication error - Failed to gather token from locally stored credentials"
-            $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)"
+            $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)" + "`n"
             $message = $message + "delete cached credentials"
             $message = $message + "`n" + "Error : $($_.Exception.Response.StatusCode) : $($_.Exception.Response.StatusDescription)"
             Write-Warning -Message $message
@@ -215,7 +217,7 @@ function Get-SEPCloudToken {
 
         } catch {
             $message = "Authentication error - Failed to gather token from locally stored credentials"
-            $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)"
+            $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)" + "`n"
             $message = $message + "delete cached credentials"
             $message = $message + "`n" + "Error : $($_.Exception.Response.StatusCode) : $($_.Exception.Response.StatusDescription)"
             Write-Warning -Message $message
@@ -282,7 +284,7 @@ function Get-SEPCloudToken {
             }
         } catch {
             $message = "Authentication error - Failed to gather token from locally stored credentials"
-            $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)"
+            $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)" + "`n"
             $message = $message + "delete cached credentials"
             $message = $message + "`n" + "Error : $($_.Exception.Response.StatusCode) : $($_.Exception.Response.StatusDescription)"
             Write-Warning -Message $message
