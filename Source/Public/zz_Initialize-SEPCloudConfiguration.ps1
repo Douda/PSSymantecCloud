@@ -18,7 +18,7 @@ Update-TypeData -PrependPath (Join-Path -Path $PSScriptRoot -ChildPath 'PSSymant
 # SEPCloudConnection contains the connection information to the SES Cloud API
 [PSCustomObject] $script:configuration = $null
 [PSCustomObject] $script:SEPCloudConnection = [PSCustomObject]@{
-    BaseURL     = "api.sep.securitycloud.symantec.com"
+    BaseURL     = "api.sep.eu.securitycloud.symantec.com"
     Credential  = $null
     AccessToken = $null
     time        = (Get-Date)
