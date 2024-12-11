@@ -61,6 +61,7 @@ function Get-SEPCloudToken {
 
         # Unattended
         [switch]
+        [Alias("unattended")]
         $cacheOnly
     )
 
@@ -115,7 +116,7 @@ function Get-SEPCloudToken {
             $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)" + "`n"
             $message = $message + "delete cached credentials"
             $message = $message + "`n" + "Error : $($_.Exception.Response.StatusCode) : $($_.Exception.Response.StatusDescription)"
-            Write-Warning -Message $message
+            Write-Verbose -Message $message
         }
     }
 
@@ -126,13 +127,13 @@ function Get-SEPCloudToken {
             Write-Verbose -Message "Token in-memory is still valid"
             return $script:SEPCloudConnection.AccessToken
         } else {
-            try { Remove-Item -Path $script:configuration.cachedTokenPath } catch {}
+            try { Remove-Item -Path $script:configuration.cachedTokenPath -ErrorAction SilentlyContinue } catch {}
             $script:SEPCloudConnection.AccessToken = $null
         }
     }
 
     # Test if token present on the disk
-    if (Test-Path -Path "$script:configuration.cachedTokenPath") {
+    if (Test-Path -Path $script:configuration.cachedTokenPath) {
         $cachedToken = Import-Clixml -Path $script:configuration.cachedTokenPath
         # Check if still valid
         if (Test-SEPCloudToken -token $cachedToken) {
@@ -179,14 +180,13 @@ function Get-SEPCloudToken {
             $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)" + "`n"
             $message = $message + "delete cached credentials"
             $message = $message + "`n" + "Error : $($_.Exception.Response.StatusCode) : $($_.Exception.Response.StatusDescription)"
-            Write-Warning -Message $message
+            Write-Verbose -Message $message
             $script:SEPCloudConnection.Credential = $null
-            Write-Verbose -Message "continue..."
         }
     }
 
     # Test if OAuth cred present on the disk
-    if ((Test-Path -Path "$script:configuration.SEPCloudCredsPath")) {
+    if ((Test-Path -Path $script:configuration.SEPCloudCredsPath)) {
         Write-Verbose "credentials on disk available - testing"
         try {
             $params = @{
@@ -220,7 +220,7 @@ function Get-SEPCloudToken {
             $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)" + "`n"
             $message = $message + "delete cached credentials"
             $message = $message + "`n" + "Error : $($_.Exception.Response.StatusCode) : $($_.Exception.Response.StatusDescription)"
-            Write-Warning -Message $message
+            Write-Verbose -Message $message
         }
     }
 
@@ -235,7 +235,7 @@ function Get-SEPCloudToken {
         Write-Verbose -Message "testing authentication with client/secret provided"
         if ($clientID -eq "" -or $secret -eq "") {
 
-            Write-Warning "No local credentials found. Please provide clientId and secret to generate a token"
+            Write-Host "No local credentials found. Please provide clientId and secret to generate a token"
             $clientId = Read-Host -Prompt "Enter clientId"
             $secret = Read-Host -Prompt "Enter secret" -MaskInput
         }
@@ -287,7 +287,7 @@ function Get-SEPCloudToken {
             $message = $message + "`n" + "Expected HTTP 200, got $($_.Exception.Response.StatusCode)" + "`n"
             $message = $message + "delete cached credentials"
             $message = $message + "`n" + "Error : $($_.Exception.Response.StatusCode) : $($_.Exception.Response.StatusDescription)"
-            Write-Warning -Message $message
+            Write-Verbose -Message $message
         }
     }
 }
