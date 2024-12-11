@@ -1,11 +1,11 @@
 # Load module
 $ProjectPath = "$PSScriptRoot/../.." | Convert-Path
-. (Join-Path -Path $ProjectPath -ChildPath 'Tests/Config/Common-InitializeProjectModule.ps1')
-
 $ProjectName = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
-    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
         $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop } catch { $false }) }
 ).BaseName
+. (Join-Path -Path $ProjectPath -ChildPath 'Tests/Config/Common-InitializeProjectModule.ps1')
+
 
 AfterAll {
     # This is common test code teardown logic for all Pester test files
@@ -16,7 +16,7 @@ AfterAll {
 
 InModuleScope $ProjectName {
     Describe "Get-SEPCloudToken" {
-        BeforeAll {
+        BeforeEach {
             # Load test environment
             $ProjectPath = "$PSScriptRoot/../.." | Convert-Path
             . (Join-Path -Path $ProjectPath -ChildPath 'Tests/Config/Common-InitializeTestEnvironment.ps1')
@@ -28,6 +28,8 @@ InModuleScope $ProjectName {
                     Expiration   = (Get-Date).AddSeconds(3600)
                 }
             }
+            Mock Read-Host -ParameterFilter { $prompt -eq "Enter clientId" } { "pester-cliend-id" }
+            Mock Read-Host -ParameterFilter { $prompt -eq "Enter secret" } { "pester-secret-id" }
         }
 
         Context "With ClientID and Secret parameters" {
@@ -55,32 +57,45 @@ InModuleScope $ProjectName {
             }
         }
 
+        Context "With -cacheOnly flag" {
+            Mock Read-Host -ParameterFilter { $prompt -eq "Enter clientId" } { "pester-cliend-id" }
+            Mock Read-Host -ParameterFilter { $prompt -eq "Enter secret" } { "pester-secret-id" }
+
+            $result = Get-SEPCloudToken -cacheOnly
+            $result | Should -Be $null
+        }
+
         Context "no parameters" {
-            BeforeEach {
-                $ProjectPath = "$PSScriptRoot/../.." | Convert-Path
-                . (Join-Path -Path $ProjectPath -ChildPath 'Tests/Config/Common-InitializeTestEnvironment.ps1')
-            }
             Context "Setup token from memory" {
-                It "Returns valid token from memory" {
+                BeforeEach {
                     $script:SEPCloudConnection.AccessToken = [PSCustomObject]@{
                         access_token = "pester-mocked-token-from-memory";
                         token_type   = "pester-bearer";
                         Token_Bearer = "pester-mocked-token" + " " + "pester-bearer";
                         Expiration   = (Get-Date).AddSeconds(3600)
                     }
+                }
 
-                    Mock Test-SEPCloudToken { $true }
+                It "Returns valid token from memory" {
                     $result = Get-SEPCloudToken
                     $result.access_token | Should -Be 'pester-mocked-token-from-memory'
                 }
 
-                It "Deletes expired token" {
+                It "Returns new valid token if cached one is expired" {
+                    $script:SEPCloudConnection.AccessToken = [PSCustomObject]@{
+                        access_token = "pester-mocked-token-from-memory";
+                        token_type   = "pester-bearer";
+                        Token_Bearer = "pester-mocked-token" + " " + "pester-bearer";
+                        Expiration   = (Get-Date).AddSeconds(-3600)
+                    }
 
+                    $result = Get-SEPCloudToken
+                    $result.Token | Should -Be 'pester-mocked-token'
                 }
             }
 
             Context "Setup token from disk" {
-                BeforeAll {
+                BeforeEach {
                     # No in-memory cache
                     $script:SEPCloudConnection.AccessToken = $null
 
@@ -100,16 +115,27 @@ InModuleScope $ProjectName {
                 }
             }
 
-            # It "Returns valid token from available credentials" {
-            #     # No in-memory cache
-            #     $script:SEPCloudConnection.AccessToken = $null
-            #     # No local file cache
-            #     Remove-Item -Path $script:configuration.cachedTokenPath
+            Context "Setup credentials from disk" {
+                BeforeEach {
+                    # No in-memory cache
+                    $script:SEPCloudConnection.AccessToken = $null
 
+                    # No credentials in cache
+                    Mock -CommandName Test-Path  -MockWith { return $false } -ParameterFilter {
+                        $path -eq $script:configuration.cachedTokenPath
+                    }
+                }
 
-            #     Get-SEPCloudToken
-            #     $script:SEPCloudConnection.AccessToken.Token | Should -Be 'pester-mocked-token'
-            # }
+                It "Returns new token from available credentials" {
+                    # No in-memory cache
+                    $script:SEPCloudConnection.AccessToken = $null
+                    # No local file cache
+                    Remove-Item -Path $script:configuration.cachedTokenPath
+
+                    $result = Get-SEPCloudToken
+                    $result.token | Should -Be "pester-mocked-token"
+                }
+            }
         }
     }
 }
