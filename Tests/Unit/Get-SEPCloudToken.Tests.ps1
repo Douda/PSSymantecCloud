@@ -58,9 +58,6 @@ InModuleScope $ProjectName {
         }
 
         Context "With -cacheOnly flag" {
-            Mock Read-Host -ParameterFilter { $prompt -eq "Enter clientId" } { "pester-cliend-id" }
-            Mock Read-Host -ParameterFilter { $prompt -eq "Enter secret" } { "pester-secret-id" }
-
             $result = Get-SEPCloudToken -cacheOnly
             $result | Should -Be $null
         }
