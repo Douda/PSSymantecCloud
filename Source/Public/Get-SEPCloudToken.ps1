@@ -238,7 +238,7 @@ function Get-SEPCloudToken {
 
         Write-Host "No local credentials found. Please provide clientId and secret to generate a token"
         $clientId = Read-Host -Prompt "Enter clientId"
-        $secret = Read-Host -Prompt "Enter secret" -MaskInput
+        $secret = Read-Host -Prompt "Enter secret" # -MaskInput TODO removed maskedInput. Not working with PS 5.1
     }
     $encodedCreds = [convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(($clientId + ':' + $secret)))
 
