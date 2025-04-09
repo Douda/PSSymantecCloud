@@ -1,20 +1,14 @@
 function Start-SEPCloudFullScan {
 
     <#
-        .SYNOPSIS
-        {required: high level overview}
-        .DESCRIPTION
-        {required: more detailed description of the function's purpose}
-        .LINK
-        https://github.com/Douda/PSSymantecCloud
-        .PARAMETER Param1
-        {required: description of Param1}
-        .PARAMETER Param2
-        {required: description of Param2}
-        .PARAMETER Param3
-        {required: description of Param3}
-        .EXAMPLE
-        {required: show one or more examples using the function}
+    .SYNOPSIS
+        Initiate a full scan command on SEP Cloud managed devices
+    .DESCRIPTION
+        Initiate a full scan command on SEP Cloud managed devices
+        Currently only takes a device_id as parameter
+        device ID can be gathered from Get-SEPCloudDevice
+    .EXAMPLE
+        Start-SEPCloudFullScan -device_ids "u7IcxqPvQKmH47MPinPsFw"
     #>
 
     [CmdletBinding()]
