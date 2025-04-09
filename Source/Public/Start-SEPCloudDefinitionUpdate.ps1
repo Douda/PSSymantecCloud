@@ -5,6 +5,10 @@ function Start-SEPCloudDefinitionUpdate {
         Initiate a definition update request command on SEP Cloud managed devices
     .DESCRIPTION
         Initiate a definition update request command on SEP Cloud managed devices
+    .PARAMETER device_ids
+        Array of device ids for which to initiate a definition update request
+    .EXAMPLE
+        Start-SepCloudDefinitionUpdate -deviceId "u7IcxqPvQKmH47MPinPsFw"
     .LINK
         https://github.com/Douda/PSSymantecCloud
     #>
