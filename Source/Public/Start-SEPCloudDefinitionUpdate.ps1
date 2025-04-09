@@ -1,25 +1,31 @@
-function Get-SepCloudIncidentDetails {
+function Start-SEPCloudDefinitionUpdate {
 
     <#
-        .SYNOPSIS
-        Gathers details about an open incident
-        .DESCRIPTION
-        Gathers details about an open incident
-        .LINK
+    .SYNOPSIS
+        Initiate a definition update request command on SEP Cloud managed devices
+    .DESCRIPTION
+        Initiate a definition update request command on SEP Cloud managed devices
+    .PARAMETER device_ids
+        Array of device ids for which to initiate a definition update request
+    .EXAMPLE
+        Start-SepCloudDefinitionUpdate -deviceId "u7IcxqPvQKmH47MPinPsFw"
+    .LINK
         https://github.com/Douda/PSSymantecCloud
-        .PARAMETER incidentId
-            ID of incident
-        .EXAMPLE
-        Get-SepCloudIncidentDetails -incident_ID "21b23af2-ea44-479c-a235-9540082da98f"
-
-
     #>
 
     [CmdletBinding()]
     Param(
-        # Query
-        [Alias('incident_id')]
-        [String]$incidentId
+        [Alias('deviceId')]
+        [string[]]
+        $device_ids,
+
+        [string[]]
+        [Alias('orgId')]
+        $org_unit_ids,
+
+        [Alias('recursive')]
+        [switch]
+        $is_recursive
     )
 
     begin {
@@ -38,14 +44,20 @@ function Get-SepCloudIncidentDetails {
     }
 
     process {
-        $uri = New-URIString -endpoint ($resources.URI) -id $incidentId
+        # TODO function is not working (500 error response)
+        # changing "Content-Type" header specifically for this query, otherwise 415 : unsupported media type
+        # $script:SEPCloudConnection.header += @{ 'Content-Type' = 'application/json' }
+        $script:SEPCloudConnection.header += @{ 'Accept' = 'application/json' }
+
+        $uri = New-URIString -endpoint ($resources.URI) -id $id
         $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
         $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
-
-        Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
         $result = Test-ReturnFormat -result $result -location $resources.Result
         $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
+
+        # Removing "Content-Type: application/json" header
+        $script:SEPCloudConnection.header.remove('Accept')
 
         return $result
     }

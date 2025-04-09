@@ -1,26 +1,17 @@
 function Get-SEPCloudGroupPolicies {
-    <#
-    .SYNOPSIS
-        Gathers list of policies applied for a device group
-    .DESCRIPTION
-        Gathers list of policies applied for a device group
-    .PARAMETER GroupID
-        ID of the group to get policies for
-    .EXAMPLE
-    (Get-SEPCloudGroupPolicies).policies | ft
 
-        name                                policy_type          policy_uid                           policy_version target_apply_level target_rules
-        ----                                -----------          ----------                           -------------- ------------------ ------------
-        Default Deny List Policy            Deny List            56cae937-03ef-4090-8542-09fff526ee18              1 inherited          {@{name=Default; enabled=True; sort_order=9999…
-        Default System Policy               System               15de78e5-053a-485e-b919-5f0987dd1cf2              1 inherited          {@{name=Default; enabled=True; sort_order=9999…
-        Default Antimalware Policy          Malware Protection   4566b529-0d5e-402a-bfe9-8765a56a98f9              1 inherited          {@{name=Default; enabled=True; sort_order=9999…
-        Default Intrusion Prevention Policy Intrusion Prevention 1d91f033-a50a-4e2c-bb67-eaec84e5cdb5              1 inherited          {@{name=Default; enabled=True; sort_order=9999…
-        Default Adaptive Protection Policy  Adaptive Protection  3e6126ff-708d-405a-8d94-334da61743a4              2 inherited          {@{name=Default; enabled=True; sort_order=9999…
-        Default Device Control Policy       Device Control       6001cf8a-045b-4075-bccb-aa9131cc19dc              1 inherited          {@{name=Default; enabled=True; sort_order=9999…
-        Default MEM Policy                  Exploit Protection   375aab38-1bab-44d2-a59c-55c4e2976a8a              1 inherited          {@{name=Default; enabled=True; sort_order=9999…
-        Default Firewall Policy             Firewall             1acb4fa5-bf0a-445d-9d3a-4f0a09c72623              1 inherited          {@{name=Default; enabled=True; sort_order=9999…
-        Custom Allow list                   Allow List           6b5567d3-0e81-4c01-9fea-17b8b36171ce              1 direct             {@{name=Custom location; enabled=True; sort_orde…
-        Default Network Integrity Policy    Network Integrity    14fe8776-4f35-45da-a89b-76aaa3456b6e              1 inherited          {@{name=Default; enabled=True; sort_order=9999…
+    <#
+        .SYNOPSIS
+        Gathers list of policies applied for a device group
+        .DESCRIPTION
+        Gathers list of policies applied for a device group
+        .LINK
+        https://github.com/Douda/PSSymantecCloud
+        .PARAMETER group_id
+        id of device group
+        .EXAMPLE
+        Get-SEPCloudGroupPolicies -GroupID "Fmp5838YRsyElHM27PdZxx"
+        Gets the list of every policies applied to a device group
     #>
 
     [CmdletBinding()]
@@ -29,38 +20,36 @@ function Get-SEPCloudGroupPolicies {
         [Parameter(
             ValueFromPipelineByPropertyName = $true
         )]
+        [Alias('groupID')]
         [String]
-        $GroupID
+        $group_id
     )
 
     begin {
-        # Init
-        $BaseURL = $($script:configuration.BaseURL)
-        $URI = 'https://' + $BaseURL + "/v1/device-groups"
-        $Token = (Get-SEPCloudToken).Token_Bearer
+        # Check to ensure that a session to the SaaS exists and load the needed header data for authentication
+        Test-SEPCloudConnection | Out-Null
+
+        # API data references the name of the function
+        # For convenience, that name is saved here to $function
+        $function = $MyInvocation.MyCommand.Name
+
+        # Retrieve all of the URI, method, body, query, result, and success details for the API endpoint
+        Write-Verbose -Message "Gather API Data for $function"
+        $resources = Get-SEPCLoudAPIData -endpoint $function
+        Write-Verbose -Message "Load API data for $($resources.Function)"
+        Write-Verbose -Message "Description: $($resources.Description)"
     }
 
     process {
-        if ($GroupID) {
-            $URI = $URI + '/' + $GroupID + "/policies"
-        }
+        $uri = New-URIString -endpoint ($resources.URI) -id $group_id
+        $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
+        $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters  ((Get-Command $function).Parameters.Values)
 
-        $params = @{
-            Method  = 'GET'
-            Uri     = $uri
-            Headers = @{
-                # Host          = $baseUrl
-                Accept        = "application/json"
-                Authorization = $token
-            }
-        }
+        Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
+        $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
+        $result = Test-ReturnFormat -result $result -location $resources.Result
+        $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
 
-        try {
-            $response = Invoke-ABWebRequest @params
-        } catch {
-            "Error : " + $_
-        }
-
-        return $response
+        return $result
     }
 }

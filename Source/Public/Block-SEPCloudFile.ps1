@@ -1,25 +1,31 @@
-function Get-SepCloudIncidentDetails {
+function Block-SEPCloudFile {
 
     <#
-        .SYNOPSIS
-        Gathers details about an open incident
-        .DESCRIPTION
-        Gathers details about an open incident
-        .LINK
+    .SYNOPSIS
+        Quarantines one or many files on one or many SEP Cloud managed endpoint
+    .DESCRIPTION
+        Quarantines one or many files on one or many SEP Cloud managed endpoint
+    .PARAMETER device_ids
+        The ID of the SEP Cloud managed endpoint to quarantine file(s) from
+    .PARAMETER hash
+        hash of the file to quarantine
+    .LINK
         https://github.com/Douda/PSSymantecCloud
-        .PARAMETER incidentId
-            ID of incident
-        .EXAMPLE
-        Get-SepCloudIncidentDetails -incident_ID "21b23af2-ea44-479c-a235-9540082da98f"
+    .EXAMPLE
+        Block-SEPCloudFile -Verbose -device_ids "dGKQS2SyQlCbPjC2VxqO0w" -hash "C4C3115E3A1AF01D6747401AA22AF90A047292B64C4EEFF4D8021CC0CB60B22D"
 
-
+        BLocks a specific file on a specific computer by its device_id and hash
     #>
 
     [CmdletBinding()]
     Param(
-        # Query
-        [Alias('incident_id')]
-        [String]$incidentId
+        [Alias('deviceId')]
+        [String[]]
+        $device_ids,
+
+        [Alias('sha256')]
+        [String[]]
+        $hash
     )
 
     begin {
@@ -38,14 +44,18 @@ function Get-SepCloudIncidentDetails {
     }
 
     process {
-        $uri = New-URIString -endpoint ($resources.URI) -id $incidentId
+        # changing "Host" header specifically for this query, otherwise 500
+        $script:SEPCloudConnection.header += @{ 'Host' = $script:SEPCloudConnection.BaseURL }
+
+        $uri = New-URIString -endpoint ($resources.URI) -id $id
         $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
         $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
-
-        Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
         $result = Test-ReturnFormat -result $result -location $resources.Result
         $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
+
+        # removing the "Host" header specifically for this query, otherwise 500
+        $script:SEPCloudConnection.header.remove('Host')
 
         return $result
     }

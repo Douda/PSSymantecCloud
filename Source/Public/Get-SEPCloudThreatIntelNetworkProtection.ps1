@@ -1,25 +1,33 @@
-function Get-SepCloudIncidentDetails {
+function Get-SEPCloudThreatIntelNetworkProtection {
 
     <#
-        .SYNOPSIS
-        Gathers details about an open incident
-        .DESCRIPTION
-        Gathers details about an open incident
-        .LINK
+    .SYNOPSIS
+        Provide information whether a given URL/domain has been blocked by any of Symantec technologies
+    .DESCRIPTION
+        Provide information whether a given URL/domain has been blocked by any of Symantec technologies.
+        These technologies include Antivirus (AV), Intrusion Prevention System (IPS) and Behavioral Analysis & System Heuristics (BASH)
+    .PARAMETER domain
+        Specify one or many URL/domain to check
+    .LINK
         https://github.com/Douda/PSSymantecCloud
-        .PARAMETER incidentId
-            ID of incident
-        .EXAMPLE
-        Get-SepCloudIncidentDetails -incident_ID "21b23af2-ea44-479c-a235-9540082da98f"
-
-
+    .OUTPUTS
+        PSObject
+    .EXAMPLE
+        Get-SepThreatIntelNetworkProtection -domain nicolascoolman.eu
+        Gathers information whether the URL/domain has been blocked by any of Symantec technologies
+    .EXAMPLE
+        "nicolascoolman.eu" | Get-SepThreatIntelNetworkProtection
+        Gathers somains from pipeline by value whether the URLs/domains have been blocked by any of Symantec technologies
     #>
 
     [CmdletBinding()]
-    Param(
-        # Query
-        [Alias('incident_id')]
-        [String]$incidentId
+    param (
+        # Mandatory domain name
+        [Parameter(
+            Mandatory,
+            ValueFromPipeline = $true)]
+        [Alias('domain', 'url')]
+        $network
     )
 
     begin {
@@ -38,12 +46,13 @@ function Get-SepCloudIncidentDetails {
     }
 
     process {
-        $uri = New-URIString -endpoint ($resources.URI) -id $incidentId
+        $uri = New-URIString -endpoint ($resources.URI) -id $network
         $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
         $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
 
         Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
+
         $result = Test-ReturnFormat -result $result -location $resources.Result
         $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
 

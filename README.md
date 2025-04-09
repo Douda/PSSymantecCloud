@@ -12,17 +12,17 @@ To interact with the SEP on-premise version API, you can use [PSSymantecSEPM](ht
 This small project is an attempt to interact with the Symantec/Broadcom API to manage 
 
 - Symantec Endpoint Protection (SEP) Cloud 
-- [Symantec Endpoint Security](https://sep.securitycloud.symantec.com/v2/home/dashboard) (SES) Platform.
+- [Symantec Endpoint Security](https://SEP.securitycloud.symantec.com/v2/home/dashboard) (SES) Platform.
 
 To interact with your SEP Cloud platform you need to 
-- Create an [integration application](https://techdocs.broadcom.com/us/en/symantec-security-software/endpoint-security-and-management/endpoint-security/sescloud/Settings/creating-a-client-application-v132702110-d4152e4057.html) and get your ClientID & Secret from your [Symantec Cloud Platform](https://sep.securitycloud.symantec.com/v2/home/dashboard)
+- Create an [integration application](https://techdocs.broadcom.com/us/en/symantec-security-software/endpoint-security-and-management/endpoint-security/sescloud/Settings/creating-a-client-application-v132702110-d4152e4057.html) and get your ClientID & Secret from your [Symantec Cloud Platform](https://SEP.securitycloud.symantec.com/v2/home/dashboard)
 - Generate your [authentication token](https://apidocs.securitycloud.symantec.com/#/doc?id=ses_auth) (Go to SES > Generating your token bearer)
 
 
 This module follows the [Module Builder Project](https://github.com/PoshCode/ModuleBuilder) folder structure for easy maintenance and versioning
 
 
-## Usage
+## Installation
 2 ways to install this module :
 - Via [Powershell Gallery](https://www.powershellgallery.com/packages/PSSymantecCloud/) 
 ```PowerShell
@@ -34,43 +34,52 @@ Install-Module PSSymantecCloud
 ```PowerShell
 PS C:\PSSymantecCloud> Get-Command -Module PSSymantecCloud | Select-Object -Property Name
 
-Block-SepCloudFile
-Clear-SepCloudAuthentication
-Export-SepCloudAllowListPolicyToExcel
-Export-SepCloudDenyListPolicyToExcel
+Block-SEPCloudFile
+Clear-SEPCloudAuthentication
+Connect-SEPCloud
+Export-SEPCloudAllowListPolicyToExcel
+Export-SEPCloudDenyListPolicyToExcel
 Get-EDRDumps
 Get-SEPCloudCommand
-Get-SepCloudDeviceDetails
+Get-SEPCloudComponent
 Get-SEPCloudDevice
-Get-SepCloudEvents
-Get-SepCloudFilesInfo
-Get-SepCloudIncidentDetails
-Get-SepCloudIncidentDetails
-Get-SepCloudIncidents
+Get-SEPCloudDeviceDetails
+Get-SEPCloudEvents
+Get-SEPCloudFeatureList
+Get-SEPCloudFilesInfo
+Get-SEPCloudGroup
+Get-SEPCloudGroupPolicies
+Get-SEPCloudIncidentDetails
+Get-SEPCloudIncidents
 Get-SEPCloudPolicesSummary
-Get-SepCloudPolicyDetails
-Get-SepCloudTargetRules
-Get-SepThreatIntelCveProtection
-Get-SepThreatIntelFileProtection
-Get-SepThreatIntelNetworkProtection
+Get-SEPCloudPolicyDetails
+Get-SEPCloudTargetRules
+Get-SEPThreatIntelCveProtection
+Get-SEPThreatIntelFileInsight
+Get-SEPThreatIntelFileProcessChain
+Get-SEPThreatIntelFileProtection
+Get-SEPThreatIntelFileRelated
+Get-SEPThreatIntelNetworkInsight
+Get-SEPThreatIntelNetworkProtection
+Move-SEPCloudDevice
 New-EDRFullDump
-Start-SepCloudDefinitionUpdate
-Start-SepCloudFullScan
-Start-SepCloudQuickScan
-Test-SepCloudConnectivity
-Update-SepCloudAllowlistPolicy
+Remove-SEPCloudPolicy
+Set-SEPCloudPolicy
+Start-SEPCloudDefinitionUpdate
+Start-SEPCloudFullScan
+Start-SEPCloudQuickScan
 ```
 
 For detailed information about each command, use `Get-Help <command> -Full`
 
 ### Authentication
-Generate your authentication token via your [SEP Cloud console integration menu](https://sep.securitycloud.symantec.com/v2/integration/client-applications) and keep your ClientID & Secret
+Generate your authentication token via your [SEP Cloud console integration menu](https://SEP.securitycloud.symantec.com/v2/integration/client-applications) and keep your ClientID & Secret
 
 ### Examples
 Test your authentication against the API
 Test your authentication against the API
 ```PowerShell
-PS C:\PSSymantecCloud> Test-SepCloudConnectivity
+PS C:\PSSymantecCloud> Test-SEPCloudConnectivity
 True
 ```
 
@@ -107,18 +116,18 @@ connection_status        : ONLINE
 ```
 ```PowerShell
 # Get detailed info from an asset using device_ID
-Get-SepCloudDeviceDetails -Device_ID abcdefghijkl
+Get-SEPCloudDeviceDetails -Device_ID abcdefghijkl
 ```
 #### Incidents
 
 ```PowerShell
 # list of all your opened incidents
-PS C:\PSSymantecCloud> Get-SepCloudIncidents -Open
+PS C:\PSSymantecCloud> Get-SEPCloudIncidents -Open
 ```
 
 ```PowerShell
 # list of all your incidents, including all events
-PS C:\PSSymantecCloud> Get-SepCloudIncidents -Include_Events
+PS C:\PSSymantecCloud> Get-SEPCloudIncidents -Include_Events
 ```
 **Note**: Broadcom stores all data for a maximum of 30 days
 
@@ -126,7 +135,7 @@ Get a custom list of incidents based on a specific query, using supported [Lucen
 
 ```PowerShell
 # Example : different incident states : 0 Unknown | 1 New | 2 In Progress | 3 On Hold | 4 Resolved | 5 Closed
-PS C:\PSSymantecCloud> Get-SepCloudIncidents -Query "(state_id: 4 OR state_id: 5)"
+PS C:\PSSymantecCloud> Get-SEPCloudIncidents -Query "(state_id: 4 OR state_id: 5)"
 ```
 
 #### Threat Intel
@@ -134,7 +143,7 @@ The Protection APIs provide information whether a given file, domain or CVE has 
 
 file coverage
 ```PowerShell
-PS C:\PSSymantecCloud> Get-SepThreatIntelFileProtection -file_sha256 64c731adbe1b96cb5765203b1e215093dcf268d020b299445884a4ae62ed2d3a | fl
+PS C:\PSSymantecCloud> Get-SEPThreatIntelFileProtection -file_sha256 64c731adbe1b96cb5765203b1e215093dcf268d020b299445884a4ae62ed2d3a | fl
 
 file  : 64c731adbe1b96cb5765203b1e215093dcf268d020b299445884a4ae62ed2d3a
 state : {@{technology=AntiVirus; firstDefsetVersion=20160428.021; threatName=Trojan.Gen.2}, @{technology=Intrusion Prevention System; firstDefsetVersion=20221025.061; threatName=System Infected: Trojan.Backdoor Activity 634},
@@ -142,7 +151,7 @@ state : {@{technology=AntiVirus; firstDefsetVersion=20160428.021; threatName=Tro
 ```
 domain coverage
 ```PowerShell
-PS C:\PSSymantecCloud> Get-SepThreatIntelNetworkProtection -domain nicolascoolman.eu | fl
+PS C:\PSSymantecCloud> Get-SEPThreatIntelNetworkProtection -domain nicolascoolman.eu | fl
 
 network : nicolascoolman.eu
 state   : {@{technology=AntiVirus; firstDefsetVersion=2023.03.14.024; threatName=WS.Reputation.1}, @{technology=Behavioural Analysis & System Heuristics; firstDefsetVersion=20230301.001; threatName=SONAR.Heur.Dropper}}
@@ -150,7 +159,7 @@ state   : {@{technology=AntiVirus; firstDefsetVersion=2023.03.14.024; threatName
 
 CVE coverage
 ```PowerShell
-PS C:\PSSymantecCloud> Get-SepThreatIntelCveProtection -cve CVE-2023-35311 | fl
+PS C:\PSSymantecCloud> Get-SEPThreatIntelCveProtection -cve CVE-2023-35311 | fl
 
 cve   : CVE-2023-35311
 state : {@{technology=Intrusion Prevention System; firstDefsetVersion=20230712.061; threatName=Web Attack: Microsoft Outlook CVE-2023-35311}}
@@ -169,43 +178,35 @@ total policies
 
 ```PowerShell
 # Get policy details for a specific version
-PS C:\PSSymantecCloud> Get-SepCloudPolicyDetails -Name "My Policy" -Version 5
+PS C:\PSSymantecCloud> Get-SEPCloudPolicyDetails -Name "My Policy" -Version 5
 ```
 **Note**: By default, will output the latest version
 
 ##### Allow list policy
 ```PowerShell
 # Easily export any allow list policy in an Excel format
-PS C:\PSSymantecCloud> Get-SepCloudPolicyDetails -Name "My Allow List Policy" | Export-SepCloudPolicyToExcel -Path "allow_list.xlsx"
+PS C:\PSSymantecCloud> Get-SEPCloudPolicyDetails -Name "My Allow List Policy" | Export-SEPCloudPolicyToExcel -Path "allow_list.xlsx"
 ```
 
 ## Building your module
-To build the module, you need to have [ModuleBuilder](https://www.powershellgallery.com/packages/ModuleBuilder/)
+```PowerShell
+# Install required module ModuleBuilder
+Install-Module -Name ModuleBuilder
 
-1. Install ModuleBuilder `Install-Module -Name ModuleBuilder`
-
-2. Clone the PSSymantecCloud repository
- ```powershell
- git clone https://github.com/Douda/PSSymantecCloud
+# Clone the PSSymantecCloud repository
+git clone https://github.com/Douda/PSSymantecCloud
 cd PSSymantecCloud
+
+# Verify prerequisites module
+Install-RequiredModule
+
+# Build PSSymantecCloud module
+Build-Module .\Source -SemVer 1.0.0
+
+# Load the module
+Import-Module .\Output\PSSymantecCloud\1.0.0\PSSymantecCloud.ps1m -Force
+
 ```
-
-3. run `Install-RequiredModule`
-
-4. run `Build-Module .\Source -SemVer 1.0.0`
-   
-**Note**: a build version will be required when building the module, eg. 1.0.0
-compiled module appears in the `Output` folder
-
-5. import the newly built module `Import-Module .\Output\PSSymantecCloud\1.0.0\PSSymantecCloud.ps1m -Force`
-
-
-## Versioning
-
-ModuleBuilder will automatically apply the next semver version
-if you have installed [gitversion](https://gitversion.readthedocs.io/en/latest/).
-
-To manually create a new version run `Build-Module .\Source -SemVer 0.0.2`
 
 ## Additional Information
 

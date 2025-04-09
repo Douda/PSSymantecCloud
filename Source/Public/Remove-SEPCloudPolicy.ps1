@@ -6,6 +6,8 @@ function Remove-SEPCloudPolicy {
     .DESCRIPTION
         Removes a SEP Cloud policy from a device group.
         Must include a specific location (also called policy target rule)
+    .LINK
+        https://github.com/Douda/PSSymantecCloud
     .PARAMETER policyName
         Name of the policy to apply
     .PARAMETER policyVersion
@@ -15,91 +17,76 @@ function Remove-SEPCloudPolicy {
         Alias: location
         Location (policy target rule) to apply the policy to
         If not provided, the default location will be used
-    .PARAMETER deviceGroupID
+    .PARAMETER deviceGroupId
         Device group ID to apply the policy to
     .OUTPUTS
         None
     .EXAMPLE
-        Remove-SEPCloudPolicy -policyName "My Policy" -location "Default" -deviceGroupID "123456"
+        Remove-SEPCloudPolicy -policyName "My Policy" -location "Default" -deviceGroupId "123456"
         Removes the latest version of the SEP Cloud policy named "My Policy" to the device group with ID "123456" at the location "Default"
     #>
 
-
-
+    [CmdletBinding()]
     param (
-        # Policy UUID
-        [Parameter(
-            Mandatory = $true
-        )]
-        [string]
         $policyName,
 
-        # Policy version
-        [Parameter()]
-        [string]
-        [Alias("Version")]
+        [Alias("version")]
         $policyVersion,
 
-        # target rules
-        [Parameter(
-            Mandatory = $true
-        )]
-        [string]
+        [Alias("policy_uid")]
+        $policyId,
+
+        [Parameter(Mandatory = $true)]
         [Alias("target_rules")]
         [Alias("location")]
+        [string[]]
         $targetRule = "Default",
 
-        # device group ID
-        [Parameter(
-            Mandatory = $true
-        )]
-        [string]
-        [Alias("device_group_id")]
-        $deviceGroupID
+        [Parameter(Mandatory = $true)]
+        [Alias("device_group_ids")]
+        [string[]]
+        $deviceGroupId
     )
 
     begin {
-        # Init
-        $BaseURL = $($script:configuration.BaseURL)
-        $Token = (Get-SEPCloudToken).Token_Bearer
-        $objPolicies = (Get-SEPCloudPolicesSummary).policies
+        # Check to ensure that a session to the SaaS exists and load the needed header data for authentication
+        Test-SEPCloudConnection | Out-Null
+
+        # API data references the name of the function
+        # For convenience, that name is saved here to $function
+        $function = $MyInvocation.MyCommand.Name
+
+        # Retrieve all of the URI, method, body, query, result, and success details for the API endpoint
+        Write-Verbose -Message "Gather API Data for $function"
+        $resources = Get-SEPCLoudAPIData -endpoint $function
+        Write-Verbose -Message "Load API data for $($resources.Function)"
+        Write-Verbose -Message "Description: $($resources.Description)"
     }
 
     process {
-        # Get list of all SEP Cloud policies and get only the one with the correct name
-        $objPolicy = ($objPolicies | Where-Object { $_.name -eq "$policyName" })
+        # changing "Content-Type" header specifically for this query, otherwise 415 : unsupported media type
+        # $script:SEPCloudConnection.header += @{ 'Accept' = 'application/json' }
 
-        # If policy version is not provided, get the latest version
+        if ($policyName -and ($null -eq $policyId)) {
+            Write-Verbose -Message "Searching ID for $policyName"
+            $policyId = (Get-SEPCloudPolicesSummary | Where-Object { $_.name -eq "$policyName" }).policy_uid
+        }
         if ($null -eq $policyVersion ) {
-            $objPolicy = ($objPolicy | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
+            Write-Verbose -Message "No policy version provided, retrieving the latest version of $policyName"
+            # By default the API returns the latest version of a policy
+            $policyVersion = (Get-SEPCloudPolicesSummary | Where-Object { $_.name -eq "$policyName" }).policy_version
         }
+        $id = @($policyId, $policyVersion)
+        $uri = New-URIString -endpoint ($resources.URI) -id $id
+        $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
+        $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
+        $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
+        $result = Test-ReturnFormat -result $result -location $resources.Result
+        $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
 
-        # Set variables
-        $policyVersion = ($objPolicy).policy_version
-        $policyUUID = ($objPolicy).policy_uid
-        $URI = 'https://' + $BaseURL + "/v1/policies/$policyUUID/versions/$policyVersion/device-groups"
+        # Removing "Content-Type: application/json" header
+        # $script:SEPCloudConnection.header.remove('Content-Type')
 
-        $params = @{
-            Method  = 'DELETE'
-            Uri     = $uri
-            Headers = @{
-                # Host          = $baseUrl
-                Accept        = "application/json"
-                Authorization = $Token
-            }
-            Body    = @{
-                target_rules     = @($targetRule) # Ensure target_rules is an array
-                override         = $true
-                device_group_ids = @($deviceGroupID) # Ensure device_group_ids is an array
-            }
-        }
-
-        try {
-            $response = Invoke-ABWebRequest @params
-        } catch {
-            "Error : " + $_
-        }
-
-        return $response
+        return $result
     }
 }

@@ -1,106 +1,82 @@
 function Move-SEPCloudDevice {
+
     <#
     .SYNOPSIS
-    Moves one or many devices to a different group
+        Moves one or many devices to a different group
     .DESCRIPTION
-    Moves one or many devices to a different group.
-    Requires group ID and device ID. does not support device name or group name.
-    You can use :
-        Get-SEPCloudDevice to get the device ID
-        Get-SEPCloudGroup to get the group ID
+        Moves one or many devices to a different group.
+        Requires group ID and device ID. does not support device name or group name.
+        You can use :
+            Get-SEPCloudDevice to get the device ID
+            Get-SEPCloudGroup to get the group ID
+    .LINK
+        https://github.com/Douda/PSSymantecCloud
     .PARAMETER GroupID
-    The group ID to move the device to
-    .PARAMETER DeviceID
-    The device ID to move
+        The group ID to move the device to
+    .PARAMETER deviceId
+        The device ID to move
+        can be an array of device ID's
+        [NOTE] maximum of 200 devices per call
     None
     .EXAMPLE
-    Move-SEPCloudDevice -GroupID "tqrSman3RyqFFd1EqLlZZA" -DeviceID "f3teVmApQlya8XJvEf-wpw"
-
         Move-SEPCloudDevice -GroupID "tqrSman3RyqFFd1EqLlZZA" -DeviceID "f3teVmApQlya8XJvEf-wpw"
 
-        device_uid             message            status
-        ----------             -------            ------
-        f3teVmApQlya8XJvEf-wpw Moved successfully MOVED
+            Move-SEPCloudDevice -GroupID "tqrSman3RyqFFd1EqLlZZA" -DeviceID "f3teVmApQlya8XJvEf-wpw"
 
-    Moves a device to a different group, returns the status of the move.
+            device_uid             message            status
+            ----------             -------            ------
+            f3teVmApQlya8XJvEf-wpw Moved successfully MOVED
 
+        Moves a device to a different group, returns the status of the move.
     .EXAMPLE
-    (Get-SEPCloudDevice -Device_group "B1qWSPGeTkydCHzdfcCqpA").id | Move-SEPCloudDevice -GroupID "tqrSman3RyqFFd1EqLlZZA"
+        $list = @('123', '456', '789')
+        Move-SEPCloudDevice -groupId "I5tExK6hQfC-cnUXk1Siug" -deviceId $list
 
-    Moves all devices from the device group ID "B1qWSPGeTkydCHzdfcCqpA" to the group ID "tqrSman3RyqFFd1EqLlZZA"
+        Moves all devices from their identifier (here 123,456,789) to a group from a single API call
     #>
 
     [CmdletBinding()]
-    param (
+    Param(
         # Group ID
         [Parameter(
             ValueFromPipelineByPropertyName = $true
         )]
-        [String]
-        $GroupID,
+        $groupId,
 
         # Device ID
         [Parameter(
             ValueFromPipelineByPropertyName = $true,
             ValueFromPipeline = $true
         )]
+        [Alias('device_uids')]
+        [ValidateCount(1, 200)]
+        [ValidateNotNullOrEmpty()]
         [String[]]
-        $DeviceID
+        $deviceId
     )
 
     begin {
-        # Init
-        $BaseURL = $($script:configuration.BaseURL)
-        $BaseURI = 'https://' + $BaseURL + "/v1/device-groups"
-        $Token = (Get-SEPCloudToken).Token_Bearer
+        # Check to ensure that a session to the SaaS exists and load the needed header data for authentication
+        Test-SEPCloudConnection | Out-Null
+
+        # API data references the name of the function
+        # For convenience, that name is saved here to $function
+        $function = $MyInvocation.MyCommand.Name
+
+        # Retrieve all of the URI, method, body, query, result, and success details for the API endpoint
+        Write-Verbose -Message "Gather API Data for $function"
+        $resources = Get-SEPCLoudAPIData -endpoint $function
+        Write-Verbose -Message "Load API data for $($resources.Function)"
+        Write-Verbose -Message "Description: $($resources.Description)"
     }
 
     process {
-        # Setup Headers
-        $Headers = @{
-            Host          = $BaseURL
-            Accept        = "application/json"
-            Authorization = $Token
-        }
-
-        $Body = @{
-            device_uids = @($DeviceID)
-        }
-
-        try {
-            $params = @{
-                Uri         = $BaseURI + '/' + $GroupID + '/devices'
-                Method      = 'PUT'
-                Body        = $Body | ConvertTo-Json -Depth 100
-                Headers     = $Headers
-                ContentType = "application/json"
-            }
-
-            # Run query, add it to the array, increment counter
-            $Response = Invoke-RestMethod @params
-
-        } catch {
-            # If error, return the status code
-            $_
-        }
-
-        # Reorder the object to match the expected output
-        # $Response | ForEach-Object {
-        #     $OrderedResponse = [PSCustomObject]@{
-        #         device_uid = $_.devices.device_uid
-        #         message    = $_.devices.message
-        #         status     = $_.devices.status
-        #         failed     = $_.failed
-        #         succeeded  = $_.succeeded
-        #     }
-        # }
-
-
-        # Add a PSTypeName to the object
-        $Response.devices | ForEach-Object {
-            $_.PSTypeNames.Insert(0, "SEPCloud.DeviceTransfer")
-        }
-
-        return $Response.devices
+        $uri = New-URIString -endpoint ($resources.URI) -id $groupId
+        $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
+        $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
+        $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
+        $result = Test-ReturnFormat -result $result -location $resources.Result
+        $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
+        return $result
     }
 }

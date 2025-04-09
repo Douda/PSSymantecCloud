@@ -2,17 +2,29 @@ function Get-SEPCloudDevice {
     <#
     .SYNOPSIS
     Gathers list of devices from the SEP Cloud console
-    .PARAMETER Computername
-    Specify one or many computer names. Accepts pipeline input
-    Supports partial match
-    .PARAMETER is_online
-    Switch to lookup only online machines
-    .PARAMETER Device_status
-    Lookup devices per security status. Accepts only "SECURE", "AT_RISK", "COMPROMISED", "NOT_COMPUTED"
-    .PARAMETER include_details
-    Switch to include details in the output
-    .PARAMETER Device_group
-    Specify a device group ID to lookup. Accepts only device group ID, no group name
+    .DESCRIPTION
+    Gathers list of devices from the SEP Cloud console
+    .PARAMETER client_version
+    Version of agent installed on device.
+    [NOTE] Provide comma seperated values in case of multiple version search.
+    .PARAMETER device_group
+    ID of the parent device group.
+    [NOTE] Provide comma seperated values in case of multiple name search.
+    .PARAMETER device_status
+    Device status
+    Possible values: SECURE,AT_RISK, COMPROMISED,NOT_COMPUTED
+    [NOTE] Provide comma seperated values in case of multiple status search.
+    .PARAMETER device_type
+    os type of the device
+    [NOTE] Provide comma seperated values in case of multiple os type search.
+    Possible values: WORKSTATION, SERVER, MOBILE
+    .PARAMETER name
+    name of the device.
+    [NOTE] Provide comma seperated values in case of multiple name search.
+    .PARAMETER ipv4_address
+    ipv4 address of a device.
+
+
     .EXAMPLE
     Get-SEPCloudDevice
     Get all devices (very slow)
@@ -20,20 +32,17 @@ function Get-SEPCloudDevice {
     Get-SEPCloudDevice -Computername MyComputer
     Get detailed information about a computer
     .EXAMPLE
-    "MyComputer" | Get-SEPCloudDevice
-    Get detailed information about a computer
+    Get-SEPCloudDevice -client_version "14.2.1031.0100,14.2.770.0000"
+    Get all devices with client version 14.2.1031.0100 and 14.2.770.0000
     .EXAMPLE
-    Get-SEPCloudDevice -Online -Device_status AT_RISK
+    Get-SEPCloudDevice -device_group "Fmp5838YRsyElHM27PdZww,123456789"
+    Get all devices from the 2 groups with the group IDs "Fmp5838YRsyElHM27PdZww" and "123456789
+    .EXAMPLE
+    Get-SEPCloudDevice -device_status AT_RISK
     Get all online devices with AT_RISK status
     .EXAMPLE
-    Get-SEPCloudDevice -group "Aw7oerlBROSIl9O_IPFewx"
-    Get all devices in a device group
-    .EXAMPLE
-    Get-SEPCloudDevice -Client_version "14.3.9681.7000" -Device_type WORKSTATION
+    Get-SEPCloudDevice -Client_version "14.3.9681.7000" -device_type WORKSTATION
     Get all workstations with client version 14.3.9681.7000
-    .EXAMPLE
-    Get-SEPCloudDevice -EdrEnabled -Device_type SERVER
-    Get all servers with EDR enabled
     .EXAMPLE
     Get-SEPCloudDevice -IPv4 "192.168.1.1"
     Get all devices with IPv4 address
@@ -41,137 +50,71 @@ function Get-SEPCloudDevice {
 
     [CmdletBinding()]
     param (
-        # Optional ComputerName parameter
-        [Parameter(ValueFromPipeline = $true)]
-        [string]
-        $Computername,
+        [Alias("ClientVersion")]
+        $client_version,
 
-        # Optional Is_Online parameter
-        [Parameter()]
-        [Alias("Online")]
-        [switch]
-        $is_online,
-
-        # Optional include_details parameter
-        [Parameter()]
-        [Alias("Details")]
-        [switch]
-        $include_details,
-
-        # Device Group
-        [Parameter()]
         [Alias("Group")]
-        [string]
-        $Device_group,
+        $device_group,
 
-        # Optional Device_Status parameter
-        [Parameter()]
         [Alias("DeviceStatus")]
         [ValidateSet("SECURE", "AT_RISK", "COMPROMISED", "NOT_COMPUTED")]
-        $Device_status,
+        $device_status,
 
-        # Optional Device_Type parameter
-        [Parameter()]
         [Alias("DeviceType")]
         [ValidateSet("WORKSTATION", "SERVER", "MOBILE")]
-        $Device_type,
+        $device_type,
 
-        # Optional Client_version parameter
-        [Parameter()]
-        [Alias("ClientVersion")]
-        [string]
-        $Client_version,
-
-        # Optional edr_enabled parameter
-        [Parameter()]
-        [Alias("EdrEnabled")]
-        [switch]
-        $edr_enabled,
-
-        # Optional IPv4 parameter
-        [Parameter()]
         [Alias("IPv4")]
-        [string]
-        $ipv4_address
+        $ipv4_address,
+
+        [Alias("computername")]
+        $name,
+
+        [switch]
+        $is_virtual,
+
+        $offset
     )
 
     begin {
-        # Init
-        $BaseURL = $($script:configuration.BaseURL)
-        $URI = 'https://' + $BaseURL + "/v1/devices"
-        $Token = (Get-SEPCloudToken).Token_Bearer
+        # Check to ensure that a session to the SaaS exists and load the needed header data for authentication
+        Test-SEPCloudConnection | Out-Null
+
+        # API data references the name of the function
+        # For convenience, that name is saved here to $function
+        $function = $MyInvocation.MyCommand.Name
+
+        # Retrieve all of the URI, method, body, query, result, and success details for the API endpoint
+        Write-Verbose -Message "Gather API Data for $function"
+        $resources = Get-SEPCLoudAPIData -endpoint $function
+        Write-Verbose -Message "Load API data for $($resources.Function)"
+        Write-Verbose -Message "Description: $($resources.Description)"
     }
 
     process {
-        $ArrayResponse = @()
-        $queryStrings = @{}
+        $uri = New-URIString -endpoint ($resources.URI) -id $id
+        $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
+        $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
 
-        # Iterating through all parameters and add them to the queryParams hashtable
-        switch ($PSBoundParameters.Keys) {
-            Computername {
-                $queryStrings.Add("name", "$Computername")
-            }
-            is_online {
-                $queryStrings.Add("is_online", "true")
-            }
-            include_details {
-                $queryStrings.Add("include_details", "true")
-            }
-            edr_enabled {
-                $queryStrings.Add("edr_enabled", "true")
-            }
-            Device_status {
-                $queryStrings.Add("device_status", "$Device_status")
-            }
-            Device_type {
-                $queryStrings.Add("device_type", "$Device_type")
-            }
-            Client_version {
-                $queryStrings.Add("client_version", "$Client_version")
-            }
-            Device_group {
-                $queryStrings.Add("device_group", "$Device_group")
-            }
-            ipv4_address {
-                $queryStrings.Add("ipv4_address", "$IP_v4")
-            }
-            Default {}
-        }
+        Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
+        $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
 
-        # try {
-        $params = @{
-            Method       = 'GET'
-            Uri          = $uri
-            Headers      = @{
-                Host           = $baseUrl
-                Accept         = "application/json"
-                Authorization  = $token
-                "Content-Type" = "application/json"
-            }
-            queryStrings = $queryStrings
-        }
-
-        $response = Invoke-ABWebRequest @params
-        $ArrayResponse += $response.devices
-        $deviceCount = (($ArrayResponse | Measure-Object).count)
-
-        # If pagination
-        if ($response.total -gt $deviceCount) {
-            # Loop through via Offset parameter as there is no "next" parameter for /devices/ API call
+        # Test if pagination required
+        if ($result.total -gt $result.devices.count) {
+            Write-Verbose -Message "Result limits hit. Retrieving remaining data based on pagination"
             do {
-                # change the "offset" parameter for next query
-                $queryStrings.Remove("offset")
-                $queryStrings.Add("offset", $deviceCount)
-
-                # Run query, add it to the array, increment counter
-                $response = Invoke-ABWebRequest @params
-                $ArrayResponse += $response.devices
-                $deviceCount = (($ArrayResponse | Measure-Object).count)
-            } until (
-                $deviceCount -ge $response.total
-            )
+                # Update offset query param for pagination
+                $offset = $result.devices.count
+                $uri = New-URIString -endpoint ($resources.URI) -id $id
+                $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
+                $nextResult = Submit-Request  -uri $uri  -header $script:SEPCloudConnection.header  -method $($resources.Method) -body $body
+                $result.devices += $nextResult.devices
+            } until ($result.devices.count -ge $result.total)
         }
 
-        return $ArrayResponse
+        $result = Test-ReturnFormat -result $result -location $resources.Result
+        $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
+
+        return $result
     }
 }

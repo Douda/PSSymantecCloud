@@ -1,25 +1,35 @@
-function Get-SepCloudIncidentDetails {
+function Get-SEPCloudThreatIntelFileProtection {
 
     <#
-        .SYNOPSIS
-        Gathers details about an open incident
-        .DESCRIPTION
-        Gathers details about an open incident
-        .LINK
+    .SYNOPSIS
+        Provide information whether a given file has been blocked by any of Symantec technologies
+    .DESCRIPTION
+        Provide information whether a given file has been blocked by any of Symantec technologies.
+        These technologies include Antivirus (AV), Intrusion Prevention System (IPS) and Behavioral Analysis & System Heuristics (BASH)
+    .INPUTS
+        sha256
+    .OUTPUTS
+        PSObject
+    .LINK
         https://github.com/Douda/PSSymantecCloud
-        .PARAMETER incidentId
-            ID of incident
-        .EXAMPLE
-        Get-SepCloudIncidentDetails -incident_ID "21b23af2-ea44-479c-a235-9540082da98f"
-
-
+    .PARAMETER file_sha256
+        Specify one or many sha256 hash
+    .EXAMPLE
+        Get-SepThreatIntelFileProtection -file_sha256 eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d
+        Gathers information whether the file with sha256 has been blocked by any of Symantec technologies
+    .EXAMPLE
+        "eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d","eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8e" | Get-SepThreatIntelFileProtection
+        Gathers sha from pipeline by value whether the files with sha256 have been blocked by any of Symantec technologies
     #>
 
     [CmdletBinding()]
     Param(
-        # Query
-        [Alias('incident_id')]
-        [String]$incidentId
+        # Mandatory file sha256
+        [Parameter(
+            Mandatory,
+            ValueFromPipeline = $true)]
+        [Alias('sha256')]
+        $file_sha256
     )
 
     begin {
@@ -38,12 +48,13 @@ function Get-SepCloudIncidentDetails {
     }
 
     process {
-        $uri = New-URIString -endpoint ($resources.URI) -id $incidentId
+        $uri = New-URIString -endpoint ($resources.URI) -id $file_sha256
         $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
         $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
 
         Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
+
         $result = Test-ReturnFormat -result $result -location $resources.Result
         $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
 

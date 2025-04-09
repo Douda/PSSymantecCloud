@@ -1,23 +1,32 @@
-function Get-SEPCloudGroup {
+function Get-SEPCloudEDRDumpsList {
 
     <#
-    .SYNOPSIS
-        Gathers list of device groups from SEP Cloud
-    .DESCRIPTION
-        Gathers list of device groups from SEP Cloud. Does not contains device information
-    .PARAMETER offset
-        Page number to query. Defaults to 0. If pagination is required, this parameter is used to specify the page number
-    .EXAMPLE
-        Get-SEPCloudGroup
+        .SYNOPSIS
+            Gets a list of the SEP Cloud Commands
+        .DESCRIPTION
+            Gets a list of the SEP Cloud Commands. All commands are returned by default.
+        .LINK
+            https://github.com/Douda/PSSymantecCloud
+        .PARAMETER query
+        Query to be used in the search
+        Uses Lucene syntax.
+        Is optional. If not used returns all commands by default
+        .PARAMETER next
+        The next page of results. Used for pagination
+        .PARAMETER limit
+        The maximum number of results returned. Used for pagination
+        default is 25
+        .EXAMPLE
+            Get-SEPCloudCommand
 
-        Gets the full list of groups
+            Gets a list of the SEP Cloud Commands
     #>
 
     [CmdletBinding()]
-    param (
-        # Query
-        [Alias('api_page')]
-        $offset
+    Param(
+        $next,
+        $limit = 25,
+        $query
     )
 
     begin {
@@ -39,32 +48,23 @@ function Get-SEPCloudGroup {
         $uri = New-URIString -endpoint ($resources.URI) -id $id
         $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
         $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
-
-        Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
 
         # Test if pagination required
-        if ($result.total -gt $result.device_groups.count) {
+        if ($result.total -gt $result.commands.count) {
             Write-Verbose -Message "Result limits hit. Retrieving remaining data based on pagination"
             do {
-                # Update offset query param for pagination
-                $offset = $result.device_groups.count
+                # Update offset/next query param for pagination
+                $next = $result.next
                 $uri = New-URIString -endpoint ($resources.URI) -id $id
-                $uri = Test-QueryParam -querykeys $resources.query -parameters ((Get-Command $function).Parameters.Values) -uri $uri
+                $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
                 $nextResult = Submit-Request  -uri $uri  -header $script:SEPCloudConnection.header  -method $($resources.Method) -body $body
-                $result.device_groups += $nextResult.device_groups
-            } until ($result.device_groups.count -ge $result.total)
+                $result.commands += $nextResult.commands
+            } until ($result.commands.count -ge $result.total)
         }
 
         $result = Test-ReturnFormat -result $result -location $resources.Result
         $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
-
-        # Add custom property fullPathName
-        Write-Verbose -Message "Adding new property fullPathName for each group"
-        $result | ForEach-Object {
-            $fullPathName = Get-SEPCloudGroupFullPath -CurrentGroup $_ -AllGroups $result -Chain ""
-            $_ | Add-Member -NotePropertyName "fullPathName" -NotePropertyValue $fullPathName.TrimEnd(" > ")
-        }
 
         return $result
     }
