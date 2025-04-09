@@ -43,7 +43,7 @@ function Get-SEPCloudGroupPolicies {
     process {
         $uri = New-URIString -endpoint ($resources.URI) -id $group_id
         $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
-        $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
+        $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters  ((Get-Command $function).Parameters.Values)
 
         Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
