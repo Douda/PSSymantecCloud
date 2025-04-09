@@ -29,7 +29,7 @@ Locale: en-US
 ### [Get-SepCloudDeviceDetails](Get-SepCloudDeviceDetails.md)
 {{ Fill in the Description }}
 
-### [Get-SepCloudDevices](Get-SepCloudDevices.md)
+### [Get-SEPCloudDevice](Get-SEPCloudDevice.md)
 {{ Fill in the Description }}
 
 ### [Get-SepCloudEventSearch](Get-SepCloudEventSearch.md)
@@ -44,7 +44,7 @@ Locale: en-US
 ### [Get-SepCloudIncidents](Get-SepCloudIncidents.md)
 {{ Fill in the Description }}
 
-### [Get-SepCloudPolices](Get-SepCloudPolices.md)
+### [Get-SEPCloudPolicesSummary](Get-SEPCloudPolicesSummary.md)
 {{ Fill in the Description }}
 
 ### [Get-SepCloudPolicyDetails](Get-SepCloudPolicyDetails.md)

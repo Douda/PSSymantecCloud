@@ -7,6 +7,7 @@
 
 @{
     Path                     = "PSSymantecCloud.psd1"
+    UnversionedOutputDirectory = $true
     VersionedOutputDirectory = $true
     CopyDirectories = @(
         'en-US'

@@ -1,25 +1,28 @@
-function Get-SepCloudIncidentDetails {
+function Get-SEPCloudGroupPolicies {
 
     <#
         .SYNOPSIS
-        Gathers details about an open incident
+        Gathers list of policies applied for a device group
         .DESCRIPTION
-        Gathers details about an open incident
+        Gathers list of policies applied for a device group
         .LINK
         https://github.com/Douda/PSSymantecCloud
-        .PARAMETER incidentId
-            ID of incident
+        .PARAMETER group_id
+        id of device group
         .EXAMPLE
-        Get-SepCloudIncidentDetails -incident_ID "21b23af2-ea44-479c-a235-9540082da98f"
-
-
+        Get-SEPCloudGroupPolicies -GroupID "Fmp5838YRsyElHM27PdZxx"
+        Gets the list of every policies applied to a device group
     #>
 
     [CmdletBinding()]
-    Param(
-        # Query
-        [Alias('incident_id')]
-        [String]$incidentId
+    param (
+        # Group ID
+        [Parameter(
+            ValueFromPipelineByPropertyName = $true
+        )]
+        [Alias('groupID')]
+        [String]
+        $group_id
     )
 
     begin {
@@ -38,9 +41,9 @@ function Get-SepCloudIncidentDetails {
     }
 
     process {
-        $uri = New-URIString -endpoint ($resources.URI) -id $incidentId
+        $uri = New-URIString -endpoint ($resources.URI) -id $group_id
         $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
-        $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
+        $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters  ((Get-Command $function).Parameters.Values)
 
         Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body

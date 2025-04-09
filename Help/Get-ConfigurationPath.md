@@ -8,7 +8,7 @@ schema: 2.0.0
 # Get-ConfigurationPath
 
 ## SYNOPSIS
-returns hashtable object with the BaseURL, SepCloudCreds, SepCloudToken full path
+returns hashtable object with the BaseURL, SEPCloudCredsPath, SepCloudToken full path
 
 ## SYNTAX
 

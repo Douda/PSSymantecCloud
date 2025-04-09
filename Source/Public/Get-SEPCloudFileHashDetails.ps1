@@ -1,25 +1,22 @@
-function Get-SepCloudIncidentDetails {
+function Get-SEPCloudFileHashDetails {
 
     <#
         .SYNOPSIS
-        Gathers details about an open incident
+            Returns information whether a given file has been blocked by any Symantec technologies
         .DESCRIPTION
-        Gathers details about an open incident
+            Returns information whether a given file has been blocked by any Symantec technologies
         .LINK
         https://github.com/Douda/PSSymantecCloud
-        .PARAMETER incidentId
-            ID of incident
+        .PARAMETER file_hash
+        required hash to lookup
         .EXAMPLE
-        Get-SepCloudIncidentDetails -incident_ID "21b23af2-ea44-479c-a235-9540082da98f"
-
-
+        Get-SEPCloudFileHashDetails -file_hash "eec3f761f7eabe9ed569f39e896be24c9bbb8861b15dbde1b3d539505cd9dd8d"
     #>
 
     [CmdletBinding()]
     Param(
-        # Query
-        [Alias('incident_id')]
-        [String]$incidentId
+        [Alias('hash')]
+        $file_hash
     )
 
     begin {
@@ -38,15 +35,12 @@ function Get-SepCloudIncidentDetails {
     }
 
     process {
-        $uri = New-URIString -endpoint ($resources.URI) -id $incidentId
+        $uri = New-URIString -endpoint ($resources.URI) -id $file_hash
         $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
         $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
-
-        Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
         $result = Test-ReturnFormat -result $result -location $resources.Result
         $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
-
         return $result
     }
 }

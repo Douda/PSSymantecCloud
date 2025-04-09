@@ -90,10 +90,10 @@ function Update-SepCloudAllowlistPolicy {
     )
 
     # init
-    $BaseURL = (Get-ConfigurationPath).BaseUrl
+    $BaseURL = $($script:configuration.BaseURL)
     $Token = (Get-SEPCloudToken).Token_Bearer
     # Get list of all versions of the SEP Cloud policy
-    $obj_policy = ((Get-SepCloudPolices).policies | Where-Object { $_.name -eq "$Policy_Name" })
+    $obj_policy = ((Get-SEPCloudPolicesSummary).policies | Where-Object { $_.name -eq "$Policy_Name" })
 
     ##################################
     # if parameter excel is provided #

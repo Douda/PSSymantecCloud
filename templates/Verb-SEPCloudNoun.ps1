@@ -1,25 +1,30 @@
-function Get-SepCloudIncidentDetails {
+function Verb-SEPCloudNoun {
 
     <#
         .SYNOPSIS
-        Gathers details about an open incident
+        {required: high level overview}
         .DESCRIPTION
-        Gathers details about an open incident
+        {required: more detailed description of the function's purpose}
         .LINK
         https://github.com/Douda/PSSymantecCloud
-        .PARAMETER incidentId
-            ID of incident
+        .PARAMETER Param1
+        {required: description of Param1}
+        .PARAMETER Param2
+        {required: description of Param2}
+        .PARAMETER Param3
+        {required: description of Param3}
         .EXAMPLE
-        Get-SepCloudIncidentDetails -incident_ID "21b23af2-ea44-479c-a235-9540082da98f"
-
-
+        {required: show one or more examples using the function}
     #>
 
     [CmdletBinding()]
     Param(
-        # Query
-        [Alias('incident_id')]
-        [String]$incidentId
+        # {param details}
+        [String]$Param1,
+        # {param details}
+        [String]$Param2,
+        # {param details}
+        [String]$Param3
     )
 
     begin {
@@ -38,15 +43,12 @@ function Get-SepCloudIncidentDetails {
     }
 
     process {
-        $uri = New-URIString -endpoint ($resources.URI) -id $incidentId
+        $uri = New-URIString -endpoint ($resources.URI) -id $id
         $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
         $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
-
-        Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
         $result = Test-ReturnFormat -result $result -location $resources.Result
         $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
-
         return $result
     }
 }

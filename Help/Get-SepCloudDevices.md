@@ -5,7 +5,7 @@ online version:
 schema: 2.0.0
 ---
 
-# Get-SepCloudDevices
+# Get-SEPCloudDevice
 
 ## SYNOPSIS
 Gathers list of devices from the SEP Cloud console
@@ -13,7 +13,7 @@ Gathers list of devices from the SEP Cloud console
 ## SYNTAX
 
 ```
-Get-SepCloudDevices [[-Computername] <String>] [-is_online] [-include_details] [[-Device_group] <String>]
+Get-SEPCloudDevice [[-Computername] <String>] [-is_online] [-include_details] [[-Device_group] <String>]
  [[-Device_status] <Object>] [[-Device_type] <Object>] [[-Client_version] <String>] [-edr_enabled]
  [[-ipv4_address] <String>] [<CommonParameters>]
 ```
@@ -25,49 +25,49 @@ Get-SepCloudDevices [[-Computername] <String>] [-is_online] [-include_details] [
 
 ### EXAMPLE 1
 ```
-Get-SepCloudDevices
+Get-SEPCloudDevice
 Get all devices (very slow)
 ```
 
 ### EXAMPLE 2
 ```
-Get-SepCloudDevices -Computername MyComputer
+Get-SEPCloudDevice -Computername MyComputer
 Get detailed information about a computer
 ```
 
 ### EXAMPLE 3
 ```
-"MyComputer" | Get-SepCloudDevices
+"MyComputer" | Get-SEPCloudDevice
 Get detailed information about a computer
 ```
 
 ### EXAMPLE 4
 ```
-Get-SepCloudDevices -Online -Device_status AT_RISK
+Get-SEPCloudDevice -Online -Device_status AT_RISK
 Get all online devices with AT_RISK status
 ```
 
 ### EXAMPLE 5
 ```
-Get-SepCloudDevices -group "Aw7oerlBROSIl9O_IPFewx"
+Get-SEPCloudDevice -group "Aw7oerlBROSIl9O_IPFewx"
 Get all devices in a device group
 ```
 
 ### EXAMPLE 6
 ```
-Get-SepCloudDevices -Client_version "14.3.9681.7000" -Device_type WORKSTATION
+Get-SEPCloudDevice -Client_version "14.3.9681.7000" -Device_type WORKSTATION
 Get all workstations with client version 14.3.9681.7000
 ```
 
 ### EXAMPLE 7
 ```
-Get-SepCloudDevices -EdrEnabled -Device_type SERVER
+Get-SEPCloudDevice -EdrEnabled -Device_type SERVER
 Get all servers with EDR enabled
 ```
 
 ### EXAMPLE 8
 ```
-Get-SepCloudDevices -IPv4 "192.168.1.1"
+Get-SEPCloudDevice -IPv4 "192.168.1.1"
 Get all devices with IPv4 address
 ```
 

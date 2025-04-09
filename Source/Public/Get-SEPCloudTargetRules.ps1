@@ -1,25 +1,24 @@
-function Get-SepCloudIncidentDetails {
+function Get-SepCloudTargetRules {
 
     <#
-        .SYNOPSIS
-        Gathers details about an open incident
-        .DESCRIPTION
-        Gathers details about an open incident
-        .LINK
-        https://github.com/Douda/PSSymantecCloud
-        .PARAMETER incidentId
-            ID of incident
-        .EXAMPLE
-        Get-SepCloudIncidentDetails -incident_ID "21b23af2-ea44-479c-a235-9540082da98f"
-
-
+    .SYNOPSIS
+        Provides a list of all target rules in your SEP Cloud account
+    .DESCRIPTION
+        Provides a list of all target rules in your SEP Cloud account. Formely known as SEP Location awareness
+    .PARAMETER
+        None
+    .OUTPUTS
+        PSObject
+    .EXAMPLE
+        Get-SepCloudTargetRules
+        Gathers all possible target rules
     #>
 
     [CmdletBinding()]
-    Param(
+    param (
         # Query
-        [Alias('incident_id')]
-        [String]$incidentId
+        [Alias('api_page')]
+        $offset
     )
 
     begin {
@@ -38,12 +37,25 @@ function Get-SepCloudIncidentDetails {
     }
 
     process {
-        $uri = New-URIString -endpoint ($resources.URI) -id $incidentId
+        $uri = New-URIString -endpoint ($resources.URI) -id $id
         $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
         $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
 
         Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
+
+        # Test if pagination required
+        if ($result.total -gt $result.target_rules.count) {
+            Write-Verbose -Message "Result limits hit. Retrieving remaining data based on pagination"
+            do {
+                # Update offset query param for pagination
+                $offset = $result.target_rules.count
+                $uri = Test-QueryParam -querykeys $resources.query -parameters ((Get-Command $function).Parameters.Values) -uri $uri
+                $nextResult = Submit-Request  -uri $uri  -header $script:SEPCloudConnection.header  -method $($resources.Method) -body $body
+                $result.target_rules += $nextResult.target_rules
+            } until ($result.target_rules.count -ge $result.total)
+        }
+
         $result = Test-ReturnFormat -result $result -location $resources.Result
         $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
 
