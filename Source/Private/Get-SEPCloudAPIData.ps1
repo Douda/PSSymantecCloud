@@ -153,7 +153,7 @@ function Get-SEPCloudAPIData {
             'Get-SEPCloudFileHashDetails'              = @{
                 '1.0' = @{
                     Description = 'retrieve all details of a file based off its hash'
-                    URI         = '/v1/files'
+                    URI         = '/v1/threat-intel/protection/file/{id}'
                     Method      = 'Get'
                     Body        = ''
                     Query       = ''
