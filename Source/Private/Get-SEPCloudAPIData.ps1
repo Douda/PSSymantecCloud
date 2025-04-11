@@ -193,6 +193,26 @@ function Get-SEPCloudAPIData {
                     ObjectTName = 'SEPCloud.targeted-policy'
                 }
             }
+            'Get-SepCloudIncidents'                    = @{
+                '1.0' = @{
+                    Description = 'retrieve incidents and incident events'
+                    URI         = '/v1/incidents'
+                    Method      = 'Post'
+                    body        = @{
+                        start_date     = 'start_date'
+                        end_date       = 'end_date'
+                        next           = 'next'
+                        limit          = 'limit'
+                        include_events = 'include_events'
+                        query          = 'query'
+                    }
+                    Query       = ''
+                    Result      = 'incident'
+                    Success     = '200'
+                    Function    = 'Get-SepCloudIncidents'
+                    ObjectTName = 'SEPCloud.incident-response'
+                }
+            }
             'Get-SepCloudIncidentDetails'              = @{
                 '1.0' = @{
                     Description = 'retrieve details for a specific incident'
