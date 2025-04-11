@@ -207,7 +207,7 @@ function Get-SEPCloudAPIData {
                         query          = 'query'
                     }
                     Query       = ''
-                    Result      = 'incident'
+                    Result      = 'incidents'
                     Success     = '200'
                     Function    = 'Get-SepCloudIncidents'
                     ObjectTName = 'SEPCloud.incident-response'
