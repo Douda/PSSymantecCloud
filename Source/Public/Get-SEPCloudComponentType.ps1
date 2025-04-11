@@ -30,7 +30,7 @@ function Get-SEPCloudComponentType {
         [string]
         $ComponentType,
         $offset,
-        $limit# = 1000
+        $limit = 1000
     )
 
     begin {
