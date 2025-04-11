@@ -57,8 +57,8 @@ function Get-SepCloudIncidents {
         # pagination size
         [string] $limit,
 
-        # offset
-        [string]$offset,
+        # next
+        [string]$next,
 
         [string]$start_date,
         [string]$end_date = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffK")
@@ -79,12 +79,28 @@ function Get-SepCloudIncidents {
     }
 
     process {
-        $uri = New-URIString -endpoint ($resources.URI) -id $group_id
+        $uri = New-URIString -endpoint ($resources.URI) -id $id
         $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
         $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters  ((Get-Command $function).Parameters.Values)
 
         Write-Verbose -Message "Body is $(ConvertTo-Json -InputObject $body)"
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
+
+        # Test if pagination required
+        if ($result.total -gt $result.incidents.count) {
+            do {
+                # Update next query param for pagination
+                $next = $result.incidents.count
+                $uri = New-URIString -endpoint ($resources.URI) -id $id
+                $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
+                $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters  ((Get-Command $function).Parameters.Values)
+                $nextResult = Submit-Request  -uri $uri  -header $script:SEPCloudConnection.header  -method $($resources.Method) -body $body
+                $result.incidents += $nextResult.incidents
+            } until (
+                ($result.incidents.count -ge $result.total)
+            )
+        }
+
         $result = Test-ReturnFormat -result $result -location $resources.Result
         $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
 
