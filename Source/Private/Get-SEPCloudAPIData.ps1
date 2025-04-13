@@ -67,6 +67,20 @@ function Get-SEPCloudAPIData {
                     # network_ips_response
                 }
             }
+            'Get-SEPCloudCommand'                      = @{
+                '1.0' = @{
+                    Description = 'lets you retrieve a list of all commands'
+                    URI         = '/v1/commands'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Get-SEPCloudCommand'
+                    ObjectTName = 'SEPCloud.Command'
+                }
+            }
+
             'Get-SEPCloudDevice'                       = @{
                 '1.0' = @{
                     Description = 'retrieve the list of devices'
