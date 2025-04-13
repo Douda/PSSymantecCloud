@@ -37,37 +37,31 @@ PS C:\PSSymantecCloud> Get-Command -Module PSSymantecCloud | Select-Object -Prop
 Block-SEPCloudFile
 Clear-SEPCloudAuthentication
 Connect-SEPCloud
-Export-SEPCloudAllowListPolicyToExcel
-Export-SEPCloudDenyListPolicyToExcel
-Get-EDRDumps
-Get-SEPCloudCommand
-Get-SEPCloudComponent
+Get-SEPCloudComponentType
 Get-SEPCloudDevice
 Get-SEPCloudDeviceDetails
+Get-SEPCloudEDRDumpsList
 Get-SEPCloudEvents
-Get-SEPCloudFeatureList
-Get-SEPCloudFilesInfo
+Get-SEPCloudFileHashDetails
 Get-SEPCloudGroup
 Get-SEPCloudGroupPolicies
-Get-SEPCloudIncidentDetails
-Get-SEPCloudIncidents
+Get-SepCloudIncidentDetails
+Get-SepCloudIncidents
 Get-SEPCloudPolicesSummary
-Get-SEPCloudPolicyDetails
-Get-SEPCloudTargetRules
-Get-SEPThreatIntelCveProtection
-Get-SEPThreatIntelFileInsight
-Get-SEPThreatIntelFileProcessChain
-Get-SEPThreatIntelFileProtection
-Get-SEPThreatIntelFileRelated
-Get-SEPThreatIntelNetworkInsight
-Get-SEPThreatIntelNetworkProtection
+Get-SepCloudTargetRules
+Get-SEPCloudThreatIntelCveProtection
+Get-SEPCloudThreatIntelFileInsight
+Get-SEPCloudThreatIntelFileProtection
+Get-SEPCloudThreatIntelFileRelated
+Get-SEPCloudThreatIntelNetworkInsight
+Get-SEPCloudThreatIntelNetworkProtection
+Get-SEPCloudToken
+Get-SEPCloudThreatIntelFileProcessChain
 Move-SEPCloudDevice
-New-EDRFullDump
 Remove-SEPCloudPolicy
 Set-SEPCloudPolicy
 Start-SEPCloudDefinitionUpdate
 Start-SEPCloudFullScan
-Start-SEPCloudQuickScan
 ```
 
 For detailed information about each command, use `Get-Help <command> -Full`
@@ -76,11 +70,10 @@ For detailed information about each command, use `Get-Help <command> -Full`
 Generate your authentication token via your [SEP Cloud console integration menu](https://SEP.securitycloud.symantec.com/v2/integration/client-applications) and keep your ClientID & Secret
 
 ### Examples
-Test your authentication against the API
-Test your authentication against the API
+Connect to the API via the approate Cmd-let
+
 ```PowerShell
-PS C:\PSSymantecCloud> Test-SEPCloudConnectivity
-True
+PS C:\PSSymantecCloud> Connect-SEPCloud
 ```
 
 #### Devices
@@ -121,8 +114,8 @@ Get-SEPCloudDeviceDetails -Device_ID abcdefghijkl
 #### Incidents
 
 ```PowerShell
-# list of all your opened incidents
-PS C:\PSSymantecCloud> Get-SEPCloudIncidents -Open
+# list of all your incidents
+PS C:\PSSymantecCloud> Get-SepCloudIncidents
 ```
 
 ```PowerShell
@@ -135,7 +128,7 @@ Get a custom list of incidents based on a specific query, using supported [Lucen
 
 ```PowerShell
 # Example : different incident states : 0 Unknown | 1 New | 2 In Progress | 3 On Hold | 4 Resolved | 5 Closed
-PS C:\PSSymantecCloud> Get-SEPCloudIncidents -Query "(state_id: 4 OR state_id: 5)"
+PS C:\PSSymantecCloud> Get-SepCloudIncidents -Include_events -Query "state_id: [0 TO 3]"
 ```
 
 #### Threat Intel
