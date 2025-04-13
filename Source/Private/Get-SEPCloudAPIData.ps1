@@ -150,6 +150,19 @@ function Get-SEPCloudAPIData {
                     ObjectTName = 'SEPCloud.Event'
                 }
             }
+            'Get-SepCloudFeatureList'                  = @{
+                '1.0' = @{
+                    Description = 'retrieve up to ten thousand events'
+                    URI         = '/v1/devices/enums'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Get-SEPCloudFeatureList'
+                    ObjectTName = 'SEPCloud.FeatureList'
+                }
+            }
             'Get-SEPCloudFileHashDetails'              = @{
                 '1.0' = @{
                     Description = 'retrieve all details of a file based off its hash'
@@ -304,7 +317,7 @@ function Get-SEPCloudAPIData {
             'Get-SEPCloudThreatIntelFileProtection'    = @{
                 '1.0' = @{
                     Description = 'returns information whether a given file has been blocked by any Symantec technologies'
-                    URI         = '/v1/threat-intel/protection/file'
+                    URI         = '/v1/threat-intel/protection/file/{id}'
                     Method      = 'Get'
                     Body        = ''
                     Query       = ''
