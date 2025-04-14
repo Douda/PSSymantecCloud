@@ -480,6 +480,23 @@ function Get-SEPCloudAPIData {
                     ObjectTName = 'SEPCloud.DeviceCommandResponse'
                 }
             }
+            'Start-SepCloudQuickScan'                  = @{
+                '1.0' = @{
+                    Description = 'initiate a quick scan on devices managed'
+                    URI         = '/v1/commands/scans/quick'
+                    Method      = 'Post'
+                    Body        = @{
+                        device_ids   = 'device_ids'
+                        org_unit_ids = 'org_unit_ids'
+                        is_recursive = 'is_recursive'
+                    }
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Start-SepCloudQuickScan'
+                    ObjectTName = 'SEPCloud.DeviceCommandResponse'
+                }
+            }
         }
 
         # Use the latest version of the API endpoint
