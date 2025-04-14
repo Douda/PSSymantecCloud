@@ -5,86 +5,46 @@ function Get-SepCloudPolicyDetails {
         Gathers detailed information on SEP Cloud policy
     .DESCRIPTION
         Gathers detailed information on SEP Cloud policy
-    .PARAMETER policyUUID
-        Policy UUID
+    .PARAMETER policy_uid
+        policy_uid
     .PARAMETER policyVersion
         Policy version
-    .PARAMETER policyName
-        Exact policy name
     .OUTPUTS
         PSObject
     .EXAMPLE
-    Get-SepCloudPolicyDetails -name "My Policy"
-    Gathers detailed information on the latest version SEP Cloud policy named "My Policy"
-    .EXAMPLE
-    Get-SepCloudPolicyDetails -name "My Policy" -version 1
-    Gathers detailed information on the version 1 of SEP Cloud policy named "My Policy"
-    .EXAMPLE
-    "My Policy","My Policy 2" | Get-SepCloudPolicyDetails
-    Piped strings are used as policy name to gather detailed information on the latest version SEP Cloud policy named "My Policy" & "My Policy 2"
+    Get-SepCloudPolicyDetails -policy_uid "12677e90-3909-4e8a-9f4a-327242269a13" -version 1
     #>
 
-
-    param (
-        # Policy UUID
-        [Parameter(
-            ValueFromPipelineByPropertyName = $true
-        )]
-        [string]
-        [Alias("policy_uid")]
-        $policyUUID,
-
-        # Policy version
-        [Parameter()]
-        [string]
-        [Alias("Version")]
-        $policyVersion,
-
-        # Exact policy name
-        [Parameter(
-            Mandatory,
-            ValueFromPipeline
-        )]
-        [string[]]
-        [Alias("Name")]
-        $policyName
+    [CmdletBinding()]
+    Param(
+        # {param details}
+        [String]$policy_uid,
+        # {param details}
+        [String]$version
     )
 
     begin {
-        # Init
-        $BaseURL = $($script:configuration.BaseURL)
-        $Token = (Get-SEPCloudToken).Token_Bearer
-        $objPolicies = (Get-SEPCloudPolicesSummary).policies
+        # Check to ensure that a session to the SaaS exists and load the needed header data for authentication
+        Test-SEPCloudConnection | Out-Null
+
+        # API data references the name of the function
+        # For convenience, that name is saved here to $function
+        $function = $MyInvocation.MyCommand.Name
+
+        # Retrieve all of the URI, method, body, query, result, and success details for the API endpoint
+        Write-Verbose -Message "Gather API Data for $function"
+        $resources = Get-SEPCLoudAPIData -endpoint $function
+        Write-Verbose -Message "Load API data for $($resources.Function)"
+        Write-Verbose -Message "Description: $($resources.Description)"
     }
 
     process {
-        # Get list of all SEP Cloud policies and get only the one with the correct name
-        $objPolicy = ($objPolicies | Where-Object { $_.name -eq "$policyName" })
-
-        if ($null -eq $policyVersion ) {
-            $objPolicy = ($objPolicy | Sort-Object -Property policy_version -Descending | Select-Object -First 1)
-        }
-
-        $policyVersion = ($objPolicy).policy_version
-        $policyUUID = ($objPolicy).policy_uid
-        $URI = 'https://' + $BaseURL + "/v1/policies/$policyUUID/versions/$policyVersion"
-
-        $params = @{
-            Method  = 'GET'
-            Uri     = $uri
-            Headers = @{
-                # Host          = $baseUrl
-                Accept        = "application/json"
-                Authorization = $token
-            }
-        }
-
-        try {
-            $response = Invoke-SEPCloudWebRequest @params
-        } catch {
-            "Error : " + $_
-        }
-
-        return $response
+        $uri = New-URIString -endpoint ($resources.URI) -id @($policy_uid, $version)
+        $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
+        $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
+        $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
+        $result = Test-ReturnFormat -result $result -location $resources.Result
+        $result = Set-ObjectTypeName -TypeName $resources.ObjectTName -result $result
+        return $result
     }
 }
