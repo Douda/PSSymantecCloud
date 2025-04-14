@@ -273,6 +273,19 @@ function Get-SEPCloudAPIData {
                     ObjectTName = 'SEPCloud.policy'
                 }
             }
+            'Get-SEPCloudPolicyDetails'                = @{
+                '1.0' = @{
+                    Description = 'lets you retrieve the details for a policy by using its uid and version.'
+                    URI         = '/v1/policies/{id}/versions/{id}'
+                    Method      = 'Get'
+                    Body        = ''
+                    Query       = ''
+                    Result      = ''
+                    Success     = ''
+                    Function    = 'Get-SEPCloudPolicyDetails'
+                    ObjectTName = 'SEPCloud.policy-by-uid'
+                }
+            }
             'Get-SepCloudTargetRules'                  = @{
                 '1.0' = @{
                     Description = 'retrieve a list of target rules'
