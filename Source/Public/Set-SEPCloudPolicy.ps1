@@ -24,6 +24,9 @@ function Set-SEPCloudPolicy {
     .EXAMPLE
         Set-SEPCloudPolicy -policyName "My Policy" -location "Default" -deviceGroupID "123456"
         Apply the latest version of the SEP Cloud policy named "My Policy" to the device group with ID "123456" at the location "Default"
+    .EXAMPLE
+        Set-SEPCloudPolicy -policyName "My Policy" -location "Default" -deviceGroupID "123456" -version 2
+        Apply the version 2 of the SEP Cloud policy named "My Policy" to the device group with ID 123456 at the location Default
     #>
 
     [CmdletBinding(DefaultParameterSetName = "byName")]
