@@ -80,8 +80,7 @@ function Set-SEPCloudPolicy {
         # Mandatory field for the API call
         # $override = $true
 
-        $id = @($policyId, $policyVersion)
-        $uri = New-URIString -endpoint ($resources.URI) -id $id
+        $uri = New-URIString -endpoint ($resources.URI) -id @($policyId, $policyVersion)
         $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
         $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
         $result = Submit-Request -uri $uri -header $script:SEPCloudConnection.header -method $($resources.Method) -body $body
