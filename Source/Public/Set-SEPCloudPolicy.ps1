@@ -77,9 +77,6 @@ function Set-SEPCloudPolicy {
             $policyVersion = (Get-SEPCloudPolicesSummary | Where-Object { $_.name -eq "$policyName" }).policy_version
         }
 
-        # Mandatory field for the API call
-        # $override = $true
-
         $uri = New-URIString -endpoint ($resources.URI) -id @($policyId, $policyVersion)
         $uri = Test-QueryParam -querykeys ($resources.Query.Keys) -parameters ((Get-Command $function).Parameters.Values) -uri $uri
         $body = New-BodyString -bodykeys ($resources.Body.Keys) -parameters ((Get-Command $function).Parameters.Values)
